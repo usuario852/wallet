@@ -107,40 +107,80 @@ te lo dice en vez de ignorarlo en silencio.
 
 ---
 
-## 3. Borrar los movimientos de 0.00
+## 3. Borrar movimientos vacíos
 
-Nacieron de un fallo ya corregido: la hoja de Registrar dejaba guardar
-sin monto. No cambian ningún saldo, pero ensucian el historial.
+> **Nunca borres operaciones con un filtro escrito a mano, y menos
+> sobre el monto.** Un cambio de divisa no tiene `amountMinor`: tiene
+> `fromAmountMinor` y `toAmountMinor`. Un filtro `!op.amountMinor` se
+> lleva por delante todos los fx. Pasó, y el saldo saltó 649.60.
 
-Borra **todos** los movimientos de importe 0, y te dice cuáles antes de
-recargar. Si prefieres borrar solo unos, cambia el filtro por
-`op.concept === 'audífonos'` o por sus `id`.
+Estos dos snippets usan `window.wallet`, el puente que la app publica
+en la consola. Llaman a las mismas funciones que usa la app, así que
+no hay una segunda interpretación de qué mueve cada tipo de
+operación.
+
+`wallet.removeOperations` borra **solo por id**, comprueba que cada id
+existe antes de tocar nada, y verifica que el saldo de cada cuenta se
+mueve exactamente lo que aportaban las operaciones borradas. Si algo
+no cuadra, no escribe y devuelve el descuadre.
+
+### 3a. Ver qué hay vacío
 
 ```js
 (() => {
-  const CLAVE = 'wallet_state_v1';
-  const estado = JSON.parse(localStorage.getItem(CLAVE) || 'null');
-  if (!estado) return 'No hay estado guardado.';
-
-  const cero = (op) => (op.type === 'fx'
-    ? !op.fromAmountMinor && !op.toAmountMinor
-    : !op.amountMinor);
-
-  const fuera = estado.operations.filter(cero);
-  if (!fuera.length) return 'No hay movimientos de 0.00.';
-
-  console.table(fuera.map((op) => ({
-    concepto: op.concept, tipo: op.type, fecha: op.date, id: op.id,
+  const vacios = wallet.findEmptyOperations();
+  if (!vacios.length) return 'No hay movimientos vacíos.';
+  console.table(vacios.map((op) => ({
+    id: op.id, concepto: op.concept, tipo: op.type, fecha: op.date,
+    importe: op.type === 'fx'
+      ? op.fromAmountMinor + ' -> ' + op.toAmountMinor
+      : op.amountMinor,
   })));
-
-  localStorage.setItem(CLAVE, JSON.stringify({
-    ...estado,
-    operations: estado.operations.filter((op) => !cero(op)),
-  }));
-  console.log('Borrados ' + fuera.length + '. Recargando.');
-  location.reload();
+  console.log('Copia los ids que quieras borrar y pásalos al snippet 3b.');
 })();
 ```
+
+### 3b. Borrarlos por id
+
+Pega en `IDS` los ids que quieres borrar. Si dejas la lista como está,
+borra todos los vacíos que encuentre.
+
+```js
+(() => {
+  const IDS = wallet.findEmptyOperations().map((op) => op.id);
+  if (!IDS.length) return 'No hay nada que borrar.';
+
+  const antes = new Map(wallet.balances());
+  const resultado = wallet.removeOperations(IDS);
+
+  if (!resultado.ok) {
+    console.warn('No se borró nada. Motivo:', resultado.reason);
+    if (resultado.missing.length) console.warn('Ids que no existen:', resultado.missing);
+    if (resultado.mismatch.length) console.table(resultado.mismatch);
+    return 'Abortado, el estado sigue intacto.';
+  }
+
+  console.table(resultado.removed.map((op) => ({
+    id: op.id, concepto: op.concept, tipo: op.type,
+  })));
+
+  const despues = wallet.balances();
+  console.table([...antes].map(([id, saldo]) => ({
+    cuenta: id,
+    antes: (saldo / 100).toFixed(2),
+    despues: ((despues.get(id) || 0) / 100).toFixed(2),
+    diferencia: (((despues.get(id) || 0) - saldo) / 100).toFixed(2),
+  })));
+
+  wallet.save();
+  console.log('Borrados ' + resultado.removed.length + '.');
+})();
+```
+
+La comprobación del saldo no vive en este snippet: la hace
+`removeOperations` por dentro, en `src/state/remove.js`, comparando
+contra `operationDeltas`, la misma función que calcula los saldos de
+la app. La tabla de arriba solo te la enseña.
 
 ---
 

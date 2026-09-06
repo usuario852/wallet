@@ -192,6 +192,12 @@ export function recordUsage(store, operation) {
   const text = String(operation.concept || '').trim();
   if (!text) return null;
 
+  /* Solo se aprende de gastos e ingresos. Una transferencia o un
+     cambio de divisa no son un concepto que el usuario vaya a volver
+     a escribir, y además no tienen amountMinor: recordarlos como
+     "monto 0" envenenaría la sugerencia. */
+  if (operation.type !== 'expense' && operation.type !== 'income') return null;
+
   const hour = hourOf(operation.date);
   return upsertConcept(store, {
     text,

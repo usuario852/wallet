@@ -12,7 +12,7 @@ import { resolveDraft } from '../../logic/entry.js';
 import { iconForCategory } from '../../logic/seed.js';
 
 import { addOperation, removeOperation, updateOperation } from '../../state/store.js';
-import { money } from '../format.js';
+import { money, operationAmount } from '../format.js';
 import { showToast } from '../toast-host.js';
 import { t, stateLabels } from '../../copy.js';
 
@@ -259,7 +259,10 @@ export function openRegisterSheet(options = {}) {
    ------------------------------------------------------------------ */
 
 export function confirmSaved(store, operation, language) {
-  const amount = money(operation.amountMinor, operation.currency);
+  /* No se supone que la operación tenga amountMinor: la fase 4
+     confirmará también transferencias y cambios de divisa desde
+     aquí, y un fx no lo tiene. */
+  const amount = operationAmount(operation).text;
 
   showToast({
     message: t(language, 'saved', amount),

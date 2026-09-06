@@ -3,6 +3,8 @@ import './design/tokens.css';
 import { store, replaceState, addAccount } from './state/store.js';
 import { loadState, attachPersistence } from './state/persist.js';
 import { runMigration } from './state/migrate.js';
+import { removeOperations, findEmptyOperations } from './state/remove.js';
+import { balancesByAccount, totalsByCurrency } from './state/derive.js';
 import { mountApp } from './ui/render.js';
 
 /*
@@ -55,7 +57,39 @@ export function boot(root) {
     });
   }
 
+  exposeConsoleBridge(persistence);
+
   return mountApp({ store, root });
+}
+
+/* Puente de consola.
+
+   Mientras no existan las pantallas de Cuentas y Ajustes hay tareas
+   que se hacen desde la consola. Publicarlas aquí no es comodidad:
+   es lo que evita que cada snippet vuelva a escribir a mano las
+   reglas de la app. Un filtro casero que buscaba movimientos "sin
+   monto" con !op.amountMinor se llevó dos cambios de divisa, que no
+   tienen ese campo. Con el puente, los snippets llaman a las mismas
+   funciones que usa la app.
+
+   Solo lectura y operaciones con verificación propia. No expone
+   commit, así que desde fuera no se puede escribir un estado
+   arbitrario sin pasar por una mutación con nombre. */
+export function exposeConsoleBridge(persistence) {
+  if (typeof window === 'undefined') return null;
+
+  const bridge = Object.freeze({
+    store,
+    getState: () => store.getState(),
+    removeOperations: (ids) => removeOperations(store, ids),
+    findEmptyOperations: () => findEmptyOperations(store.getState()),
+    balances: () => balancesByAccount(store.getState()),
+    totals: () => totalsByCurrency(store.getState()),
+    save: persistence ? persistence.flush : () => {},
+  });
+
+  window.wallet = bridge;
+  return bridge;
 }
 
 /* Sin cuentas no hay dónde poner el dinero, y Registrar quedaría

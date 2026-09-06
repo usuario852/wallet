@@ -27,6 +27,7 @@ import { runMigration, LEGACY_KEY } from '../src/state/migrate.js';
 import { accountBalanceMinor, totalsByCurrency } from '../src/state/derive.js';
 import { createStore, addAccount, addOperation, voidOperation, addUpcoming } from '../src/state/store.js';
 import { resolveDraft } from '../src/logic/entry.js';
+import { removeOperations, findEmptyOperations } from '../src/state/remove.js';
 
 let passed = 0;
 let failed = 0;
@@ -362,6 +363,103 @@ function testCache() {
   check('y el estado original no cambia', accountBalanceMinor(store.getState(), cuenta.id), 27700);
 }
 
+/* ------------------------------------------------------------------
+   D. Borrado seguro
+
+   Nace de otro incidente: un filtro de consola sobre amountMinor se
+   llevó dos cambios de divisa, que no tienen ese campo, y el saldo
+   saltó 649.60.
+   ------------------------------------------------------------------ */
+
+function escenarioMixto() {
+  const store = createStore();
+  addAccount(store, { id: 'acc_pen', name: 'BBVA', currency: 'PEN', openingMinor: 100000 });
+  addAccount(store, { id: 'acc_usd', name: 'BBVA Dólares', currency: 'USD', openingMinor: 50000 });
+
+  addOperation(store, {
+    id: 'op_gasto', type: 'expense', date: '2026-03-12T13:00',
+    accountId: 'acc_pen', currency: 'PEN', amountMinor: 1800, concept: 'Almuerzo',
+  });
+  /* El movimiento vacío: 0.00, de los que dejaba guardar el fallo ya
+     corregido de la hoja de Registrar. */
+  addOperation(store, {
+    id: 'op_vacio', type: 'expense', date: '2026-03-12T14:00',
+    accountId: 'acc_pen', currency: 'PEN', amountMinor: 0, concept: 'audífonos',
+  });
+  /* Y el cambio de divisa, que no tiene amountMinor. */
+  addOperation(store, {
+    id: 'op_fx', type: 'fx', date: '2026-03-12T15:00',
+    fromAccountId: 'acc_usd', toAccountId: 'acc_pen',
+    fromCurrency: 'USD', toCurrency: 'PEN',
+    fromAmountMinor: 15000, toAmountMinor: 50400, concept: 'Cambio de divisa',
+  });
+  return store;
+}
+
+function testBorradoSeguro() {
+  group('D · Borrado seguro por id');
+
+  /* El caso que pediste: borrar un movimiento de 0.00 no mueve
+     ningún saldo. */
+  const store = escenarioMixto();
+  const antesPen = accountBalanceMinor(store.getState(), 'acc_pen');
+  const antesUsd = accountBalanceMinor(store.getState(), 'acc_usd');
+
+  const vacios = findEmptyOperations(store.getState());
+  check('encuentra el vacío y solo el vacío', vacios.map((op) => op.id), ['op_vacio']);
+  check('el fx no cuenta como vacío aunque no tenga amountMinor',
+    vacios.some((op) => op.type === 'fx'), false);
+
+  const borrado = removeOperations(store, ['op_vacio']);
+  check('se borra', [borrado.ok, borrado.removed.length], [true, 1]);
+  check('borrar un 0.00 no cambia el saldo en soles',
+    accountBalanceMinor(store.getState(), 'acc_pen'), antesPen);
+  check('ni el de dólares',
+    accountBalanceMinor(store.getState(), 'acc_usd'), antesUsd);
+  check('y el resto de operaciones sigue ahí',
+    store.getState().operations.map((op) => op.id), ['op_gasto', 'op_fx']);
+
+  /* Borrar el fx sí mueve las dos cuentas, cada una por su lado. */
+  const conFx = escenarioMixto();
+  const fxPen = accountBalanceMinor(conFx.getState(), 'acc_pen');
+  const fxUsd = accountBalanceMinor(conFx.getState(), 'acc_usd');
+  const quitado = removeOperations(conFx, ['op_fx']);
+  check('el fx se borra', quitado.ok, true);
+  check('la cuenta que recibía pierde toAmountMinor',
+    accountBalanceMinor(conFx.getState(), 'acc_pen'), fxPen - 50400);
+  check('la cuenta que pagaba recupera fromAmountMinor',
+    accountBalanceMinor(conFx.getState(), 'acc_usd'), fxUsd + 15000);
+
+  /* Un id que no existe aborta el lote entero. */
+  const estricto = escenarioMixto();
+  const fallo = removeOperations(estricto, ['op_gasto', 'op_inventado']);
+  check('un id inexistente aborta', [fallo.ok, fallo.reason], [false, 'no-existen']);
+  check('y nombra el que falta', fallo.missing, ['op_inventado']);
+  check('sin borrar nada', estricto.getState().operations.length, 3);
+
+  /* Sin ids no hace nada: no hay borrado "por defecto". */
+  check('sin ids no borra', removeOperations(estricto, []).reason, 'sin-ids');
+  check('con null tampoco', removeOperations(estricto, null).reason, 'sin-ids');
+
+  /* Borrar todo deja los saldos en la apertura. */
+  const vaciar = escenarioMixto();
+  const todo = removeOperations(vaciar, ['op_gasto', 'op_vacio', 'op_fx']);
+  check('se borran las tres', todo.removed.length, 3);
+  check('los soles vuelven a su apertura',
+    accountBalanceMinor(vaciar.getState(), 'acc_pen'), 100000);
+  check('los dólares también',
+    accountBalanceMinor(vaciar.getState(), 'acc_usd'), 50000);
+
+  /* Y la verificación interna sirve de red: se comprueba que el
+     informe dice exactamente en cuánto debía quedar cada cuenta. */
+  const informe = escenarioMixto();
+  const resultado = removeOperations(informe, ['op_fx']);
+  check('el informe anticipa el saldo de cada cuenta',
+    [resultado.expected.acc_pen, resultado.expected.acc_usd],
+    [accountBalanceMinor(informe.getState(), 'acc_pen'),
+      accountBalanceMinor(informe.getState(), 'acc_usd')]);
+}
+
 /* ------------------------------------------------------------------ */
 
 console.log('Verificación del saldo · aperturas y derivación');
@@ -369,6 +467,7 @@ console.log('Verificación del saldo · aperturas y derivación');
 testCasoInformado();
 testDiferencial();
 testCache();
+testBorradoSeguro();
 
 console.log('\n' + '═'.repeat(46));
 console.log(passed + ' comprobaciones pasan, ' + failed + ' fallan');

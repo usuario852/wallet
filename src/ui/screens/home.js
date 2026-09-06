@@ -2,7 +2,7 @@ import './home.css';
 
 import { createListRow } from '../components/list-row.js';
 import { ico } from '../components/ico.js';
-import { money } from '../format.js';
+import { money, operationAmount } from '../format.js';
 import { iconForCategory } from '../../logic/seed.js';
 import { nowLocalISO } from '../../logic/parse.js';
 import { totalsByCurrency, operationsInPeriod } from '../../state/derive.js';
@@ -202,18 +202,24 @@ function renderToday(state, language, now) {
   list.className = 'home__list';
 
   for (const operation of operations) {
-    const account = accounts.get(operation.accountId);
+    /* Una transferencia y un cambio de divisa no tienen accountId:
+       tienen origen y destino. Se nombra el origen, que es de donde
+       sale el dinero. */
+    const account = accounts.get(operation.accountId || operation.fromAccountId);
     const meta = [operation.category, account ? account.name : '', operation.state]
       .filter(Boolean).join(' · ');
+
+    /* El monto lo decide operationAmount, que conoce los cinco tipos.
+       Aquí no se vuelve a suponer que toda operación tiene
+       amountMinor. */
+    const amount = operationAmount(operation);
 
     list.appendChild(createListRow({
       icon: iconForCategory(operation.category),
       title: operation.concept,
       subtitle: meta,
-      amount: money(operation.amountMinor, operation.currency, {
-        sign: operation.type === 'income' ? 'income' : 'expense',
-      }),
-      amountKind: operation.type === 'income' ? 'positive' : 'negative',
+      amount: amount.text,
+      amountKind: amount.kind,
     }));
   }
   block.appendChild(list);

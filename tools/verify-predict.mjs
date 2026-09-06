@@ -14,7 +14,7 @@ import {
 import { resolveDraft, resolveAccount, categoryFor } from '../src/logic/entry.js';
 import { SEED_CONCEPTS, iconForCategory } from '../src/logic/seed.js';
 import { normalize, prefixQuality } from '../src/logic/text.js';
-import { money } from '../src/ui/format.js';
+import { money, operationAmount, operationCurrency } from '../src/ui/format.js';
 
 let passed = 0;
 let failed = 0;
@@ -334,7 +334,7 @@ function testLearningAndFormat() {
   ];
   grafias.forEach((texto, index) => {
     recordUsage(otro, {
-      concept: texto, category: 'Compras', currency: 'PEN',
+      type: 'expense', concept: texto, category: 'Compras', currency: 'PEN',
       amountMinor: 3500, date: '2026-03-12T1' + index + ':00',
     });
   });
@@ -359,6 +359,48 @@ function testLearningAndFormat() {
   check('con decimales cuando los tiene', money(89050, null, { cents: 'auto' }), '890.50');
   check('negativo automático', money(-37405, null, { cents: 'auto', sign: 'auto' }), '− 374.05');
   check('dólares', money(2400, 'USD'), '$ 24.00');
+
+  /* El monto de una operación, sea del tipo que sea. Ninguna pantalla
+     puede volver a suponer que toda operación tiene amountMinor. */
+  const fx = {
+    type: 'fx', fromCurrency: 'USD', toCurrency: 'PEN',
+    fromAmountMinor: 15000, toAmountMinor: 50400,
+  };
+  check('un fx muestra el importe que sale, en su moneda',
+    operationAmount(fx), { text: '$ 150.00', kind: 'neutral' });
+  check('y no lo pinta como un gasto de 0.00',
+    operationAmount(fx).text !== '− S/ 0.00', true);
+  check('una transferencia no lleva signo',
+    operationAmount({ type: 'transfer', currency: 'PEN', amountMinor: 20000 }),
+    { text: 'S/ 200.00', kind: 'neutral' });
+  check('un gasto sí',
+    operationAmount({ type: 'expense', currency: 'PEN', amountMinor: 1800 }),
+    { text: '− S/ 18.00', kind: 'negative' });
+  check('un ingreso también',
+    operationAmount({ type: 'income', currency: 'PEN', amountMinor: 350000 }),
+    { text: '+ S/ 3,500.00', kind: 'positive' });
+  check('un ajuste a la baja lleva su signo y no juzga',
+    operationAmount({ type: 'adjustment', currency: 'PEN', amountMinor: -500 }),
+    { text: '− S/ 5.00', kind: 'neutral' });
+  check('un fx sin importes muestra guion',
+    operationAmount({ type: 'fx' }), { text: '—', kind: 'muted' });
+  check('la moneda de un fx es la de salida', operationCurrency(fx), 'USD');
+
+  /* Ninguna operación sin amountMinor produce NaN ni undefined. */
+  const tipos = ['expense', 'income', 'transfer', 'fx', 'adjustment', 'raro'];
+  checkTrue('ningún tipo produce NaN ni undefined',
+    tipos.every((tipo) => {
+      const texto = operationAmount({ type: tipo }).text;
+      return typeof texto === 'string' && !texto.includes('NaN') && !texto.includes('undefined');
+    }));
+
+  /* Y el aprendizaje no se traga los tipos que no son concepto. */
+  const aprendizaje = buildStore();
+  recordUsage(aprendizaje, {
+    type: 'fx', date: '2026-03-12T13:00', concept: 'Cambio de divisa',
+    fromAmountMinor: 15000, toAmountMinor: 50400,
+  });
+  check('un fx no entra en el índice de conceptos', aprendizaje.getState().concepts.length, 0);
 
   /* Toda fila lleva glifo. */
   check('categoría conocida', iconForCategory('Alimentación'), 'alimentacion');

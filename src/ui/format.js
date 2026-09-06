@@ -58,17 +58,63 @@ export function money(minor, currency = null, options = {}) {
   return prefix + symbol + digits;
 }
 
-/* El signo que le toca a una operación, para elegir el color del
-   monto. Positivo y negativo solo tiñen el monto, nunca el fondo. */
-export function amountKindFor(operation) {
-  if (operation.type === 'income') return 'positive';
-  if (operation.type === 'expense') return 'negative';
-  return 'neutral';
+/* Cómo se pinta el monto de una operación, sea del tipo que sea.
+
+   Existe para que ninguna pantalla vuelva a escribir
+   money(operation.amountMinor, operation.currency). Un cambio de
+   divisa no tiene amountMinor ni currency: tiene un importe de salida
+   y otro de entrada, en monedas distintas. Esa fórmula lo pintaba
+   como un gasto de 0.00.
+
+   Devuelve { text, kind }:
+
+     expense      − importe, en --negative
+     income       + importe, en --positive
+     transfer     el importe que se mueve, sin signo: el dinero no
+                  entra ni sale, cambia de sitio
+     fx           el importe que sale, en su moneda, sin signo, por
+                  la misma razón
+     adjustment   el signo lo pone el valor, y el color no juzga
+
+   Positivo y negativo siguen tiñendo solo el monto, nunca el fondo. */
+export function operationAmount(operation) {
+  if (!operation) return { text: '', kind: 'muted' };
+
+  if (operation.type === 'fx') {
+    const salida = operation.fromAmountMinor || 0;
+    const entrada = operation.toAmountMinor || 0;
+    if (!salida && !entrada) return { text: '—', kind: 'muted' };
+    return { text: money(salida, operation.fromCurrency || null), kind: 'neutral' };
+  }
+
+  if (operation.type === 'transfer') {
+    return { text: money(operation.amountMinor || 0, operation.currency || null), kind: 'neutral' };
+  }
+
+  if (operation.type === 'income') {
+    return {
+      text: money(operation.amountMinor || 0, operation.currency || null, { sign: 'income' }),
+      kind: 'positive',
+    };
+  }
+
+  if (operation.type === 'expense') {
+    return {
+      text: money(operation.amountMinor || 0, operation.currency || null, { sign: 'expense' }),
+      kind: 'negative',
+    };
+  }
+
+  return {
+    text: money(operation.amountMinor || 0, operation.currency || null, { sign: 'auto' }),
+    kind: 'neutral',
+  };
 }
 
-/* Cómo se antepone el signo en una fila de movimiento. */
-export function signFor(operation) {
-  if (operation.type === 'income') return 'income';
-  if (operation.type === 'expense') return 'expense';
-  return null;
+/* La moneda en la que vive una operación. Un fx vive en dos; se
+   devuelve la de salida, que es la que se muestra. */
+export function operationCurrency(operation) {
+  if (!operation) return null;
+  if (operation.type === 'fx') return operation.fromCurrency || null;
+  return operation.currency || null;
 }
