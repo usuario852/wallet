@@ -9,6 +9,22 @@
 */
 
 /* ---------------------------------------------------------------
+   Reseteo
+
+   El único que hay. border-box en todo: el padding y el borde van
+   dentro del ancho declarado, que es como uno piensa las cajas
+   cuando las dibuja. Sin esto, un elemento al 100% con padding se
+   sale de su contenedor, y el error no se ve hasta que algo se
+   desliza o se recorta.
+   --------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------
    Color — Claro
    --------------------------------------------------------------- */
 :root {

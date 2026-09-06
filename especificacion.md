@@ -57,7 +57,7 @@ Escrito explícitamente para poder decir que no:
 
 | Módulo | Descripción |
 |---|---|
-| Registro | Campo único con autocompletado predictivo. Meta: 2 taps. |
+| Registro | Autocompletado predictivo, en dos caminos. Frecuente: 3 taps. Experto: 2 taps. Meta de tiempo: menos de 3 segundos en el frecuente. |
 | Cuentas | Saldo derivado, sin saldos almacenados. Cuentas normales y de reserva. |
 | Movimientos | Dos pestañas: Pasado y Por venir. |
 | Marca de estado | Una fila de chips opcional al guardar un gasto. |
@@ -166,7 +166,7 @@ Las cifras tabulares son obligatorias en toda la app. Sin ellas los dígitos bai
 ### Escala
 
 ```
-display   44 / 48   700   solo el saldo del inicio
+display   44 / 48   700   el saldo del inicio y el monto al registrar
 title     22 / 28   600   títulos de hoja y de sección
 body      16 / 24   400   texto general
 amount    17 / 24   600   montos en listas
@@ -340,25 +340,68 @@ Notas:
 
 ## 4.2 Registrar
 
-Se abre como hoja inferior con el teclado numérico ya visible. Sin animación de entrada del teclado; ya está ahí.
+Se abre como hoja inferior, en tres pasos.
+
+### Por qué tres pasos
+
+No es una preferencia estética. Es que el diseño de una sola pantalla era imposible de construir, y conviene dejarlo escrito para que nadie lo intente otra vez.
+
+Un campo de texto y un teclado numérico propio no pueden convivir en la misma pantalla de un móvil. En cuanto el campo recibe el foco, el teclado del sistema sube y **ocupa aproximadamente la mitad inferior de la pantalla**. En un iPhone de 667px de alto son unos 300px, y lo que quedaba debajo del campo —el teclado numérico y el botón Guardar— desaparece detrás.
+
+No hay ajuste de altura que lo arregle:
+
+- Encoger el teclado numérico no sirve: el del sistema sigue tapándolo.
+- Subir Guardar por encima del campo lo saca del alcance del pulgar, que era la única razón de tener teclado propio.
+- Usar el teclado nativo para los números renuncia a la aritmética (`18+25`) y a poder poner Guardar donde queremos.
+
+Los dos teclados compiten por la misma mitad de pantalla, y esa mitad es la única que importa. La salida no es repartirla mejor: es no pedirla dos veces a la vez.
+
+De ahí la regla que ordena toda la pantalla:
+
+> **Nunca hay dos teclados a la vez.** Cada paso tiene un solo modo de entrada: ninguno, el numérico propio, o el del sistema.
+
+El precio es un tap más en el camino frecuente, de 2 a 3. Se paga a gusto: el tap que se añade es el que enseña el monto antes de confirmarlo, y eso resolvió un problema real, no teórico. Ver el criterio 1 de la sección 10.
+
+### Paso 1 · Elegir
 
 ```
 ┌─────────────────────────────────────┐
-│                                     │
 │   Gasto        Ingreso              │   segmento
 │                                     │
-│   ┌───────────────────────────┐     │
-│   │  alm|                     │     │   texto + fantasma gris
-│   └───────────────────────────┘     │
+│   ⌕  Buscar o escribir              │   fila tocable, no es campo
+│   ─────────────────────────────     │
 │                                     │
-│   Almuerzo             S/ 18.00     │
-│   Alimentación · BBVA               │
+│    Almuerzo             S/ 18.00    │
+│    Alimentación · BBVA              │
 │                                     │
-│   Almuerzo con equipo  S/ 45.00     │
-│   Alimentación · Efectivo           │
+│    Uber                 S/ 12.50    │
+│    Transporte · BBVA                │
 │                                     │
-│   Almacén Sofía        S/ 12.50     │
-│   Hogar · BBVA                      │
+│    Netflix              S/ 34.90    │
+│    Servicios · BBVA                 │
+│                                     │
+│    Café                        —    │   sin monto recordado
+│    Alimentación                     │
+│                                     │
+│    ... hasta 8                      │
+└─────────────────────────────────────┘
+```
+
+- La fila de búsqueda **no es un campo**: no tiene foco, no recibe texto y no levanta ningún teclado. Es un botón que lleva al paso 3.
+- Siete u ocho sugerencias, las que quepan, ordenadas por la capa 1.
+- Cada una con su monto recordado a la derecha, o un guion en `--ink-soft` si nunca se registró uno.
+- **Sin ningún teclado en pantalla.**
+
+### Paso 2 · Monto
+
+```
+┌─────────────────────────────────────┐
+│   ←   Almuerzo                      │   volver al paso 1
+│       Alimentación · BBVA           │   caption
+│                                     │
+│                                     │
+│            S/ 18.00                 │   display 44px, seleccionado
+│                                     │
 │                                     │
 │  ┌─────┬─────┬─────┐                │
 │  │  1  │  2  │  3  │                │
@@ -376,12 +419,44 @@ Se abre como hoja inferior con el teclado numérico ya visible. Sin animación d
 └─────────────────────────────────────┘
 ```
 
-Notas:
+- El monto llega con el valor recordado ya puesto **y seleccionado**: teclear lo reemplaza entero, sin tener que borrarlo. Es el caso frecuente —el almuerzo casi siempre cuesta lo mismo— y el caso de corregirlo cuesta un tap más, no cinco.
+- Teclado numérico propio, completo, y Guardar fijo abajo, junto al pulgar. Soporta aritmética: `18+25` se resuelve al guardar.
+- **Nunca aparece el teclado del sistema en esta pantalla.** No hay ningún campo de texto en ella.
+- Cuenta, fecha y categoría se rellenan solas y son editables después. Nada de eso es obligatorio.
+- El monto sí lo es: un movimiento de 0.00 no cambia ningún saldo y solo ensucia el historial. Guardar no procede y el monto se señala con el acento, nunca con rojo.
 
-- Teclado propio, no el nativo. Permite poner Guardar junto al pulgar y soporta aritmética: `18+25` se resuelve al guardar.
-- Tocar una sugerencia guarda directamente. Ese es el camino de 2 taps.
-- Cuenta, fecha y categoría se rellenan solos y son editables después. Nada es obligatorio antes de guardar.
-- El campo nunca bloquea: cualquier texto + Guardar produce un movimiento válido.
+### Paso 3 · Buscar
+
+Solo se llega aquí tocando la fila de búsqueda del paso 1.
+
+```
+┌─────────────────────────────────────┐
+│   ←   ┌───────────────────────┐     │
+│       │  alm|uerzo            │     │   campo con foco + fantasma
+│       └───────────────────────┘     │
+│                                     │
+│    Almuerzo             S/ 18.00    │
+│    Alimentación · BBVA              │
+│                                     │
+│    Almuerzo con equipo  S/ 45.00    │
+│    Alimentación · Efectivo          │
+│                                     │
+│    Almacén Sofía        S/ 12.50    │
+│    Hogar · BBVA                     │
+│                                     │
+│         [ teclado del sistema ]     │
+└─────────────────────────────────────┘
+```
+
+- Campo de texto con el foco puesto y texto fantasma. El teclado del sistema sube, y aquí está bien que suba: es la única pantalla donde se escribe.
+- **No hay teclado numérico aquí.**
+- Si lo escrito trae un monto reconocible —`almuerzo 18`, `ayer almuerzo 28`, `netflix 34.90 bbva`— al elegir **se guarda directo y se salta el paso 2**.
+- Si no lo trae, al elegir se pasa al paso 2 con el concepto ya puesto.
+- El campo va con `autocomplete`, `autocorrect` y `autocapitalize` en off y `spellcheck` en false. El autocorrector del teléfono no sabe de "chifa" ni de "Yape", y corregirlo cuesta más que escribirlo.
+
+### Movimiento entre pasos
+
+Deslizamiento horizontal de 180ms. El paso 2 entra desde la derecha; volver lo saca por la derecha. El paso 3 se comporta igual. Nada aparece de golpe, y la dirección dice hacia dónde vas.
 
 ### Marca de estado
 
@@ -760,7 +835,9 @@ Fase 3 es la que decide si el producto funciona. Si al terminarla registrar toma
 
 La v1 está lista cuando:
 
-1. Registrar un gasto conocido toma 2 taps y menos de 3 segundos.
+1. Registrar un gasto conocido toma menos de 3 segundos por el camino frecuente, que son 3 taps: Registrar, el concepto, Guardar. El camino experto son 2: Registrar, buscar, escribir `uber 18` y tocar la sugerencia, que guarda directo.
+
+   El tercer tap del camino frecuente no es una concesión: existe para ver el monto antes de confirmarlo. Sin esa confirmación se guardaron montos que el usuario nunca llegó a mirar, porque tocar una sugerencia arrastraba el importe recordado en silencio. Un tap que evita un dato falso vale su coste.
 2. Las sugerencias aparecen en menos de 150ms sin conexión.
 3. La app arranca en menos de 300ms con 1,000 movimientos cargados.
 4. Todo funciona completamente sin conexión salvo la capa 3 de predicción.

@@ -1,45 +1,77 @@
 /*
-  Registrar. El orden vertical es deliberado: tipo, campo,
-  sugerencias, teclado, Guardar. Lo que más se toca queda abajo,
-  al alcance del pulgar.
+  Registrar, en tres pasos.
 
-  Reparto del alto: el teclado y Guardar no encogen nunca, porque sin
-  ellos la pantalla no sirve. Lo único que cede es la lista de
-  sugerencias, y las filas que no caben no se dibujan.
+  La ventana recorta y el carril se desliza dentro. El margen negativo
+  la lleva hasta el borde real de la hoja: si recortara en el padding,
+  el paso vecino asomaría por el lado.
+
+  Dentro de cada paso, lo que no puede faltar —el teclado y Guardar—
+  no encoge nunca. Lo único que cede es la lista.
 */
 
 .register {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  margin-inline: calc(var(--space-block) * -1);
+  /* Columna, no bloque: el carril hereda el alto por flex y no por un
+     porcentaje, que contra un contenedor flexible no resuelve. Sin
+     esto el carril se estira con su contenido y empuja a Guardar
+     fuera de la pantalla. */
+  display: flex;
+  flex-direction: column;
+}
+
+.register__track {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  transition: transform var(--motion-row) var(--ease-out);
+}
+
+.register__track[data-step='choose'] { transform: translateX(0); }
+.register__track[data-step='amount'] { transform: translateX(-100%); }
+.register__track[data-step='search'] { transform: translateX(-200%); }
+
+.register__step {
+  /* border-box es imprescindible aquí: el carril se desplaza justo un
+     100%, así que el padding lateral tiene que ir dentro del ancho.
+     Sin esto cada paso mide 48px de más y el deslizamiento se
+     desalinea, acumulando el error paso a paso. */
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  width: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-card);
-  flex: 1 1 auto;
-  min-height: 0;
+  padding-inline: var(--space-block);
 }
 
-.register > .segmented,
-.register > .ghost-field,
-.register > .register__hint,
-.register > .keypad,
-.register > .register__save {
+/* Lo que no puede faltar no encoge nunca. Sin esto el teclado se
+   comprime y las teclas se salen de sus casillas. */
+.register__step > .segmented,
+.register__step > .register__search-row,
+.register__step > .register__header,
+.register__step > .keypad,
+.register__step > .register__save {
   flex: none;
 }
 
-/* La zona elástica. Es la única que se queda con lo que sobre. */
+/* La zona elástica: la lista de sugerencias, y solo ella. */
 .register__flex {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
 }
 
-.register__suggestions {
+.register__choices {
   min-height: 0;
   overflow: hidden;
 }
 
-/* Una fila que acaba de entrar desplaza a las de abajo: 180ms. */
-.register__suggestions .list-row {
+.register__choices .list-row {
   animation: register-row-in var(--motion-row) var(--ease-out) both;
 }
 
@@ -55,8 +87,131 @@
   line-height: var(--type-caption-line);
 }
 
-/* Aviso bajo el campo. Reserva su línea siempre, así aparecer no
-   empuja el teclado hacia abajo. */
+/* -------- paso 1 · la fila de búsqueda --------
+   Es un botón, no un campo: no tiene foco de texto y no levanta
+   ningún teclado. Parece una fila porque lleva a una pantalla, no
+   porque se escriba en ella. */
+
+.register__search-row {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-card);
+  width: 100%;
+  margin: 0;
+  padding: var(--space-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-input);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 90ms var(--ease-out);
+}
+
+.register__search-row:active {
+  transform: scale(var(--press-scale));
+}
+
+/* -------- cabecera de los pasos 2 y 3 -------- */
+
+.register__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-card);
+  flex: none;
+}
+
+.register__header .ghost-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.register__header-text {
+  min-width: 0;
+}
+
+/* El set son 16 glifos y no hay flecha a la izquierda. En vez de
+   inventar la decimoséptima, se gira la de saliente: mismo trazo,
+   mismo grosor, otra dirección. */
+.register__back {
+  appearance: none;
+  display: inline-flex;
+  flex: none;
+  margin: 0;
+  padding: var(--space-sibling);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.register__back .ico {
+  transform: rotate(-90deg);
+}
+
+.register__concept {
+  margin: 0;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-label-weight);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.register__concept-meta {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------- paso 2 · el monto -------- */
+
+.register__amount-box {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sibling);
+}
+
+.register__amount {
+  margin: 0;
+  padding: var(--space-inside) var(--space-sibling);
+  border-radius: var(--radius-input);
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  font-weight: var(--type-display-weight);
+  color: var(--ink);
+  transition: background-color var(--motion-tab) var(--ease-out),
+              box-shadow var(--motion-tab) var(--ease-out);
+}
+
+/* Seleccionado: el valor recordado ya está puesto y el primer dígito
+   lo reemplaza entero. Se pinta como una selección de texto, que es
+   exactamente lo que es. */
+.register__amount--selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Falta el monto. Sin rojo: el acento marca lo que hay que tocar. */
+.register__amount--missing {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
 .register__hint {
   margin: 0;
   min-height: var(--type-caption-line);
@@ -65,8 +220,11 @@
   line-height: var(--type-caption-line);
 }
 
+/* -------- guardar -------- */
+
 .register__save {
   appearance: none;
+  flex: none;
   width: 100%;
   margin: 0;
   padding: var(--space-card) var(--space-block);
@@ -84,11 +242,4 @@
 
 .register__save:active {
   transform: scale(var(--press-scale));
-}
-
-/* Falta el monto. No hay rojo de advertencia en esta app: el acento
-   marca lo que hay que tocar, y aquí hay que tocar el campo. */
-.ghost-field--pide-monto {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }

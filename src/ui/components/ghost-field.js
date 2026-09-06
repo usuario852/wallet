@@ -58,6 +58,9 @@ export function createGhostField(options = {}) {
   input.autocomplete = 'off';
   input.autocapitalize = 'off';
   input.spellcheck = false;
+  /* Safari en iOS solo respeta autocorrect como atributo. El
+     autocorrector no sabe de "chifa" ni de "Yape". */
+  input.setAttribute('autocorrect', 'off');
   /* El navegador no debe autocompletar por su cuenta: aquí completa
      el índice local, que sabe de qué gasta esta persona. */
   input.setAttribute('aria-autocomplete', 'inline');

@@ -5,6 +5,7 @@ import { createSegmented } from '../components/segmented.js';
 import { createKeypad } from '../components/keypad.js';
 import { createListRow } from '../components/list-row.js';
 import { createGhostField } from '../components/ghost-field.js';
+import { ico } from '../components/ico.js';
 
 import { parseEntry } from '../../logic/parse.js';
 import { suggest, ghostCompletion, recordUsage } from '../../logic/predict.js';
@@ -17,35 +18,72 @@ import { showToast } from '../toast-host.js';
 import { t, stateLabels } from '../../copy.js';
 
 /*
-  register — la hoja de Registrar. La pantalla que decide si el
-  producto funciona.
+  register — la hoja de Registrar, en tres pasos.
 
-  Un solo campo. El teclado propio escribe en él, y lo que se escriba
-  lo interpreta la capa 2; lo que se sugiere debajo lo ordena la capa
-  1. Tocar una sugerencia guarda directamente: ese es el camino de
-  dos taps.
+  La regla que ordena la pantalla entera: nunca hay dos teclados a la
+  vez. Un campo de texto y un teclado numérico propio no caben juntos
+  en un móvil, porque al enfocar el campo sube el del sistema y tapa
+  al otro y a Guardar. No es un problema de altura: los dos compiten
+  por la mitad inferior, que es la única que importa.
 
-  El campo nunca bloquea. Cualquier texto más Guardar produce un
-  movimiento válido: cuenta, fecha y categoría se rellenan solas y
-  son editables después.
+    Paso 1 · Elegir   ningún teclado
+    Paso 2 · Monto    solo el numérico propio
+    Paso 3 · Buscar   solo el del sistema
+
+  La lógica no cambia: predict, parse y entry son los mismos, y por
+  ahí siguen pasando el aprendizaje de correcciones, la validación
+  del monto y la marca de estado.
 */
 
 /* Sección 5: debounce de 120ms sobre el índice local. */
 export const SUGGEST_DEBOUNCE_MS = 120;
 
-/* Abre la hoja. Devuelve la api de la hoja por si hay que cerrarla
-   desde fuera. */
+/* Cuántas sugerencias caben en el paso 1. Las que no quepan se
+   recortan midiendo, igual que antes. */
+export const CHOOSE_LIMIT = 8;
+
+/* Deslizamiento entre pasos. */
+export const STEP_MS = 180;
+
 export function openRegisterSheet(options = {}) {
   const { store, language = 'es', now = () => new Date() } = options;
 
-  /* compact: el título baja a caption y el cuerpo no hace scroll. En
-     un iPhone la hoja no da para más, y lo que no puede faltar es el
-     teclado entero y Guardar. */
   const sheet = createSheet({ title: t(language, 'register'), compact: true });
+
   let type = 'expense';
+  let step = 'choose';
+  let chosen = null;      /* la sugerencia elegida, si viene del paso 1 o 3 */
+  let conceptText = '';   /* el concepto en crudo cuando se escribió a mano */
   let timer = 0;
 
-  /* -------- tipo -------- */
+  /* La ventana recorta; el carril se desliza dentro. Van separados
+     para que el recorte caiga en el borde real de la hoja y no en su
+     padding, donde asomaría el paso vecino. */
+  const viewport = document.createElement('div');
+  viewport.className = 'register';
+
+  const track = document.createElement('div');
+  track.className = 'register__track';
+  viewport.appendChild(track);
+
+  const chooseStep = document.createElement('div');
+  chooseStep.className = 'register__step register__step--choose';
+
+  const amountStep = document.createElement('div');
+  amountStep.className = 'register__step register__step--amount';
+
+  const searchStep = document.createElement('div');
+  searchStep.className = 'register__step register__step--search';
+
+  track.appendChild(chooseStep);
+  track.appendChild(amountStep);
+  track.appendChild(searchStep);
+  sheet.body.appendChild(viewport);
+
+  /* ------------------------------------------------------------------
+     Paso 1 · Elegir. Ningún teclado.
+     ------------------------------------------------------------------ */
+
   const kind = createSegmented({
     options: [
       { value: 'expense', label: t(language, 'expense') },
@@ -54,72 +92,171 @@ export function openRegisterSheet(options = {}) {
     value: type,
     onChange: (next) => {
       type = next;
-      field.setPlaceholder(placeholderFor(language, type));
-      refresh();
+      paintChoices();
     },
   });
 
-  /* -------- campo con texto fantasma -------- */
-  const field = createGhostField({
-    placeholder: placeholderFor(language, type),
-    ariaLabel: t(language, 'register'),
-    onInput: () => scheduleRefresh(),
-    onSubmit: () => commit({ raw: field.value }),
-  });
+  /* No es un campo: es un botón. No tiene foco de texto, no recibe
+     escritura y no levanta ningún teclado. Lleva al paso 3. */
+  const searchRow = document.createElement('button');
+  searchRow.type = 'button';
+  searchRow.className = 'register__search-row';
+  searchRow.appendChild(ico('buscar'));
+  const searchLabel = document.createElement('span');
+  searchLabel.textContent = t(language, 'searchOrType');
+  searchRow.appendChild(searchLabel);
+  searchRow.addEventListener('click', () => goTo('search'));
 
-  /* -------- sugerencias -------- */
-  const list = document.createElement('div');
-  list.className = 'register__suggestions';
-  list.setAttribute('role', 'list');
+  const choices = document.createElement('div');
+  choices.className = 'register__choices';
+  choices.setAttribute('role', 'list');
 
-  const empty = document.createElement('p');
-  empty.className = 'register__empty';
-  empty.textContent = t(language, 'emptySuggestions');
+  const choicesEmpty = document.createElement('p');
+  choicesEmpty.className = 'register__empty';
+  choicesEmpty.textContent = t(language, 'emptySuggestions');
 
-  /* Aviso bajo el campo. Ocupa sitio siempre para que aparecer no
-     empuje el teclado hacia abajo. */
-  const hint = document.createElement('p');
-  hint.className = 'register__hint';
-  hint.setAttribute('role', 'status');
+  chooseStep.appendChild(kind.el);
+  chooseStep.appendChild(searchRow);
+  chooseStep.appendChild(wrap('register__flex', [choices, choicesEmpty]));
 
-  /* -------- teclado propio --------
-     No levanta el teclado nativo: escribe en el campo sin darle el
-     foco, que es justo lo que permite tener Guardar junto al pulgar. */
+  /* ------------------------------------------------------------------
+     Paso 2 · Monto. Solo el teclado propio.
+     ------------------------------------------------------------------ */
+
+  const amountBack = document.createElement('button');
+  amountBack.type = 'button';
+  amountBack.className = 'register__back';
+  amountBack.setAttribute('aria-label', t(language, 'back'));
+  amountBack.appendChild(ico('saliente'));
+  amountBack.addEventListener('click', () => goTo('choose'));
+
+  const amountTitle = document.createElement('p');
+  amountTitle.className = 'register__concept';
+
+  const amountMeta = document.createElement('p');
+  amountMeta.className = 'register__concept-meta';
+
+  const amountHeader = wrap('register__header', [
+    amountBack,
+    wrap('register__header-text', [amountTitle, amountMeta]),
+  ]);
+
+  const amountValue = document.createElement('p');
+  amountValue.className = 'register__amount money';
+  amountValue.setAttribute('role', 'status');
+
+  const amountHint = document.createElement('p');
+  amountHint.className = 'register__hint';
+  amountHint.setAttribute('role', 'status');
+
+  /* El teclado propio escribe aquí y en ningún campo de texto, así
+     que el teclado del sistema no tiene por qué aparecer. */
   const keypad = createKeypad({
     onKey: (key) => {
-      if (key === 'back') field.backspace();
-      else field.insert(separatorBefore(field.value, key) + key);
-      scheduleRefresh();
+      clearHint();
+      if (key === 'back') pressBackspace();
+      else pressDigit(key);
+      paintAmount();
     },
   });
 
-  /* -------- guardar -------- */
   const saveButton = document.createElement('button');
   saveButton.type = 'button';
   saveButton.className = 'register__save';
   saveButton.textContent = t(language, 'save');
-  saveButton.addEventListener('click', () => commit({ raw: field.value }));
+  saveButton.addEventListener('click', () => commitFromAmount());
 
-  sheet.body.appendChild(wrap('register', [
-    kind.el,
-    field.el,
-    hint,
-    wrap('register__flex', [list, empty]),
-    keypad.el,
-    saveButton,
-  ]));
+  amountStep.appendChild(amountHeader);
+  amountStep.appendChild(wrap('register__amount-box', [amountValue, amountHint]));
+  amountStep.appendChild(keypad.el);
+  amountStep.appendChild(saveButton);
 
-  /* ------------------------------------------------------------------
-     Ciclo de sugerencias
-     ------------------------------------------------------------------ */
+  /* Lo tecleado, como texto: admite el punto decimal a medio escribir
+     y la aritmética que resuelve parse al guardar. */
+  let typed = '';
+  /* El valor recordado llega seleccionado: el primer dígito lo
+     reemplaza entero en vez de añadirse. */
+  let selected = false;
 
-  function scheduleRefresh() {
-    limpiarAviso();
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(refresh, SUGGEST_DEBOUNCE_MS);
+  function pressDigit(key) {
+    if (selected) {
+      typed = '';
+      selected = false;
+    }
+    if (key === '.' && typed.includes('.')) return;
+    if (key === '.' && !typed) { typed = '0.'; return; }
+    typed += key;
   }
 
-  function refresh() {
+  function pressBackspace() {
+    if (selected) {
+      typed = '';
+      selected = false;
+      return;
+    }
+    typed = typed.slice(0, -1);
+  }
+
+  function paintAmount() {
+    const currency = chosen && chosen.currency
+      ? chosen.currency
+      : store.getState().settings.activeCurrency;
+    const text = typed || '0';
+    amountValue.textContent = symbolFor(currency) + ' ' + text;
+    amountValue.classList.toggle('register__amount--selected', selected && Boolean(typed));
+  }
+
+  /* ------------------------------------------------------------------
+     Paso 3 · Buscar. Solo el teclado del sistema.
+     ------------------------------------------------------------------ */
+
+  const searchBack = document.createElement('button');
+  searchBack.type = 'button';
+  searchBack.className = 'register__back';
+  searchBack.setAttribute('aria-label', t(language, 'back'));
+  searchBack.appendChild(ico('saliente'));
+  searchBack.addEventListener('click', () => goTo('choose'));
+
+  const field = createGhostField({
+    placeholder: placeholderFor(language, type),
+    ariaLabel: t(language, 'searchOrType'),
+    onInput: () => scheduleSearch(),
+    onSubmit: () => chooseTyped(),
+  });
+
+  const results = document.createElement('div');
+  results.className = 'register__choices';
+  results.setAttribute('role', 'list');
+
+  const resultsEmpty = document.createElement('p');
+  resultsEmpty.className = 'register__empty';
+  resultsEmpty.textContent = t(language, 'emptySuggestions');
+
+  searchStep.appendChild(wrap('register__header', [searchBack, field.el]));
+  searchStep.appendChild(wrap('register__flex', [results, resultsEmpty]));
+
+  /* ------------------------------------------------------------------
+     Sugerencias
+     ------------------------------------------------------------------ */
+
+  function paintChoices() {
+    const state = store.getState();
+    const list = suggest(state, '', { now: now(), limit: CHOOSE_LIMIT });
+    fillRows(choices, choicesEmpty, list, state, null, (suggestion) => {
+      chosen = suggestion;
+      conceptText = suggestion.text;
+      startAmount(suggestion);
+      goTo('amount');
+    });
+    trim(choices);
+  }
+
+  function scheduleSearch() {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(paintSearch, SUGGEST_DEBOUNCE_MS);
+  }
+
+  function paintSearch() {
     if (timer) { clearTimeout(timer); timer = 0; }
 
     const state = store.getState();
@@ -131,71 +268,127 @@ export function openRegisterSheet(options = {}) {
       enabledCurrencies: state.settings.enabledCurrencies,
     });
 
-    /* Se busca por el concepto ya limpio de monto, fecha y cuenta:
-       escribir "uber 18" tiene que seguir encontrando uber. */
-    const query = parsed.concept;
-    const results = suggest(state, query, { now: reference });
-
-    /* El fantasma solo completa cuando lo escrito es únicamente el
-       concepto. En "uber 18" la compleción sobraría: el monto ya
-       está escrito y alargar el texto sería estorbar. */
     const onlyConcept = !parsed.recognized.amount
       && !parsed.recognized.date
       && !parsed.recognized.account
       && !parsed.recognized.type;
     field.setGhost(onlyConcept ? ghostCompletion(state, raw, { now: reference }) : '');
 
-    list.replaceChildren();
-    for (const suggestion of results) {
-      list.appendChild(suggestionRow(state, suggestion, parsed, language, reference));
-    }
-
-    empty.hidden = results.length > 0;
-    list.hidden = results.length === 0;
-    recortarSugerencias();
-  }
-
-  /* Quita las filas que no caben. El teclado y Guardar no se tocan:
-     la lista es lo único que cede, y una fila cortada por la mitad no
-     se muestra. */
-  function recortarSugerencias() {
-    if (!list.isConnected) return;
-    const disponible = list.clientHeight;
-    if (!disponible) return;
-    while (list.children.length > 1 && list.scrollHeight > disponible) {
-      list.removeChild(list.lastElementChild);
-    }
-  }
-
-  function suggestionRow(state, suggestion, parsed, lang, reference) {
-    /* Lo que se escribió manda sobre lo que se recuerda: si el campo
-       dice 25, la fila ofrece 25 aunque la última vez fueran 18. */
-    const amountMinor = parsed.amountMinor !== null ? parsed.amountMinor : suggestion.amountMinor;
-    const currency = parsed.currency || suggestion.currency || state.settings.activeCurrency;
-
-    const meta = [suggestion.category, suggestion.accountName].filter(Boolean).join(' · ');
-
-    /* Sin monto previo la columna no se deja vacía: un guion en gris
-       suave dice que todavía no sabemos cuánto. */
-    const row = createListRow({
-      icon: iconForCategory(suggestion.category),
-      title: suggestion.text,
-      subtitle: meta,
-      amount: amountMinor ? money(amountMinor, currency) : t(lang, 'noAmount'),
-      amountKind: amountMinor ? 'neutral' : 'muted',
-      onClick: () => commit({ raw: field.value, suggestion, reference }),
+    const list = suggest(state, parsed.concept, { now: reference, limit: CHOOSE_LIMIT });
+    fillRows(results, resultsEmpty, list, state, parsed, (suggestion) => {
+      chooseFromSearch(suggestion, parsed);
     });
-    row.setAttribute('role', 'listitem');
-    return row;
+    trim(results);
+  }
+
+  function fillRows(container, emptyNode, list, state, parsed, onPick) {
+    container.replaceChildren();
+    for (const suggestion of list) {
+      const amountMinor = parsed && parsed.amountMinor !== null
+        ? parsed.amountMinor
+        : suggestion.amountMinor;
+      const currency = (parsed && parsed.currency)
+        || suggestion.currency
+        || state.settings.activeCurrency;
+
+      const row = createListRow({
+        icon: iconForCategory(suggestion.category),
+        title: suggestion.text,
+        subtitle: [suggestion.category, suggestion.accountName].filter(Boolean).join(' · '),
+        /* Sin monto recordado, un guion en gris suave: la columna no
+           se deja vacía y no se finge una cifra. */
+        amount: amountMinor ? money(amountMinor, currency) : t(language, 'noAmount'),
+        amountKind: amountMinor ? 'neutral' : 'muted',
+        onClick: () => onPick(suggestion),
+      });
+      row.setAttribute('role', 'listitem');
+      container.appendChild(row);
+    }
+    emptyNode.hidden = list.length > 0;
+    container.hidden = list.length === 0;
+  }
+
+  /* Quita las filas que no caben. Nada de lo que tiene que verse
+     siempre encoge; la lista es lo único que cede. */
+  function trim(container) {
+    if (!container.isConnected) return;
+    const available = container.clientHeight;
+    if (!available) return;
+    while (container.children.length > 1 && container.scrollHeight > available) {
+      container.removeChild(container.lastElementChild);
+    }
   }
 
   /* ------------------------------------------------------------------
-     Guardar
+     Elegir y guardar
      ------------------------------------------------------------------ */
+
+  /* Desde el paso 3: si lo escrito ya trae monto, se guarda directo y
+     el paso 2 se salta. Si no, se pasa al paso 2. */
+  function chooseFromSearch(suggestion, parsed) {
+    chosen = suggestion;
+    conceptText = suggestion ? suggestion.text : parsed.concept;
+
+    if (parsed && parsed.amountMinor) {
+      commit({ raw: field.value, suggestion });
+      return;
+    }
+    startAmount(suggestion);
+    goTo('amount');
+  }
+
+  /* Enter en el campo, sin tocar ninguna fila. */
+  function chooseTyped() {
+    const state = store.getState();
+    const parsed = parseEntry(field.value, {
+      accounts: state.accounts,
+      now: now(),
+      enabledCurrencies: state.settings.enabledCurrencies,
+    });
+    if (!parsed.concept && !parsed.amountMinor) return;
+
+    chosen = null;
+    conceptText = parsed.concept;
+
+    if (parsed.amountMinor) {
+      commit({ raw: field.value, suggestion: null });
+      return;
+    }
+    startAmount(null);
+    goTo('amount');
+  }
+
+  /* Prepara el paso 2 con lo que se sepa del concepto. */
+  function startAmount(suggestion) {
+    const state = store.getState();
+    const currency = (suggestion && suggestion.currency) || state.settings.activeCurrency;
+
+    amountTitle.textContent = conceptText || t(language, type === 'income' ? 'income' : 'expense');
+    amountMeta.textContent = suggestion
+      ? [suggestion.category, suggestion.accountName].filter(Boolean).join(' · ')
+      : '';
+    amountMeta.hidden = !amountMeta.textContent;
+
+    /* El valor recordado, ya puesto y seleccionado. */
+    const remembered = suggestion && suggestion.amountMinor ? suggestion.amountMinor : 0;
+    typed = remembered ? minorToText(remembered) : '';
+    selected = Boolean(remembered);
+    clearHint();
+    paintAmount();
+    void currency;
+  }
+
+  function commitFromAmount() {
+    /* El texto crudo que entiende parse: concepto y monto juntos, que
+       es lo que espera resolveDraft. Así el paso 2 y el paso 3 acaban
+       en la misma función y no hay dos formas de guardar. */
+    const raw = [conceptText, typed].filter(Boolean).join(' ');
+    commit({ raw, suggestion: chosen });
+  }
 
   function commit(input) {
     const state = store.getState();
-    const reference = input.reference || now();
+    const reference = now();
 
     const draft = resolveDraft(state, {
       raw: input.raw,
@@ -210,11 +403,10 @@ export function openRegisterSheet(options = {}) {
       return;
     }
 
-    /* Un movimiento de 0.00 no es un movimiento: no cambia ningún
-       saldo y ensucia el historial. El campo nunca bloquea por el
-       texto, pero sí por esto, que es un dato que falta. */
+    /* Un movimiento de 0.00 no cambia ningún saldo. Sigue siendo
+       obligatorio, y se señala con el acento, nunca con rojo. */
     if (!draft.amountMinor) {
-      marcarFaltaMonto();
+      markMissingAmount();
       return;
     }
 
@@ -230,38 +422,59 @@ export function openRegisterSheet(options = {}) {
     confirmSaved(store, operation, language);
   }
 
-  /* Señala el campo y dice qué falta. Sin rojo: el acento marca lo
-     que hay que tocar, y eso es exactamente lo que pasa aquí. */
-  function marcarFaltaMonto() {
-    field.el.classList.add('ghost-field--pide-monto');
-    hint.textContent = t(language, 'amountMissing');
-    field.focus();
+  function markMissingAmount() {
+    if (step !== 'amount') {
+      startAmount(chosen);
+      goTo('amount');
+    }
+    amountValue.classList.add('register__amount--missing');
+    amountHint.textContent = t(language, 'amountMissing');
   }
 
-  function limpiarAviso() {
-    field.el.classList.remove('ghost-field--pide-monto');
-    hint.textContent = '';
+  function clearHint() {
+    amountValue.classList.remove('register__amount--missing');
+    amountHint.textContent = '';
   }
 
-  /* Se abre primero y se puebla después: recortar las sugerencias
-     necesita medir, y medir necesita estar en el documento. */
+  /* ------------------------------------------------------------------
+     Movimiento entre pasos
+
+     Deslizamiento horizontal de 180ms. El paso 2 entra desde la
+     derecha y volver lo saca por la derecha.
+     ------------------------------------------------------------------ */
+
+  function goTo(next) {
+    if (step === next) return;
+    step = next;
+    track.dataset.step = next;
+
+    /* El foco es lo que decide qué teclado sube. Al salir del paso 3
+       se suelta el campo para que el del sistema baje antes de que
+       aparezca el numérico. */
+    if (next === 'search') {
+      /* Tras el deslizamiento, no durante: enfocar a mitad de
+         animación hace que iOS salte. */
+      setTimeout(() => field.focus(), STEP_MS);
+      scheduleSearch();
+    } else {
+      field.input.blur();
+    }
+
+    if (next === 'choose') paintChoices();
+    if (next === 'amount') setTimeout(() => trim(choices), STEP_MS);
+  }
+
+  track.dataset.step = 'choose';
   sheet.open();
-  refresh();
+  paintChoices();
   return sheet;
 }
 
 /* ------------------------------------------------------------------
    Confirmación
-
-   El toast lleva la ventana de deshacer y, tras un gasto, la marca
-   de estado. Se define aparte porque también la usará la fase 4 al
-   confirmar algo de Por venir.
    ------------------------------------------------------------------ */
 
 export function confirmSaved(store, operation, language) {
-  /* No se supone que la operación tenga amountMinor: la fase 4
-     confirmará también transferencias y cambios de divisa desde
-     aquí, y un fx no lo tiene. */
   const amount = operationAmount(operation).text;
 
   showToast({
@@ -276,30 +489,31 @@ export function confirmSaved(store, operation, language) {
       showToast({ message: t(language, 'undone'), duration: 2400 });
     },
     onDismiss: (reason) => {
-      /* Solo se aprende de lo que sobrevive a la ventana de deshacer.
-         Un movimiento revertido no debe enseñarle nada al índice. */
+      /* Solo se aprende de lo que sobrevive a la ventana de deshacer. */
       if (reason !== 'action') recordUsage(store, operation);
     },
   });
 }
 
 /* ------------------------------------------------------------------
-   Auxiliares de la hoja
+   Auxiliares
    ------------------------------------------------------------------ */
 
 function placeholderFor(language, type) {
   return t(language, type === 'income' ? 'conceptPlaceholderIncome' : 'conceptPlaceholder');
 }
 
-/* El teclado escribe pegado al texto salvo que haga falta separar:
-   "uber" más 1 tiene que dar "uber 1", no "uber1". */
-function separatorBefore(value, key) {
-  if (!value) return '';
-  const last = value.slice(-1);
-  if (last === ' ') return '';
-  if (key === '.' ) return '';
-  if (/[\d.+-]/.test(last)) return '';
-  return ' ';
+/* 1800 -> "18.00", y 1800 redondo -> "18". Lo que se pinta en el paso
+   2 es lo mismo que se teclearía, para que borrar y reescribir
+   funcione sin sorpresas. */
+function minorToText(minor) {
+  const units = Math.floor(Math.abs(minor) / 100);
+  const cents = Math.abs(minor) % 100;
+  return cents ? units + '.' + String(cents).padStart(2, '0') : String(units);
+}
+
+function symbolFor(currency) {
+  return money(0, currency).replace(/[\d.,\s]/g, '');
 }
 
 function wrap(className, children) {
