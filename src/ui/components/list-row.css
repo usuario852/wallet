@@ -1,0 +1,88 @@
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-card);
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding-block: var(--space-card);
+  padding-inline: 0;
+  background: transparent;
+  text-align: left;
+  font-family: var(--font-ui);
+  color: var(--ink);
+}
+
+button.list-row {
+  cursor: pointer;
+  border-radius: var(--radius-input);
+  padding-inline: var(--space-sibling);
+  transition: background-color var(--motion-tab) var(--ease-out);
+}
+
+button.list-row:hover {
+  background: var(--accent-soft);
+}
+
+button.list-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+button.list-row:active {
+  transform: scale(var(--press-scale));
+}
+
+.list-row__icon {
+  display: inline-flex;
+  color: var(--ink-soft);
+}
+
+.list-row__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.list-row__title {
+  /* Bloque: el concepto ocupa su propia línea y el metadato cae
+     debajo. Como span en línea se pegaban al render. */
+  display: block;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-weight);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-row__subtitle {
+  display: block;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--type-caption-weight);
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-row__amount {
+  flex: none;
+  font-size: var(--type-amount-size);
+  line-height: var(--type-amount-line);
+  font-weight: var(--type-amount-weight);
+  color: var(--ink);
+}
+
+.list-row__amount--positive {
+  color: var(--positive);
+}
+
+.list-row__amount--negative {
+  color: var(--negative);
+}
+
+.list-row__amount--pledge {
+  color: var(--pledge);
+}

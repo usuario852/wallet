@@ -1,0 +1,141 @@
+/*
+  Andamiaje de la página de demostración. No es parte del sistema.
+
+  tokens.css entrega el modo oscuro por prefers-color-scheme, así
+  que para ver los dos modos a la vez esta página vuelve a declarar
+  cada paleta —con los mismos valores de la sección 3— acotada a su
+  panel. Es la única duplicación de la paleta y vive fuera del
+  sistema, en el andamiaje.
+*/
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.demo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--line);
+}
+
+@media (min-width: 900px) {
+  .demo {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pane {
+  padding: var(--space-block);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Las paletas de cada panel viven en tokens.css, en los bloques
+   [data-theme]. Aquí no se declara ningún color. */
+
+
+.pane__heading {
+  margin: 0 0 var(--space-block);
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.section {
+  padding-block: var(--space-section) 0;
+}
+
+.section:first-of-type {
+  padding-top: 0;
+}
+
+.section__title {
+  margin: 0 0 var(--space-card);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  color: var(--ink-soft);
+}
+
+.section__note {
+  margin: var(--space-sibling) 0 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-soft);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sibling);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  padding: var(--space-card) var(--space-row);
+}
+
+.glyphs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: var(--space-row);
+}
+
+.glyph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sibling);
+  color: var(--ink);
+}
+
+.glyph span {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  color: var(--ink-soft);
+}
+
+.demo-button {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--surface);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  font-weight: var(--type-label-weight);
+  cursor: pointer;
+}
+
+.demo-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toast-layer {
+  position: sticky;
+  bottom: var(--space-row);
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-row);
+  min-height: 4px;
+  pointer-events: none;
+}
+
+.toast-layer > * {
+  pointer-events: auto;
+}
