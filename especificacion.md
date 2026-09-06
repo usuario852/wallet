@@ -298,9 +298,10 @@ Inicio          Movimientos          Análisis
 │  PEN  USD                     ⚙     │   monedas activas · ajustes
 │                                     │
 │                                     │
-│         S/ 3,240.00                 │   display 44px, tocable
-│         disponible                  │   caption
+│         S/ 4,130.00                 │   display 44px, tocable
+│         saldo total                 │   caption
 │                                     │
+│    3,240 disponible                 │   ámbar
 │    – 890 comprometido               │   ámbar
 │    + 1,500 por cobrar               │   ámbar
 │                                     │
@@ -326,9 +327,13 @@ Inicio          Movimientos          Análisis
 
 Notas:
 
-- "Disponible" es saldo menos comprometido. Es el número que cambia decisiones, no el saldo bruto.
+- El número grande es el **saldo total**: la suma de las cuentas normales de la moneda activa. Las cuentas de reserva quedan fuera; para eso están apartadas. Es el número que se oculta con el momento firmado.
+- **"Disponible" es saldo menos comprometido.** Sigue siendo el número que cambia decisiones, pero vive en la línea secundaria, junto a comprometido y por cobrar. Los tres van en ámbar: describen dinero que ya tiene dueño, y esa es exactamente la función del ámbar.
+- Cuando el disponible es negativo se muestra en `--pledge`, **nunca** en `--negative`. Un disponible bajo cero no es un error del usuario: significa que lo comprometido supera al saldo, que es justo lo que el ámbar ya cuenta. El rojo juzga. Ver principio 3.
 - Máximo 3 movimientos del día. Si no hay ninguno: *"Todavía no registras nada hoy"*.
 - El botón Registrar nunca se desplaza al hacer scroll.
+
+**Ningún número negativo se muestra en 44px. La jerarquía tipográfica no amplifica malas noticias.**
 
 ## 4.2 Registrar
 
