@@ -1,0 +1,74 @@
+/*
+  Armazón de la app: una pantalla que ocupa el alto disponible y una
+  barra de pestañas fija abajo.
+*/
+
+:root {
+  --tabbar-height: 52px;
+  --app-max-width: 520px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* El foco de teclado es visible en cada elemento interactivo. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  background: var(--paper);
+}
+
+.app__screen {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app .tabbar {
+  position: sticky;
+  bottom: 0;
+  flex: none;
+  min-height: var(--tabbar-height);
+}
+
+/* Capa de toasts. Flota sobre todo salvo las hojas. */
+.toast-layer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-height) + var(--space-card));
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--space-row);
+  pointer-events: none;
+}
+
+.toast-layer > * {
+  pointer-events: auto;
+  width: 100%;
+  max-width: var(--app-max-width);
+}

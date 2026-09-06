@@ -96,7 +96,7 @@ Esto sustituye deliberadamente la combinación crema + terracota de la versión 
 
 ## Color
 
-El acento no decora: **marca lo que se puede tocar**. El ámbar no alarma: **marca lo que ya está comprometido**. Ningún color existe sin un trabajo asignado.
+El acento no decora: **marca lo que se puede tocar**. El ámbar no alarma: **marca dinero que ya tiene dueño** — comprometido, por cobrar, o un disponible bajo cero. Ningún color existe sin un trabajo asignado.
 
 ### Claro
 
@@ -108,7 +108,7 @@ El acento no decora: **marca lo que se puede tocar**. El ámbar no alarma: **mar
 --line         #D8DBD4   bordes y separadores
 --accent       #2F5D52   verde petróleo — acción, selección, foco
 --accent-soft  #DCE6E2   fondo de estado seleccionado
---pledge       #9A7B3F   ámbar — dinero comprometido o por cobrar
+--pledge       #9A7B3F   ámbar — comprometido, por cobrar, disponible bajo cero
 --positive     #3F6B4A   solo para el signo de un ingreso
 --negative     #8A4038   solo para el signo de un gasto
 ```

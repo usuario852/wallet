@@ -1,0 +1,57 @@
+/*
+  Registrar. El orden vertical es deliberado: tipo, campo,
+  sugerencias, teclado, Guardar. Lo que más se toca queda abajo,
+  al alcance del pulgar.
+*/
+
+.register {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+}
+
+.register__suggestions {
+  display: flex;
+  flex-direction: column;
+  /* Entre filas de una lista: 16. Aquí el propio padding de la fila
+     ya aporta, así que el hueco extra es 0 y manda la fila. */
+  gap: 0;
+}
+
+/* Una fila que acaba de entrar desplaza a las de abajo: 180ms. */
+.register__suggestions .list-row {
+  animation: register-row-in var(--motion-row) var(--ease-out) both;
+}
+
+@keyframes register-row-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.register__empty {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.register__save {
+  appearance: none;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-card) var(--space-block);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--surface);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  cursor: pointer;
+  transition: transform 90ms var(--ease-out);
+}
+
+.register__save:active {
+  transform: scale(var(--press-scale));
+}

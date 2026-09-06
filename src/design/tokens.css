@@ -19,7 +19,7 @@
   --line:         #D8DBD4;   /* bordes y separadores */
   --accent:       #2F5D52;   /* verde petróleo — acción, selección, foco */
   --accent-soft:  #DCE6E2;   /* fondo de estado seleccionado */
-  --pledge:       #9A7B3F;   /* ámbar — dinero comprometido o por cobrar */
+  --pledge:       #9A7B3F;   /* ámbar — comprometido, por cobrar, disponible bajo cero */
   --positive:     #3F6B4A;   /* solo para el signo de un ingreso */
   --negative:     #8A4038;   /* solo para el signo de un gasto */
 
@@ -103,6 +103,14 @@
   --spring-sheet: cubic-bezier(.22, 1, .28, 1);
   --spring-chip: cubic-bezier(.34, 1.56, .48, 1);
   --chip-grow: 4px;             /* ensanchamiento del chip seleccionado */
+
+  /* El momento firmado: ocultar el saldo. El regreso tarda más que
+     la salida. Ocultar es defensivo y debe ser inmediato; revelar es
+     un pequeño acto de confianza y merece asentarse. */
+  --motion-conceal: 400ms;
+  --motion-reveal: 520ms;
+  --conceal-blur: 14px;
+  --conceal-opacity: .55;
 }
 
 /* ---------------------------------------------------------------

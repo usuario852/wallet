@@ -1,0 +1,227 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+  padding: var(--space-row);
+  /* Respiro superior del inicio: 48. */
+  padding-top: var(--space-top);
+  /* Sitio para el botón fijo de Registrar. */
+  padding-bottom: calc(var(--space-top) + var(--space-section));
+}
+
+/* -------- cabecera -------- */
+
+.home__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-card);
+}
+
+.home__currencies {
+  display: flex;
+  gap: var(--space-sibling);
+}
+
+.home__currency {
+  appearance: none;
+  margin: 0;
+  padding: var(--space-inside) var(--space-card);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  cursor: pointer;
+  transition: color var(--motion-tab) var(--ease-out),
+              background-color var(--motion-tab) var(--ease-out);
+}
+
+.home__currency[aria-checked='true'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.home__settings {
+  appearance: none;
+  display: inline-flex;
+  margin: 0;
+  padding: var(--space-sibling);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+/* -------- saldo -------- */
+
+.home__balance-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-inside);
+  padding-top: var(--space-block);
+}
+
+.home__balance {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  font-weight: var(--type-display-weight);
+  cursor: pointer;
+  /* El regreso tarda más que la salida: revelar es un acto de
+     confianza y merece asentarse. */
+  transition: filter var(--motion-reveal) var(--ease-signed),
+              opacity var(--motion-reveal) var(--ease-signed);
+}
+
+/* Ningún número negativo se muestra en 44px. */
+.home__balance--reduced {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.home__balance--hidden {
+  filter: blur(var(--conceal-blur));
+  opacity: var(--conceal-opacity);
+  /* Ocultar es defensivo y debe ser inmediato. */
+  transition-duration: var(--motion-conceal);
+}
+
+.home__balance-label {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.home__secondary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sibling) var(--space-row);
+  margin: var(--space-card) 0 0;
+}
+
+.home__figure {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-inside);
+}
+
+.home__figure-value {
+  margin: 0;
+  font-size: var(--type-amount-size);
+  line-height: var(--type-amount-line);
+  font-weight: var(--type-amount-weight);
+}
+
+.home__figure-label {
+  margin: 0;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+/* Disponible, comprometido y por cobrar: dinero que ya tiene dueño. */
+.home__figure--pledge .home__figure-value,
+.home__figure--pledge .home__figure-label {
+  color: var(--pledge);
+}
+
+/* La reserva es información, no un compromiso. */
+.home__figure--soft .home__figure-value,
+.home__figure--soft .home__figure-label {
+  color: var(--ink-soft);
+}
+
+/* -------- hoy -------- */
+
+.home__section-title {
+  margin: 0 0 var(--space-sibling);
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.home__list {
+  border-top: 1px solid var(--line);
+}
+
+.home__list .list-row + .list-row {
+  border-top: 1px solid var(--line);
+}
+
+.home__empty {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+/* Ver todo: texto, no botón. */
+.home__see-all {
+  appearance: none;
+  align-self: flex-start;
+  margin: var(--space-card) 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  cursor: pointer;
+}
+
+/* -------- registrar -------- */
+
+.home__register {
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* Nunca se desplaza al hacer scroll. Se apoya sobre la barra de
+     pestañas, no encima del contenido. */
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: center;
+  padding: var(--space-card) var(--space-row);
+  pointer-events: none;
+}
+
+.home__register-button {
+  appearance: none;
+  pointer-events: auto;
+  min-width: 200px;
+  margin: 0;
+  padding: var(--space-card) var(--space-section);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--surface);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  box-shadow: var(--shadow-toast);
+  cursor: pointer;
+  transition: transform 90ms var(--ease-out);
+}
+
+.home__register-button:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Controles que la pantalla ya tiene pero que llegan en una fase
+   posterior. Se ven, no se activan. */
+.is-pending {
+  opacity: .45;
+  cursor: default;
+}

@@ -70,8 +70,13 @@ export function createToast(options = {}) {
     actionEl.className = 'toast__action';
     actionEl.textContent = actionLabel;
     actionEl.addEventListener('click', () => {
-      if (typeof onAction === 'function') onAction();
+      /* Se cierra antes de ejecutar la acción, no después. Si la
+         acción abre otro toast —deshacer lo hace: dice "Listo,
+         revertido"— ese toast cierra al anterior, y si el anterior
+         siguiera abierto se cerraría con el motivo equivocado. Quien
+         escuche onDismiss tiene que enterarse de que hubo acción. */
       finish('action');
+      if (typeof onAction === 'function') onAction();
     });
     line.appendChild(actionEl);
   }

@@ -1,0 +1,83 @@
+/*
+  El espejo y el input tienen que compartir métricas exactas o el
+  texto gris no cuadra con el escrito. Las propiedades comunes están
+  agrupadas a propósito: si cambia una, cambian las dos.
+*/
+
+.ghost-field {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.ghost-field__mirror,
+.ghost-field__input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-input);
+  font-family: var(--font-ui);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-weight);
+  letter-spacing: normal;
+  white-space: pre;
+  overflow: hidden;
+}
+
+.ghost-field__mirror {
+  position: absolute;
+  inset: 0;
+  border-color: transparent;
+  background: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* La parte ya escrita ocupa sitio pero no se ve: la pinta el input
+   de encima. Sirve para empujar el texto gris a su posición. */
+.ghost-field__typed {
+  color: transparent;
+}
+
+.ghost-field__ghost {
+  color: var(--ink-soft);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.ghost-field__input {
+  position: relative;
+  background: var(--surface);
+  color: var(--ink);
+  caret-color: var(--accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* El fondo del input taparía el texto gris del espejo, así que se
+   deja transparente y el fondo lo pone el contenedor. */
+.ghost-field {
+  background: var(--surface);
+  border-radius: var(--radius-input);
+}
+.ghost-field__input {
+  background: transparent;
+}
+
+.ghost-field__input::placeholder {
+  color: var(--ink-soft);
+  opacity: 1;
+}
+
+.ghost-field__input:focus {
+  outline: none;
+}
+
+/* El foco se pinta en el contenedor, para que el borde rodee al
+   conjunto y no al input suelto. */
+.ghost-field:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

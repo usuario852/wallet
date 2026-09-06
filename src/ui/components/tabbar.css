@@ -1,0 +1,32 @@
+.tabbar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.tabbar__tab {
+  appearance: none;
+  margin: 0;
+  padding: var(--space-card) var(--space-sibling);
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  cursor: pointer;
+  transition: color var(--motion-tab) var(--ease-out);
+}
+
+.tabbar__tab[aria-selected='true'] {
+  color: var(--accent);
+}
+
+.tabbar__tab--pending {
+  opacity: .45;
+  cursor: default;
+}

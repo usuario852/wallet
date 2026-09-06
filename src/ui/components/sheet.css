@@ -67,6 +67,9 @@
 }
 
 .sheet__body {
-  padding: 0 var(--space-block) var(--space-block);
+  /* El respiro inferior deja sitio al indicador de inicio del
+     teléfono: Guardar queda al alcance del pulgar, no debajo de él. */
+  padding: 0 var(--space-block)
+           calc(var(--space-block) + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
 }
