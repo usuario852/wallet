@@ -8,3 +8,8 @@ dist/
 Thumbs.db
 .env
 .env.local
+
+wallet_backup_*.json
+
+# Salida de tools/migrate-backup.mjs: lleva datos financieros reales.
+tools/salida-migracion.json
