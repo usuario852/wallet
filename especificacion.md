@@ -133,6 +133,7 @@ No es una inversión. Es una paleta propia, con el mismo verde y el mismo ámbar
 ### Reglas de color
 
 - Verde y ámbar son los únicos colores de la interfaz. Todo lo demás es gris.
+- El ámbar marca **dinero comprometido, por cobrar, o un disponible bajo cero**. Los tres son el mismo hecho visto desde ángulos distintos: dinero que ya tiene dueño. Un disponible negativo entra aquí y no en `--negative`, porque describe una situación, no un error.
 - Positivo y negativo se usan **solo en el signo y el monto de un movimiento**. Nunca como fondo de fila, nunca como estado de alerta.
 - No existe el rojo de advertencia. Ver principio 3.
 - No hay gradientes en ninguna parte.
@@ -304,6 +305,7 @@ Inicio          Movimientos          Análisis
 │    3,240 disponible                 │   ámbar
 │    – 890 comprometido               │   ámbar
 │    + 1,500 por cobrar               │   ámbar
+│    1,200 en reserva                 │   --ink-soft
 │                                     │
 │                                     │
 │  Hoy                                │   title
@@ -327,8 +329,9 @@ Inicio          Movimientos          Análisis
 
 Notas:
 
-- El número grande es el **saldo total**: la suma de las cuentas normales de la moneda activa. Las cuentas de reserva quedan fuera; para eso están apartadas. Es el número que se oculta con el momento firmado.
+- El número grande es el **saldo total**: la suma de las cuentas con `kind: 'regular'` cuya moneda es la activa. Nada más. Las cuentas de reserva no entran, y las de otras monedas tampoco: cambiar de moneda en la cabecera cambia el número, no lo convierte. Es el número que se oculta con el momento firmado.
 - **"Disponible" es saldo menos comprometido.** Sigue siendo el número que cambia decisiones, pero vive en la línea secundaria, junto a comprometido y por cobrar. Los tres van en ámbar: describen dinero que ya tiene dueño, y esa es exactamente la función del ámbar.
+- **La reserva también vive en la línea secundaria, pero en `--ink-soft`, no en `--pledge`.** No es un compromiso: nadie la reclama y no reduce el disponible. Es información sobre dinero que apartaste tú. Darle ámbar sería decir que la debes.
 - Cuando el disponible es negativo se muestra en `--pledge`, **nunca** en `--negative`. Un disponible bajo cero no es un error del usuario: significa que lo comprometido supera al saldo, que es justo lo que el ámbar ya cuenta. El rojo juzga. Ver principio 3.
 - Máximo 3 movimientos del día. Si no hay ninguno: *"Todavía no registras nada hoy"*.
 - El botón Registrar nunca se desplaza al hacer scroll.
