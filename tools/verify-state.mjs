@@ -22,6 +22,7 @@ import {
 } from '../src/state/persist.js';
 
 import { migrateLegacy, runMigration, LEGACY_KEY, LEGACY_BACKUP_KEY } from '../src/state/migrate.js';
+import { exportState, exportFilename, parseImport, applyImport } from '../src/state/transfer.js';
 
 /* ------------------------------------------------------------------
    Arnés mínimo
@@ -509,6 +510,85 @@ async function testDebounce() {
 
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------
+   8. Llevarse los datos a otro navegador
+   ------------------------------------------------------------------ */
+
+function testExportImport() {
+  group('8 · Exportar e importar entre navegadores');
+
+  /* Un navegador con datos. */
+  const origen = buildScenario().store;
+  const texto = exportState(origen.getState());
+
+  check('el nombre del archivo lleva la fecha',
+    exportFilename(new Date('2026-09-06T10:00:00')), 'wallet-2026-09-06.json');
+
+  /* Otro navegador, vacío. */
+  const destino = createStore();
+  check('el destino arranca vacío', destino.getState().operations.length, 0);
+
+  const leido = parseImport(texto);
+  check('el archivo se reconoce', [leido.ok, leido.reason], [true, 'listo']);
+  check('y dice qué trae antes de tocar nada',
+    [leido.summary.accounts, leido.summary.operations, leido.summary.upcoming], [4, 7, 4]);
+
+  const disco = createMemoryStorage();
+  saveState(destino.getState(), disco);
+  const aplicado = applyImport(destino, leido.state, { storage: disco, now: new Date('2026-09-06T10:00:00') });
+  check('se importa', aplicado.ok, true);
+
+  /* Lo que importa: los saldos derivados salen iguales en los dos. */
+  check('el saldo se reconstruye igual en el otro navegador',
+    accountBalanceMinor(destino.getState(), 'acc_bbva'),
+    accountBalanceMinor(origen.getState(), 'acc_bbva'));
+  check('y los totales por moneda también',
+    JSON.stringify([...totalsByCurrency(destino.getState())]),
+    JSON.stringify([...totalsByCurrency(origen.getState())]));
+  check('la operación anulada llega anulada',
+    destino.getState().operations.find((op) => op.id === 'op_anulada').voided, true);
+  check('el fx conserva sus dos importes',
+    [destino.getState().operations.find((op) => op.id === 'op_fx').fromAmountMinor,
+      destino.getState().operations.find((op) => op.id === 'op_fx').toAmountMinor],
+    [33600, 10000]);
+
+  /* Ida y vuelta sin pérdida. */
+  check('exportar lo importado da el mismo texto', exportState(destino.getState()), texto);
+
+  /* Antes de reemplazar se guarda una copia de lo que había. */
+  checkTrue('se guardó una copia de lo anterior', Boolean(aplicado.backupKey));
+  checkTrue('la copia está en el almacenamiento',
+    disco.getItem(aplicado.backupKey) !== null);
+
+  /* Nada que no sea un estado de Wallet puede reemplazar los datos. */
+  const basura = [
+    ['texto suelto', 'hola'],
+    ['json que no es objeto', '[1,2,3]'],
+    ['objeto sin cuentas', '{"operations":[]}'],
+    ['objeto sin movimientos', '{"accounts":[]}'],
+    ['null', 'null'],
+    ['vacío', '   '],
+  ];
+  for (const [etiqueta, payload] of basura) {
+    const resultado = parseImport(payload);
+    checkTrue('se rechaza: ' + etiqueta, !resultado.ok && resultado.state === null);
+  }
+  check('un texto vacío se distingue de uno inválido', parseImport('').reason, 'vacio');
+  check('y un JSON roto también', parseImport('{roto').reason, 'no-es-json');
+
+  /* Un estado con claves de menos se completa, no se rechaza: pudo
+     salir de una versión anterior de v1. */
+  const parcial = parseImport('{"accounts":[],"operations":[]}');
+  check('un estado incompleto se completa', parcial.ok, true);
+  check('con la forma por defecto',
+    [parcial.state.settings.activeCurrency, Array.isArray(parcial.state.upcoming)], ['PEN', true]);
+
+  /* Importar dos veces deja lo mismo. */
+  const otra = applyImport(destino, parseImport(texto).state, { storage: disco });
+  check('importar dos veces da el mismo estado', exportState(destino.getState()), texto);
+  checkTrue('y guarda otra copia', otra.backupKey !== aplicado.backupKey);
+}
+
 async function main() {
   console.log('Verificación de la capa de estado · fase 2');
 
@@ -519,6 +599,7 @@ async function main() {
   testMigrationIdempotence();
   testCorruptJson();
   await testDebounce();
+  testExportImport();
 
   console.log('\n' + '═'.repeat(46));
   console.log(passed + ' comprobaciones pasan, ' + failed + ' fallan');

@@ -2,6 +2,7 @@ import './app.css';
 
 import { createTabBar } from './components/tabbar.js';
 import { renderHome } from './screens/home.js';
+import { renderSettings } from './screens/settings.js';
 import { openRegisterSheet } from './sheets/register.js';
 import { t } from '../copy.js';
 
@@ -21,6 +22,9 @@ export function mountApp(options = {}) {
   const { store, root, now = () => new Date() } = options;
 
   let tab = 'home';
+  /* Ajustes no es una pestaña: se entra desde el engranaje y se sale
+     volviendo. Las pestañas siguen siendo tres. */
+  let view = 'home';
 
   const screen = document.createElement('main');
   screen.className = 'app__screen';
@@ -37,6 +41,7 @@ export function mountApp(options = {}) {
     value: tab,
     onChange: (next) => {
       tab = next;
+      view = 'home';
       paint();
     },
   });
@@ -51,15 +56,36 @@ export function mountApp(options = {}) {
     openRegisterSheet({ store, language: language(), now });
   }
 
+  function openSettings() {
+    view = 'settings';
+    paint();
+    screen.scrollTop = 0;
+  }
+
+  function closeSettings() {
+    view = 'home';
+    paint();
+  }
+
   /* Repinta la pantalla activa. Se llama al arrancar y en cada
      mutación del estado. */
   function paint() {
+    if (view === 'settings') {
+      screen.replaceChildren(renderSettings({
+        store,
+        language: language(),
+        onBack: closeSettings,
+      }));
+      return;
+    }
+
     if (tab !== 'home') return;
     screen.replaceChildren(renderHome({
       store,
       language: language(),
       now,
       onRegister: openRegister,
+      onSettings: openSettings,
     }));
   }
 

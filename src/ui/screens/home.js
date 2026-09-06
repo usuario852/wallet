@@ -26,7 +26,7 @@ import { t } from '../../copy.js';
 export const TODAY_LIMIT = 3;
 
 export function renderHome(options = {}) {
-  const { store, language = 'es', onRegister, now = () => new Date() } = options;
+  const { store, language = 'es', onRegister, onSettings, now = () => new Date() } = options;
   const state = store.getState();
   const currency = state.settings.activeCurrency;
   const totals = totalsByCurrency(state).get(currency) || emptyTotals(currency);
@@ -34,7 +34,7 @@ export function renderHome(options = {}) {
   const el = document.createElement('section');
   el.className = 'home';
 
-  el.appendChild(renderHeader(store, state, language));
+  el.appendChild(renderHeader(store, state, language, onSettings));
   el.appendChild(renderBalance(store, state, totals, language));
   el.appendChild(renderToday(state, language, now));
   el.appendChild(renderRegister(language, onRegister));
@@ -46,7 +46,7 @@ export function renderHome(options = {}) {
    Cabecera: monedas activas y ajustes
    ------------------------------------------------------------------ */
 
-function renderHeader(store, state, language) {
+function renderHeader(store, state, language, onSettings) {
   const header = document.createElement('header');
   header.className = 'home__header';
 
@@ -67,15 +67,18 @@ function renderHeader(store, state, language) {
   }
   header.appendChild(currencies);
 
-  /* Ajustes llega en la fase 7. Se dibuja porque la pantalla lo
-     tiene, y se marca como pendiente porque todavía no lleva a
-     ningún sitio. Fingir que sí sería peor. */
+  /* Ajustes existe pero está a medias: por ahora solo lleva importar
+     y exportar, que es lo único que no puede esperar a la fase 7. El
+     estado vive en cada navegador, y sin esto los datos se quedan
+     encerrados en el que los creó. */
   const settings = document.createElement('button');
   settings.type = 'button';
-  settings.className = 'home__settings is-pending';
+  settings.className = 'home__settings';
   settings.setAttribute('aria-label', t(language, 'settings'));
-  settings.setAttribute('aria-disabled', 'true');
   settings.appendChild(ico('ajustes'));
+  settings.addEventListener('click', () => {
+    if (typeof onSettings === 'function') onSettings();
+  });
   header.appendChild(settings);
 
   return header;

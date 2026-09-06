@@ -48,6 +48,36 @@ export const COPY = {
     emptySuggestions: 'Escribe qué fue y guarda. Nada más es obligatorio',
     emptyAccounts: 'Crea una cuenta y podrás registrar movimientos',
 
+    /* Ajustes · datos.
+       El estado vive en el navegador, así que llevárselo a otro es un
+       archivo, no una sincronización. */
+    back: 'Volver',
+    dataSection: 'Tus datos',
+    dataHelp: 'Lo que registras vive en este navegador. Para usarlo en otro, pásalo con un archivo',
+    exportTitle: 'Exportar',
+    exportHelp: 'Un archivo con todo: cuentas, movimientos, por venir, conceptos y ajustes',
+    download: 'Descargar el archivo',
+    showText: 'Ver el texto',
+    hideText: 'Ocultar el texto',
+    copyHelp: 'Si no puedes descargar, selecciona todo esto y cópialo',
+    importTitle: 'Importar',
+    importHelp: 'Elige un archivo o pega el texto, y te digo qué trae antes de tocar nada',
+    chooseFile: 'Elegir archivo',
+    pastePlaceholder: 'Pega aquí el contenido del archivo',
+    review: 'Revisar',
+    replace: 'Reemplazar mis datos',
+    replaceWarning: 'Reemplaza todo lo que hay en este navegador. Antes se guarda una copia de lo actual',
+    importSummary: (accounts, operations, upcoming) => (
+      accounts + ' cuentas · ' + operations + ' movimientos · ' + upcoming + ' por venir'
+    ),
+    importLastDate: (date) => 'El último movimiento es del ' + date,
+    importEmpty: 'No hay nada que revisar todavía',
+    importNotJson: 'Ese texto no es JSON. Revisa que lo hayas copiado entero',
+    importNotWallet: 'Ese archivo no es un estado de Wallet: le faltan las cuentas o los movimientos',
+    importDone: 'Datos reemplazados',
+    importBackup: (key) => 'La copia de lo anterior quedó en ' + key,
+    importFailed: 'No pude reemplazar los datos. Los de antes siguen aquí',
+
     /* Confirmación */
     saved: (amount) => 'Guardado · ' + amount,
     undo: 'Deshacer',
@@ -96,6 +126,33 @@ export const COPY = {
     emptyEver: 'Add your first expense and this starts to make sense',
     emptySuggestions: 'Type what it was and save. Nothing else is required',
     emptyAccounts: 'Create an account and you can start recording',
+
+    back: 'Back',
+    dataSection: 'Your data',
+    dataHelp: 'What you record lives in this browser. To use it in another one, move it with a file',
+    exportTitle: 'Export',
+    exportHelp: 'One file with everything: accounts, movements, upcoming, concepts and settings',
+    download: 'Download the file',
+    showText: 'Show the text',
+    hideText: 'Hide the text',
+    copyHelp: 'If you cannot download, select all of this and copy it',
+    importTitle: 'Import',
+    importHelp: 'Pick a file or paste the text, and I will tell you what it holds before touching anything',
+    chooseFile: 'Pick a file',
+    pastePlaceholder: 'Paste the file contents here',
+    review: 'Review',
+    replace: 'Replace my data',
+    replaceWarning: 'This replaces everything in this browser. A copy of the current data is saved first',
+    importSummary: (accounts, operations, upcoming) => (
+      accounts + ' accounts · ' + operations + ' movements · ' + upcoming + ' upcoming'
+    ),
+    importLastDate: (date) => 'The latest movement is from ' + date,
+    importEmpty: 'Nothing to review yet',
+    importNotJson: 'That text is not JSON. Check that you copied all of it',
+    importNotWallet: 'That file is not a Wallet state: it has no accounts or no movements',
+    importDone: 'Data replaced',
+    importBackup: (key) => 'The copy of the previous data is in ' + key,
+    importFailed: 'I could not replace the data. The previous data is still here',
 
     saved: (amount) => 'Saved · ' + amount,
     undo: 'Undo',

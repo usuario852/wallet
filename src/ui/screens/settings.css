@@ -1,0 +1,158 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+  padding: var(--space-row);
+  padding-top: var(--space-block);
+  padding-bottom: var(--space-section);
+}
+
+.settings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-card);
+}
+
+.settings__title {
+  margin: 0;
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.settings__back {
+  appearance: none;
+  display: inline-flex;
+  flex: none;
+  margin: 0;
+  padding: var(--space-sibling);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.settings__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+}
+
+.settings__section-title {
+  margin: 0;
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+/* Cada grupo es una tarjeta: --surface sobre --paper y una línea de
+   1px. Sin sombra, que las tarjetas no flotan. */
+.settings__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+  padding: var(--space-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.settings__group-title {
+  margin: 0;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-label-weight);
+}
+
+.settings__note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.settings__status {
+  margin: 0;
+  min-height: var(--type-body-line);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.settings__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sibling);
+}
+
+.settings__button {
+  appearance: none;
+  flex: 1 1 auto;
+  margin: 0;
+  padding: var(--space-card) var(--space-block);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--surface);
+  font-family: var(--font-ui);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-label-weight);
+  cursor: pointer;
+  transition: transform 90ms var(--ease-out);
+}
+
+.settings__button:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Secundario: el acento solo en el borde y el texto. Lo importante de
+   cada grupo es una sola acción. */
+.settings__button--quiet {
+  background: transparent;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* Reemplazar es destructivo. No hay rojo de advertencia en esta app,
+   así que se distingue por el ámbar, que es el color de lo que ya
+   tiene consecuencias, y por ocupar su propia línea. */
+.settings__button--danger {
+  background: transparent;
+  color: var(--pledge);
+  box-shadow: inset 0 0 0 1px var(--pledge);
+}
+
+.settings__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-input);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  resize: vertical;
+}
+
+.settings__textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* El control nativo de archivo no se puede vestir; se dispara desde
+   un botón propio. */
+.settings__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
