@@ -57,14 +57,10 @@
   outline-offset: 2px;
 }
 
-.toast__chips {
-  display: flex;
-  gap: var(--space-sibling);
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.toast__chips::-webkit-scrollbar {
-  display: none;
+/* Lo que la marca de estado devuelve. Un dato, no un elogio. */
+.toast__detail {
+  margin: var(--space-sibling) 0 0;
+  color: var(--ink-soft);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
 }

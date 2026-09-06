@@ -60,7 +60,7 @@ Escrito explícitamente para poder decir que no:
 | Registro | Autocompletado predictivo, en dos caminos. Frecuente: 3 taps. Experto: 2 taps. Meta de tiempo: menos de 3 segundos en el frecuente. |
 | Cuentas | Saldo derivado, sin saldos almacenados. Cuentas normales y de reserva. |
 | Movimientos | Dos pestañas: Pasado y Por venir. |
-| Marca de estado | Una fila de chips opcional al guardar un gasto. |
+| Marca de estado | Una fila de chips opcional en el paso 2 de Registrar, que devuelve un dato al marcar. A prueba: ver 4.2. |
 | Análisis | Tendencia, por categoría, comparación con periodo anterior. |
 | Presupuesto | Mensual global. Por categoría queda en avanzado. |
 | Multimoneda | PEN, USD y las que el usuario active. Cambio de divisa con tasa manual o de referencia. |
@@ -219,7 +219,7 @@ toast           0  4px 20px rgba(0,0,0,.14)
 
 **No se usan emojis en ninguna parte de la interfaz.**
 
-Se dibuja a mano un set propio de 16 glifos en Figma. Todos con el mismo grosor de trazo (1.75px), extremos redondeados, caja de 24×24, y una irregularidad deliberada y consistente. El trazo hecho a mano es la señal de autoría más fuerte que existe, porque lleva una imperfección que nadie genera por accidente.
+Se dibuja a mano un set propio en Figma: 16 al arrancar, 17 hoy. Todos con el mismo grosor de trazo (1.75px), extremos redondeados, caja de 24×24, y una irregularidad deliberada y consistente. El trazo hecho a mano es la señal de autoría más fuerte que existe, porque lleva una imperfección que nadie genera por accidente.
 
 Set mínimo:
 
@@ -229,6 +229,23 @@ educación · ocio · hogar · compras
 cuenta · reserva · entrante · saliente
 buscar · ajustes · cerrar · deshacer
 ```
+
+Añadidos después:
+
+```
+volver
+```
+
+El set crece solo cuando falta un glifo de verdad, y se anota cuál y
+por qué. `volver` nació de la navegación entre los pasos de Registrar
+(sección 4.2), que el set original no cubría. Antes se giraba el de
+`saliente` 90 grados; una flecha girada se lee como un símbolo de
+tabulación, no como una flecha. Son dos trazos: la línea horizontal y
+la punta, con el mismo grosor y los mismos extremos que el resto.
+
+Girar un glifo existente es una salida legítima para una dirección
+—entrante y saliente son el mismo dibujo— pero no para un significado
+distinto.
 
 Se exportan como un sprite SVG único.
 
@@ -460,19 +477,46 @@ Deslizamiento horizontal de 180ms. El paso 2 entra desde la derecha; volver lo s
 
 ### Marca de estado
 
-Aparece **después** de guardar un gasto, dentro del toast de confirmación. Un tap, opcional, se ignora deslizando o esperando.
+Vive en el **paso 2**, entre el monto y Guardar. Un tap, opcional; no bloquea nada y no cuesta ningún tap de más, porque el usuario ya está en esa pantalla.
 
 ```
-┌─────────────────────────────────────┐
-│  Guardado · S/ 18.00      Deshacer  │
+│            S/ 18.00                 │   display 44px
 │                                     │
-│  ┌────────┐┌───────┐┌────────┐      │
-│  │ normal ││ apuro ││ antojo │  →   │
-│  └────────┘└───────┘└────────┘      │
-└─────────────────────────────────────┘
+│   normal    antojo   social   más   │   chips, opcional
+│                                     │
+│  ┌─────┬─────┬─────┐                │
 ```
 
-Etiquetas completas, deslizables horizontalmente:
+Tres de entrada —normal, antojo, social— y un cuarto elemento, "más", que despliega las otras cuatro. Siete a la vez son una lista para leer; tres son una elección para tocar.
+
+**Antes estaba en el toast, y no funcionaba.** Competía con Deshacer por los mismos cuatro segundos y llegaba cuando la atención ya se había ido. El toast ahora pide una sola cosa: deshacer.
+
+### Lo que devuelve marcar
+
+Marcar tiene que dar algo a cambio, **desde la primera vez**, no a los treinta registros. Al guardar un gasto marcado, el toast responde con un dato calculado de lo que ya está guardado:
+
+```
+Guardado · − S/ 18.00              Deshacer
+Es tu 3er antojo esta semana
+```
+
+Tres respuestas, en este orden:
+
+| cuándo | qué dice |
+|---|---|
+| primera vez con esa marca | *El primero que marcas así* |
+| primera de la semana | *Tu primer antojo de esta semana* |
+| las siguientes | *Es tu 3er antojo esta semana* |
+
+Es un dato, no un elogio ni un reproche: describe lo que hay, como un espejo. Ver principio 3. Y lo cuenta el código, no un modelo: principio 5.
+
+> **Esta función está a prueba.** Se mide qué proporción de los gastos queda marcada. **Si tras dos semanas de uso real menos de un tercio de los gastos tienen marca, la marca de estado se elimina entera** —chips, respuesta y el bloque "Por estado" del Análisis— y las siete palabras salen del producto.
+>
+> No se rediseña por tercera vez. Ya se intentó con check-ins programados y se quitó; se intentó en el toast y no se usó. Si en su mejor sitio posible tampoco se usa, la conclusión es sobre la función, no sobre su presentación.
+
+### Las siete palabras
+
+Etiquetas completas:
 
 ```
 normal · apuro · antojo · social · aburrido · celebrando · necesario
@@ -818,6 +862,7 @@ src/
 | Fase | Contenido | Dónde |
 |---|---|---|
 | 0 | 16 glifos + pantalla de Registrar | Figma, a mano |
+| — | Glifo 17, volver | Añadido en la fase 3 |
 | 1 | Repositorio, tokens, componentes base | Claude Code |
 | 2 | Estado, migración, derivación de saldos | Claude Code |
 | 3 | Inicio + Registrar + teclado + predicción capas 1 y 2 | Claude Code |

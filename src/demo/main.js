@@ -25,7 +25,7 @@ const GLYPH_LABEL = {
   salud: 'salud', educacion: 'educación', ocio: 'ocio', hogar: 'hogar',
   compras: 'compras', cuenta: 'cuenta', reserva: 'reserva', entrante: 'entrante',
   saliente: 'saliente', buscar: 'buscar', ajustes: 'ajustes', cerrar: 'cerrar',
-  deshacer: 'deshacer',
+  deshacer: 'deshacer', volver: 'volver',
 };
 
 function elem(tag, props, ...children) {

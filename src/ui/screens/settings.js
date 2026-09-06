@@ -64,7 +64,7 @@ function renderHeader(language, onBack) {
   back.type = 'button';
   back.className = 'settings__back';
   back.setAttribute('aria-label', t(language, 'back'));
-  back.appendChild(ico('cerrar'));
+  back.appendChild(ico('volver'));
   back.addEventListener('click', () => {
     if (typeof onBack === 'function') onBack();
   });

@@ -1,33 +1,34 @@
 import './toast.css';
-import { createChip } from './chip.js';
 
 /*
   toast — confirmación efímera con ventana de deshacer de 4s.
 
-  Tras guardar un gasto lleva además la fila de chips de marca de
-  estado: un tap, opcional, se ignora esperando. Proyecta sombra
-  porque de verdad flota (--shadow-toast).
+  Proyecta sombra porque de verdad flota (--shadow-toast).
 
     const t = createToast({
-      message: 'Guardado · S/ 18.00',
+      message: 'Guardado · − S/ 18.00',
+      detail: 'Es tu 3er antojo esta semana',
       actionLabel: 'Deshacer',
       onAction: () => {},
-      chips: ['normal', 'apuro', 'antojo'],
-      onChip: (label) => {},
       duration: 4000,
-      onDismiss: (reason) => {},   // 'timeout' | 'action' | 'chip' | 'manual'
+      onDismiss: (reason) => {},   // 'timeout' | 'action' | 'manual'
     });
     t.el
     t.dismiss()
+
+  El toast pide una sola cosa: deshacer. Llevó una fila de chips para
+  la marca de estado y no funcionaba —competía con Deshacer por los
+  mismos cuatro segundos, y para entonces la atención ya se había
+  ido—. La marca se pide ahora antes de guardar, en el paso 2 de
+  Registrar. Lo que sí aparece aquí es lo que esa marca devuelve.
 */
 
 export function createToast(options = {}) {
   const {
     message = '',
+    detail = '',
     actionLabel = '',
     onAction,
-    chips = [],
-    onChip,
     duration = 4000,
     onDismiss,
   } = options;
@@ -83,25 +84,13 @@ export function createToast(options = {}) {
 
   el.appendChild(line);
 
-  if (chips.length > 0) {
-    const chipsRow = document.createElement('div');
-    chipsRow.className = 'toast__chips';
-    const built = [];
-    chips.forEach((label) => {
-      const chip = createChip({
-        label,
-        onToggle: (selected) => {
-          built.forEach((other) => {
-            if (other !== chip) other.setSelected(false);
-          });
-          if (selected && typeof onChip === 'function') onChip(label);
-          if (selected) finish('chip');
-        },
-      });
-      built.push(chip);
-      chipsRow.appendChild(chip.el);
-    });
-    el.appendChild(chipsRow);
+  /* Lo que la marca devuelve. Una línea, debajo, en gris suave: es un
+     dato, no una felicitación. */
+  if (detail) {
+    const detailEl = document.createElement('p');
+    detailEl.className = 'toast__detail';
+    detailEl.textContent = detail;
+    el.appendChild(detailEl);
   }
 
   if (duration > 0) {

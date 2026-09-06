@@ -24,6 +24,15 @@
   box-sizing: border-box;
 }
 
+/* El atributo hidden lo pierde cualquier regla que declare display,
+   porque la del navegador es de menor peso. Un `.chip { display:
+   inline-flex }` deja visible un chip marcado como oculto, y el fallo
+   no se ve al inspeccionar el DOM: la propiedad dice hidden y el
+   elemento se dibuja igual. */
+[hidden] {
+  display: none !important;
+}
+
 /* ---------------------------------------------------------------
    Color — Claro
    --------------------------------------------------------------- */

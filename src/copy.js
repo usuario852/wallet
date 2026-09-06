@@ -84,6 +84,8 @@ export const COPY = {
     undo: 'Deshacer',
     undone: 'Listo, revertido',
     stateQuestion: 'Cómo te sentías',
+    stateMore: 'más',
+    stateLess: 'menos',
 
     /* Errores. Nunca piden disculpas, nunca son vagos. */
     saveFailed: 'No pude guardar eso. Sigue aquí, inténtalo de nuevo',
@@ -160,6 +162,8 @@ export const COPY = {
     undo: 'Undo',
     undone: 'Done, reverted',
     stateQuestion: 'How you felt',
+    stateMore: 'more',
+    stateLess: 'less',
 
     saveFailed: 'I could not save that. It is still here, try again',
     offline: 'No internet. Everything you record is saved anyway',
@@ -196,4 +200,75 @@ export function t(language, key, ...args) {
 
 export function stateLabels(language) {
   return STATE_LABELS[language] || STATE_LABELS.es;
+}
+
+/* Las tres que se ven de entrada. Las otras cuatro salen al tocar
+   "más". Son las tres más frecuentes en la práctica: lo corriente, el
+   impulso y lo que se gasta acompañado. */
+export const STATE_PRIMARY = Object.freeze(['normal', 'antojo', 'social']);
+
+/* ------------------------------------------------------------------
+   Lo que devuelve marcar
+
+   Marcar tiene que dar algo a cambio desde la primera vez, no a los
+   treinta registros. Todo sale de contar lo que ya está guardado: no
+   hay ningún número aquí que no haya calculado el código.
+
+   Las etiquetas no son todas sustantivos —"social" y "celebrando" no
+   lo son—, así que cada una trae su frase. Sin esto salen cosas como
+   "es tu 3er social", que no es español.
+   ------------------------------------------------------------------ */
+
+const MARK_NOUNS = {
+  es: {
+    normal: 'gasto normal',
+    apuro: 'gasto con apuro',
+    antojo: 'antojo',
+    social: 'gasto social',
+    aburrido: 'gasto por aburrimiento',
+    celebrando: 'gasto celebrando',
+    necesario: 'gasto necesario',
+  },
+  en: {
+    normal: 'ordinary expense',
+    rushed: 'rushed expense',
+    craving: 'craving',
+    social: 'social expense',
+    bored: 'bored expense',
+    celebrating: 'celebration expense',
+    needed: 'needed expense',
+  },
+};
+
+/* Ordinales como se dicen, no como se escriben en un formulario. */
+const ORDINALS_ES = ['', '1er', '2do', '3er', '4to', '5to', '6to', '7mo', '8vo', '9no'];
+const ORDINALS_EN = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
+
+export function ordinal(count, language = 'es') {
+  const table = language === 'en' ? ORDINALS_EN : ORDINALS_ES;
+  if (count > 0 && count < table.length) return table[count];
+  return language === 'en' ? count + 'th' : count + '.º';
+}
+
+/* Convierte lo que calculó logic/mark.js en una frase.
+
+   Sentence case, sin signos de exclamación, sin juicio: describe lo
+   que hay, como un espejo. "Es tu 3er antojo esta semana" es un dato;
+   "otra vez un antojo" sería un reproche. */
+export function markPhrase(language, insight) {
+  if (!insight) return '';
+  const lang = MARK_NOUNS[language] ? language : 'es';
+  const noun = MARK_NOUNS[lang][insight.mark] || MARK_NOUNS[lang].normal;
+
+  if (insight.key === 'firstEver') {
+    return lang === 'en' ? 'The first one you mark like this' : 'El primero que marcas así';
+  }
+  if (insight.key === 'firstThisWeek') {
+    return lang === 'en'
+      ? 'Your first ' + noun + ' this week'
+      : 'Tu primer ' + noun + ' de esta semana';
+  }
+  return lang === 'en'
+    ? 'Your ' + ordinal(insight.count, 'en') + ' ' + noun + ' this week'
+    : 'Es tu ' + ordinal(insight.count, 'es') + ' ' + noun + ' esta semana';
 }

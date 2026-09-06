@@ -53,6 +53,7 @@
 .register__step > .segmented,
 .register__step > .register__search-row,
 .register__step > .register__header,
+.register__step > .register__marks,
 .register__step > .keypad,
 .register__step > .register__save {
   flex: none;
@@ -134,9 +135,6 @@
   min-width: 0;
 }
 
-/* El set son 16 glifos y no hay flecha a la izquierda. En vez de
-   inventar la decimoséptima, se gira la de saliente: mismo trazo,
-   mismo grosor, otra dirección. */
 .register__back {
   appearance: none;
   display: inline-flex;
@@ -150,9 +148,6 @@
   cursor: pointer;
 }
 
-.register__back .ico {
-  transform: rotate(-90deg);
-}
 
 .register__concept {
   margin: 0;
@@ -210,6 +205,25 @@
 /* Falta el monto. Sin rojo: el acento marca lo que hay que tocar. */
 .register__amount--missing {
   box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* -------- paso 2 · la marca de estado --------
+   Tres de entrada y "más" para las otras cuatro. Envuelve en vez de
+   deslizarse: cortadas por el borde no se ven, y aquí hay sitio de
+   sobra porque la caja del monto cede lo que haga falta. */
+
+.register__marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sibling);
+  justify-content: center;
+}
+
+/* "más" no es una marca, es la puerta a las que faltan. Se distingue
+   sin color: solo texto, sin borde. */
+.register__marks-more {
+  border-color: transparent;
+  color: var(--accent);
 }
 
 .register__hint {

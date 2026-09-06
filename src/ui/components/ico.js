@@ -16,6 +16,10 @@ export const GLYPHS = [
   'educacion', 'ocio', 'hogar', 'compras',
   'cuenta', 'reserva', 'entrante', 'saliente',
   'buscar', 'ajustes', 'cerrar', 'deshacer',
+  /* Glifo 17. Nació de una necesidad de navegación que el set
+     original no cubría: volver. Antes se giraba el de saliente, y
+     una flecha girada se lee como un símbolo de tabulación. */
+  'volver',
 ];
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

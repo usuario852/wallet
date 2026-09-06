@@ -5,7 +5,8 @@
     npm run verify:predict
 */
 
-import { createStore, addAccount, addOperation, upsertConcept } from '../src/state/store.js';
+import { createStore, addAccount, addOperation, upsertConcept, voidOperation } from '../src/state/store.js';
+import { markInsight, markCoverage } from '../src/logic/mark.js';
 import { parseEntry, evaluateExpression, toMinor, nowLocalISO } from '../src/logic/parse.js';
 import {
   suggest, scoreConcept, ghostCompletion, recordUsage,
@@ -15,6 +16,7 @@ import { resolveDraft, resolveAccount, categoryFor } from '../src/logic/entry.js
 import { SEED_CONCEPTS, iconForCategory } from '../src/logic/seed.js';
 import { normalize, prefixQuality } from '../src/logic/text.js';
 import { money, operationAmount, operationCurrency } from '../src/ui/format.js';
+import { markPhrase, ordinal } from '../src/copy.js';
 
 let passed = 0;
 let failed = 0;
@@ -411,7 +413,84 @@ function testLearningAndFormat() {
 }
 
 /* ------------------------------------------------------------------
-   7. Presupuesto de tiempo
+   7. Lo que devuelve marcar
+   ------------------------------------------------------------------ */
+
+function testMark() {
+  group('7 · La marca de estado devuelve algo desde la primera vez');
+
+  const store = buildStore();
+  let n = 0;
+  const gastar = (marca, dia) => {
+    n += 1;
+    const operation = addOperation(store, {
+      id: 'op_m' + n, type: 'expense', date: dia + 'T13:00',
+      accountId: 'acc_bbva', currency: 'PEN', amountMinor: 1000 + n,
+      concept: 'gasto ' + n, category: 'Ocio',
+      state: marca,
+    });
+    return markInsight(store.getState(), operation);
+  };
+
+  /* Semana del 9 al 15 de marzo de 2026 (lunes a domingo). */
+  const primero = gastar('antojo', '2026-03-10');
+  check('el primero de todos', primero, { key: 'firstEver', mark: 'antojo', count: 1 });
+  check('y su frase', markPhrase('es', primero), 'El primero que marcas así');
+
+  const segundo = gastar('antojo', '2026-03-11');
+  check('el segundo de la semana', [segundo.key, segundo.count], ['nthThisWeek', 2]);
+  check('y su frase', markPhrase('es', segundo), 'Es tu 2do antojo esta semana');
+
+  const tercero = gastar('antojo', '2026-03-12');
+  check('el tercero', markPhrase('es', tercero), 'Es tu 3er antojo esta semana');
+
+  /* Otra marca empieza de cero: es la primera de su clase. */
+  const social = gastar('social', '2026-03-12');
+  check('otra marca vuelve a empezar', markPhrase('es', social), 'El primero que marcas así');
+  const social2 = gastar('social', '2026-03-13');
+  check('y la gramática se adapta a la etiqueta',
+    markPhrase('es', social2), 'Es tu 2do gasto social esta semana');
+
+  /* Semana siguiente: ya no es el primero de todos, pero sí el
+     primero de la semana. */
+  const otraSemana = gastar('antojo', '2026-03-17');
+  check('primero de la semana nueva',
+    markPhrase('es', otraSemana), 'Tu primer antojo de esta semana');
+
+  /* Un gasto sin marca no devuelve nada: no hay nada que decir. */
+  const sinMarca = addOperation(store, {
+    id: 'op_sin', type: 'expense', date: '2026-03-17T14:00',
+    accountId: 'acc_bbva', currency: 'PEN', amountMinor: 500, concept: 'x',
+  });
+  check('sin marca no hay respuesta', markInsight(store.getState(), sinMarca), null);
+  check('ni frase', markPhrase('es', null), '');
+
+  /* Una operación anulada deja de contar. */
+  const antesDeAnular = markInsight(store.getState(), store.getState().operations.find((o) => o.id === 'op_m3'));
+  voidOperation(store, 'op_m1');
+  voidOperation(store, 'op_m2');
+  const despues = markInsight(store.getState(), store.getState().operations.find((o) => o.id === 'op_m3'));
+  check('antes de anular era el tercero', antesDeAnular.count, 3);
+  /* Queda op_m6, de otra semana, así que no es el primero de todos
+     pero sí el único de la suya. */
+  check('anular las anteriores lo saca del recuento', despues.key, 'firstThisWeek');
+
+  /* Los ordinales altos no se inventan. */
+  check('ordinal 9', ordinal(9, 'es'), '9no');
+  check('ordinal 12', ordinal(12, 'es'), '12.º');
+  check('ordinal en inglés', ordinal(3, 'en'), '3rd');
+
+  /* Y la cobertura, que es lo que decide si la función se queda. */
+  const cobertura = markCoverage(store.getState());
+  /* Siete gastos menos los dos anulados: cinco, cuatro con marca. */
+  check('cuenta gastos y marcados, sin los anulados',
+    [cobertura.expenses, cobertura.marked], [5, 4]);
+  checkTrue('la proporción está por encima de un tercio', cobertura.ratio > 1 / 3);
+  check('sin gastos no hay proporción', markCoverage(createStore().getState()).ratio, null);
+}
+
+/* ------------------------------------------------------------------
+   8. Presupuesto de tiempo
    ------------------------------------------------------------------ */
 
 function testSpeed() {
@@ -461,6 +540,7 @@ testSuggestions();
 testGhost();
 testDraft();
 testLearningAndFormat();
+testMark();
 testSpeed();
 
 console.log('\n' + '═'.repeat(46));

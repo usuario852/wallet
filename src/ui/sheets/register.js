@@ -12,10 +12,13 @@ import { suggest, ghostCompletion, recordUsage } from '../../logic/predict.js';
 import { resolveDraft } from '../../logic/entry.js';
 import { iconForCategory } from '../../logic/seed.js';
 
-import { addOperation, removeOperation, updateOperation } from '../../state/store.js';
+import { createChip } from '../components/chip.js';
+
+import { addOperation, removeOperation } from '../../state/store.js';
 import { money, operationAmount } from '../format.js';
 import { showToast } from '../toast-host.js';
-import { t, stateLabels } from '../../copy.js';
+import { markInsight } from '../../logic/mark.js';
+import { t, stateLabels, markPhrase, STATE_PRIMARY } from '../../copy.js';
 
 /*
   register — la hoja de Registrar, en tres pasos.
@@ -127,7 +130,7 @@ export function openRegisterSheet(options = {}) {
   amountBack.type = 'button';
   amountBack.className = 'register__back';
   amountBack.setAttribute('aria-label', t(language, 'back'));
-  amountBack.appendChild(ico('saliente'));
+  amountBack.appendChild(ico('volver'));
   amountBack.addEventListener('click', () => goTo('choose'));
 
   const amountTitle = document.createElement('p');
@@ -166,10 +169,22 @@ export function openRegisterSheet(options = {}) {
   saveButton.textContent = t(language, 'save');
   saveButton.addEventListener('click', () => commitFromAmount());
 
+  /* -------- marca de estado --------
+     Aquí y no en el toast. En el toast competía con Deshacer por los
+     mismos cuatro segundos y llegaba cuando la atención ya se había
+     ido. Aquí el usuario está mirando la pantalla, no hay otra
+     decisión pendiente, y no cuesta ningún tap: es opcional y no
+     bloquea Guardar. */
+  const marks = createMarkRow(language, (label) => { mark = label; });
+
   amountStep.appendChild(amountHeader);
   amountStep.appendChild(wrap('register__amount-box', [amountValue, amountHint]));
+  amountStep.appendChild(marks.el);
   amountStep.appendChild(keypad.el);
   amountStep.appendChild(saveButton);
+
+  /* La marca elegida, o null. Se reinicia con cada concepto. */
+  let mark = null;
 
   /* Lo tecleado, como texto: admite el punto decimal a medio escribir
      y la aritmética que resuelve parse al guardar. */
@@ -214,7 +229,7 @@ export function openRegisterSheet(options = {}) {
   searchBack.type = 'button';
   searchBack.className = 'register__back';
   searchBack.setAttribute('aria-label', t(language, 'back'));
-  searchBack.appendChild(ico('saliente'));
+  searchBack.appendChild(ico('volver'));
   searchBack.addEventListener('click', () => goTo('choose'));
 
   const field = createGhostField({
@@ -373,6 +388,14 @@ export function openRegisterSheet(options = {}) {
     const remembered = suggestion && suggestion.amountMinor ? suggestion.amountMinor : 0;
     typed = remembered ? minorToText(remembered) : '';
     selected = Boolean(remembered);
+
+    /* Cada gasto empieza sin marca: arrastrar la del anterior sería
+       inventarse un dato. Y la pregunta es por qué gastaste, así que
+       en un ingreso no se hace. */
+    mark = null;
+    marks.reset();
+    marks.el.hidden = type !== 'expense';
+
     clearHint();
     paintAmount();
     void currency;
@@ -412,7 +435,8 @@ export function openRegisterSheet(options = {}) {
 
     let operation = null;
     try {
-      operation = addOperation(store, draft);
+      /* La marca entra con la operación, en una sola escritura. */
+      operation = addOperation(store, mark ? { ...draft, state: mark } : draft);
     } catch (error) {
       showToast({ message: t(language, 'saveFailed'), duration: 4000 });
       return;
@@ -477,13 +501,14 @@ export function openRegisterSheet(options = {}) {
 export function confirmSaved(store, operation, language) {
   const amount = operationAmount(operation).text;
 
+  /* Si el gasto llegó marcado, el toast devuelve algo. Sale de contar
+     lo que ya está guardado, y aparece desde la primera marca. */
+  const detail = markPhrase(language, markInsight(store.getState(), operation));
+
   showToast({
     message: t(language, 'saved', amount),
+    detail,
     actionLabel: t(language, 'undo'),
-    /* Un ingreso no lleva marca de estado: la pregunta es por qué
-       gastaste, no por qué cobraste. */
-    chips: operation.type === 'expense' ? stateLabels(language) : [],
-    onChip: (label) => updateOperation(store, operation.id, { state: label }),
     onAction: () => {
       removeOperation(store, operation.id);
       showToast({ message: t(language, 'undone'), duration: 2400 });
@@ -521,4 +546,78 @@ function wrap(className, children) {
   el.className = className;
   for (const child of children) el.appendChild(child);
   return el;
+}
+
+/* La fila de la marca de estado.
+
+   Tres de entrada —normal, antojo, social— y un cuarto elemento que
+   despliega las otras cuatro. Siete a la vez son una lista para leer;
+   tres son una elección para tocar.
+
+   Selección única y reversible: tocar la elegida la suelta. Marcar es
+   opcional y nunca bloquea Guardar. */
+function createMarkRow(language, onChange) {
+  const el = document.createElement('div');
+  el.className = 'register__marks';
+  el.setAttribute('role', 'radiogroup');
+  el.setAttribute('aria-label', t(language, 'stateQuestion'));
+
+  const labels = stateLabels(language);
+  const primary = language === 'en'
+    ? ['normal', 'craving', 'social']
+    : STATE_PRIMARY;
+  const rest = labels.filter((label) => !primary.includes(label));
+
+  const chips = [];
+  let expanded = false;
+  let current = null;
+
+  function select(label, on) {
+    current = on ? label : null;
+    for (const chip of chips) {
+      if (chip.label !== label) chip.api.setSelected(false);
+    }
+    if (typeof onChange === 'function') onChange(current);
+  }
+
+  function add(label, hidden) {
+    const api = createChip({
+      label,
+      onToggle: (on) => select(label, on),
+    });
+    api.el.hidden = hidden;
+    chips.push({ label, api });
+    el.appendChild(api.el);
+    return api;
+  }
+
+  for (const label of primary) add(label, false);
+  for (const label of rest) add(label, true);
+
+  /* "más" no es una marca: es la puerta a las otras cuatro. Se va
+     cuando ya no hace falta, en vez de quedarse ocupando sitio. */
+  const more = document.createElement('button');
+  more.type = 'button';
+  more.className = 'chip register__marks-more';
+  more.textContent = t(language, 'stateMore');
+  more.addEventListener('click', () => {
+    expanded = true;
+    for (const chip of chips) chip.api.el.hidden = false;
+    more.hidden = true;
+  });
+  el.appendChild(more);
+
+  return {
+    el,
+    get value() {
+      return current;
+    },
+    reset() {
+      current = null;
+      for (const chip of chips) chip.api.setSelected(false);
+      if (expanded) return;
+      for (const chip of chips) chip.api.el.hidden = !primary.includes(chip.label);
+      more.hidden = false;
+    },
+  };
 }
