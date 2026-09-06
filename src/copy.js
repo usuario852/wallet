@@ -58,6 +58,8 @@ export const COPY = {
     saveFailed: 'No pude guardar eso. Sigue aquí, inténtalo de nuevo',
     offline: 'Sin internet. Todo lo que registres se guarda igual',
     noAccount: 'No hay ninguna cuenta en esta moneda. Crea una primero',
+    amountMissing: 'Falta el monto',
+    noAmount: '—',
 
     /* Análisis. Se usan en la fase 5; viven aquí desde ya. */
     paceAbove: (percent) => 'Vas ' + percent + '% arriba de tu ritmo habitual',
@@ -103,6 +105,8 @@ export const COPY = {
     saveFailed: 'I could not save that. It is still here, try again',
     offline: 'No internet. Everything you record is saved anyway',
     noAccount: 'There is no account in this currency. Create one first',
+    amountMissing: 'The amount is missing',
+    noAmount: '—',
 
     paceAbove: (percent) => 'You are ' + percent + '% above your usual pace',
     paceBelow: (percent) => 'You are ' + percent + '% below your usual pace',

@@ -5,8 +5,7 @@
   padding: var(--space-row);
   /* Respiro superior del inicio: 48. */
   padding-top: var(--space-top);
-  /* Sitio para el botón fijo de Registrar. */
-  padding-bottom: calc(var(--space-top) + var(--space-section));
+  padding-bottom: 0;
 }
 
 /* -------- cabecera -------- */
@@ -16,14 +15,21 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-card);
+  /* En 320px el selector de moneda no puede desaparecer: envuelve
+     antes que encogerse, y nunca se recorta. */
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .home__currencies {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-sibling);
+  min-width: 0;
 }
 
 .home__currency {
+  flex: none;
   appearance: none;
   margin: 0;
   padding: var(--space-inside) var(--space-card);
@@ -106,11 +112,15 @@
 }
 
 .home__secondary {
+  /* Todas las cifras que existan se ven en cualquier ancho: la línea
+     envuelve y ninguna se recorta ni se esconde. */
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-sibling) var(--space-row);
   margin: var(--space-card) 0 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .home__figure {
@@ -183,16 +193,21 @@
 
 /* -------- registrar -------- */
 
+/* Nunca se desplaza al hacer scroll, pero pegajoso dentro del área
+   que hace scroll, no fijo a la ventana. Así se apoya solo sobre la
+   barra de pestañas y no hay que calcular a mano el alto de la barra
+   ni el área segura: la barra ya se aparta lo suyo, y el botón se
+   queda justo encima. En el iPhone esto es lo que lo saca de debajo
+   de la barra de Safari. */
 .home__register {
-  position: fixed;
-  left: 0;
-  right: 0;
-  /* Nunca se desplaza al hacer scroll. Se apoya sobre la barra de
-     pestañas, no encima del contenido. */
-  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: auto;
   display: flex;
   justify-content: center;
-  padding: var(--space-card) var(--space-row);
+  padding: var(--space-card) 0
+           calc(var(--space-card) + env(safe-area-inset-bottom, 0px));
   pointer-events: none;
 }
 

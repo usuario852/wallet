@@ -27,7 +27,7 @@ import { ico } from './ico.js';
    mostrar, el glifo neutro es el de cuenta. */
 const FALLBACK_ICON = 'cuenta';
 
-const AMOUNT_KINDS = new Set(['positive', 'negative', 'pledge', 'neutral']);
+const AMOUNT_KINDS = new Set(['positive', 'negative', 'pledge', 'neutral', 'muted']);
 
 export function createListRow(options = {}) {
   const {

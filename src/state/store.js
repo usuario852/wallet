@@ -10,6 +10,8 @@
   Los saldos no viven aquí. Se derivan en derive.js.
 */
 
+import { normalize as normalizeConcept } from '../logic/text.js';
+
 /* Forma del estado. Sección 6 del documento base, tal cual. */
 export function createDefaultState() {
   return {
@@ -211,17 +213,24 @@ export function removeUpcoming(target, id) {
   });
 }
 
-/* Memoria invisible del autocompletado. Un concepto por texto. */
+/* Memoria invisible del autocompletado. Un concepto por texto.
+
+   La comparación va normalizada: "Audífonos", "audifonos" y la forma
+   descompuesta que escriben algunos teclados de iOS son el mismo
+   concepto y tienen que sumar al mismo contador, no crear tres
+   entradas. Se conserva la primera grafía escrita: el concepto ya
+   tiene identidad y renombrarlo en cada registro sería ruido. */
 export function upsertConcept(target, draft) {
   const state = target.getState();
   const text = String(draft.text || '').trim();
   if (!text) return null;
 
-  const index = state.concepts.findIndex((concept) => concept.text === text);
+  const key = normalizeConcept(text);
+  const index = state.concepts.findIndex((concept) => normalizeConcept(concept.text) === key);
   const previous = index === -1 ? null : state.concepts[index];
 
   const concept = {
-    text,
+    text: previous ? previous.text : text,
     category: draft.category || (previous && previous.category) || '',
     currency: draft.currency || (previous && previous.currency) || state.settings.activeCurrency,
     count: previous ? previous.count + 1 : toInteger(draft.count, 1),

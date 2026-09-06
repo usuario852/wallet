@@ -17,6 +17,9 @@
 .sheet {
   width: min(480px, 100vw);
   max-height: 92vh;
+  /* dvh sigue a la barra de Safari cuando aparece y desaparece; vh
+     no, y por eso la hoja se cortaba en el iPhone. */
+  max-height: 92dvh;
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-sheet-top) var(--radius-sheet-top) 0 0;
@@ -72,4 +75,27 @@
   padding: 0 var(--space-block)
            calc(var(--space-block) + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
+}
+
+/* -------- variante compacta --------
+   Cabecera mínima, cuerpo sin scroll propio. El contenido reparte el
+   alto: lo que tiene que verse siempre no encoge, y lo que sobra
+   —la lista de sugerencias— es lo único que cede. */
+
+.sheet--compact .sheet__header {
+  padding: var(--space-card) var(--space-block) var(--space-sibling);
+}
+
+.sheet--compact .sheet__title {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--type-caption-weight);
+  color: var(--ink-soft);
+}
+
+.sheet--compact .sheet__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }

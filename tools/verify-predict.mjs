@@ -321,6 +321,36 @@ function testLearningAndFormat() {
   check('y el conteo sube', after.count, 2);
   check('sin duplicar el concepto', store.getState().concepts.length, 1);
 
+  /* El mismo concepto escrito de otra forma no crea otra entrada.
+     "Audífonos", "audifonos" y la forma descompuesta que mandan
+     algunos teclados de iOS son el mismo concepto. */
+  const otro = buildStore();
+  const grafias = [
+    'audífonos',
+    'Audifonos',
+    'AUDÍFONOS',
+    'audífonos',  /* i + tilde combinante, como escribe iOS */
+    ' audífonos ',
+  ];
+  grafias.forEach((texto, index) => {
+    recordUsage(otro, {
+      concept: texto, category: 'Compras', currency: 'PEN',
+      amountMinor: 3500, date: '2026-03-12T1' + index + ':00',
+    });
+  });
+  check('cinco grafías, un solo concepto', otro.getState().concepts.length, 1);
+  check('y el conteo las suma todas', otro.getState().concepts[0].count, 5);
+  check('conserva la primera grafía escrita', otro.getState().concepts[0].text, 'audífonos');
+  check('y sugiere una sola vez',
+    suggest(otro.getState(), 'audi', { now: NOW }).filter((s) => normalize(s.text) === 'audifonos').length, 1);
+
+  /* Un movimiento sin monto no debe llegar a guardarse: la hoja lo
+     corta antes. Aquí se comprueba el dato con el que decide. */
+  const sinMonto = resolveDraft(otro.getState(), { raw: 'audífonos', chosenType: 'expense', now: NOW });
+  check('sin monto escrito ni recordado, el borrador vale 0', sinMonto.amountMinor, 0);
+  const conMonto = resolveDraft(otro.getState(), { raw: 'audífonos 35', chosenType: 'expense', now: NOW });
+  check('con monto escrito, no', conMonto.amountMinor, 3500);
+
   /* Formato del dinero. */
   check('con símbolo y dos decimales', money(1800, 'PEN'), 'S/ 18.00');
   check('signo de gasto', money(1800, 'PEN', { sign: 'expense' }), '− S/ 18.00');

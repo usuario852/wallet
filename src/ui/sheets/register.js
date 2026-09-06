@@ -38,7 +38,10 @@ export const SUGGEST_DEBOUNCE_MS = 120;
 export function openRegisterSheet(options = {}) {
   const { store, language = 'es', now = () => new Date() } = options;
 
-  const sheet = createSheet({ title: t(language, 'register') });
+  /* compact: el título baja a caption y el cuerpo no hace scroll. En
+     un iPhone la hoja no da para más, y lo que no puede faltar es el
+     teclado entero y Guardar. */
+  const sheet = createSheet({ title: t(language, 'register'), compact: true });
   let type = 'expense';
   let timer = 0;
 
@@ -73,6 +76,12 @@ export function openRegisterSheet(options = {}) {
   empty.className = 'register__empty';
   empty.textContent = t(language, 'emptySuggestions');
 
+  /* Aviso bajo el campo. Ocupa sitio siempre para que aparecer no
+     empuje el teclado hacia abajo. */
+  const hint = document.createElement('p');
+  hint.className = 'register__hint';
+  hint.setAttribute('role', 'status');
+
   /* -------- teclado propio --------
      No levanta el teclado nativo: escribe en el campo sin darle el
      foco, que es justo lo que permite tener Guardar junto al pulgar. */
@@ -94,8 +103,8 @@ export function openRegisterSheet(options = {}) {
   sheet.body.appendChild(wrap('register', [
     kind.el,
     field.el,
-    list,
-    empty,
+    hint,
+    wrap('register__flex', [list, empty]),
     keypad.el,
     saveButton,
   ]));
@@ -105,6 +114,7 @@ export function openRegisterSheet(options = {}) {
      ------------------------------------------------------------------ */
 
   function scheduleRefresh() {
+    limpiarAviso();
     if (timer) clearTimeout(timer);
     timer = setTimeout(refresh, SUGGEST_DEBOUNCE_MS);
   }
@@ -142,6 +152,19 @@ export function openRegisterSheet(options = {}) {
 
     empty.hidden = results.length > 0;
     list.hidden = results.length === 0;
+    recortarSugerencias();
+  }
+
+  /* Quita las filas que no caben. El teclado y Guardar no se tocan:
+     la lista es lo único que cede, y una fila cortada por la mitad no
+     se muestra. */
+  function recortarSugerencias() {
+    if (!list.isConnected) return;
+    const disponible = list.clientHeight;
+    if (!disponible) return;
+    while (list.children.length > 1 && list.scrollHeight > disponible) {
+      list.removeChild(list.lastElementChild);
+    }
   }
 
   function suggestionRow(state, suggestion, parsed, lang, reference) {
@@ -152,12 +175,14 @@ export function openRegisterSheet(options = {}) {
 
     const meta = [suggestion.category, suggestion.accountName].filter(Boolean).join(' · ');
 
+    /* Sin monto previo la columna no se deja vacía: un guion en gris
+       suave dice que todavía no sabemos cuánto. */
     const row = createListRow({
       icon: iconForCategory(suggestion.category),
       title: suggestion.text,
       subtitle: meta,
-      amount: amountMinor ? money(amountMinor, currency) : '',
-      amountKind: 'neutral',
+      amount: amountMinor ? money(amountMinor, currency) : t(lang, 'noAmount'),
+      amountKind: amountMinor ? 'neutral' : 'muted',
       onClick: () => commit({ raw: field.value, suggestion, reference }),
     });
     row.setAttribute('role', 'listitem');
@@ -185,6 +210,14 @@ export function openRegisterSheet(options = {}) {
       return;
     }
 
+    /* Un movimiento de 0.00 no es un movimiento: no cambia ningún
+       saldo y ensucia el historial. El campo nunca bloquea por el
+       texto, pero sí por esto, que es un dato que falta. */
+    if (!draft.amountMinor) {
+      marcarFaltaMonto();
+      return;
+    }
+
     let operation = null;
     try {
       operation = addOperation(store, draft);
@@ -197,8 +230,23 @@ export function openRegisterSheet(options = {}) {
     confirmSaved(store, operation, language);
   }
 
-  refresh();
+  /* Señala el campo y dice qué falta. Sin rojo: el acento marca lo
+     que hay que tocar, y eso es exactamente lo que pasa aquí. */
+  function marcarFaltaMonto() {
+    field.el.classList.add('ghost-field--pide-monto');
+    hint.textContent = t(language, 'amountMissing');
+    field.focus();
+  }
+
+  function limpiarAviso() {
+    field.el.classList.remove('ghost-field--pide-monto');
+    hint.textContent = '';
+  }
+
+  /* Se abre primero y se puebla después: recortar las sugerencias
+     necesita medir, y medir necesita estar en el documento. */
   sheet.open();
+  refresh();
   return sheet;
 }
 

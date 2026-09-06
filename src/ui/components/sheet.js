@@ -26,13 +26,16 @@ const FOCUSABLE = [
 ].join(',');
 
 export function createSheet(options = {}) {
-  const { title = '', onClose, container = document.body } = options;
+  const { title = '', onClose, container = document.body, compact = false } = options;
 
   const el = document.createElement('div');
   el.className = 'sheet-overlay';
 
   const panel = document.createElement('div');
-  panel.className = 'sheet';
+  /* compact: cabecera mínima y sin scroll propio en el cuerpo. La
+     usa Registrar, donde el teclado y Guardar tienen que estar
+     siempre a la vista y es el contenido el que decide qué encoge. */
+  panel.className = compact ? 'sheet sheet--compact' : 'sheet';
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-modal', 'true');
 

@@ -7,10 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "verify": "node tools/verify-state.mjs && node tools/verify-predict.mjs",
+    "verify": "node tools/verify-state.mjs && node tools/verify-predict.mjs && node tools/verify-balance.mjs",
     "migrate:backup": "node tools/migrate-backup.mjs",
     "cross-check": "node tools/cross-check.mjs",
-    "verify:predict": "node tools/verify-predict.mjs"
+    "verify:predict": "node tools/verify-predict.mjs",
+    "verify:balance": "node tools/verify-balance.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.5"

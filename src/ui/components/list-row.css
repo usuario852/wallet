@@ -86,3 +86,9 @@ button.list-row:active {
 .list-row__amount--pledge {
   color: var(--pledge);
 }
+
+/* Monto ausente. La columna nunca queda vacía: un guion en gris
+   suave dice "todavía no sé cuánto" sin fingir una cifra. */
+.list-row__amount--muted {
+  color: var(--ink-soft);
+}

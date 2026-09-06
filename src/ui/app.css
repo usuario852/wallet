@@ -40,10 +40,20 @@ body {
   background: var(--paper);
 }
 
+/* Columna, no bloque: así la pantalla de dentro puede estirarse hasta
+   el fondo sin depender de un porcentaje, que contra un contenedor
+   flexible no resuelve. De eso vive el botón pegajoso de Registrar. */
 .app__screen {
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.app__screen > * {
+  flex: 1 0 auto;
 }
 
 .app .tabbar {
@@ -58,7 +68,10 @@ body {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(var(--tabbar-height) + var(--space-card));
+  /* Por encima de la barra de pestañas, que a su vez ya se aparta el
+     área segura del teléfono. */
+  bottom: calc(var(--tabbar-height) + var(--space-card)
+               + env(safe-area-inset-bottom, 0px));
   z-index: 30;
   display: flex;
   flex-direction: column;

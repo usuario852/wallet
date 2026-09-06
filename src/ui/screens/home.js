@@ -120,11 +120,17 @@ function renderBalance(store, state, totals, language) {
   const secondary = document.createElement('dl');
   secondary.className = 'home__secondary';
 
-  /* Los tres en ámbar: describen dinero que ya tiene dueño. El
-     disponible bajo cero también, nunca en --negative. */
+  /* El disponible solo va en ámbar cuando está bajo cero. En
+     positivo no hay nada que señalar: es información, y va en gris
+     suave como la reserva. */
   addFigure(secondary, t(language, 'available'),
-    money(totals.availableMinor, null, { cents: 'auto', sign: 'auto' }), 'pledge');
+    money(totals.availableMinor, null, { cents: 'auto', sign: 'auto' }),
+    totals.availableMinor < 0 ? 'pledge' : 'soft');
 
+  /* Comprometido y por cobrar sí describen dinero con dueño, así que
+     van siempre en ámbar. Se dibujan siempre que existan, en
+     cualquier ancho: no hay ninguna que se esconda por falta de
+     sitio, la línea envuelve. */
   if (totals.pledgedMinor) {
     addFigure(secondary, t(language, 'pledged'),
       money(totals.pledgedMinor, null, { cents: 'auto', sign: 'expense' }), 'pledge');
