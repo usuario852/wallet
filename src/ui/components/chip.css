@@ -33,10 +33,6 @@
   outline-offset: 2px;
 }
 
-.chip:active,
-.chip[aria-pressed='true']:active {
-  transform: scale(var(--press-scale));
-}
 
 .chip[aria-pressed='true'] {
   border-color: var(--accent-soft);
@@ -46,6 +42,15 @@
      unos 72px, 4 son un 5.5% de ancho; se consigue con una escala
      uniforme para no deformar el texto. */
   transform: scale(1.055);
+}
+
+/* La presión gana al ensanche del seleccionado: pulsar un chip ya
+   elegido tiene que encogerlo, no dejarlo grande. */
+.chip:active,
+.chip.is-pressed,
+.chip[aria-pressed='true']:active,
+.chip[aria-pressed='true'].is-pressed {
+  transform: scale(var(--press-scale));
 }
 
 /* Área táctil de 44px sin engordar la píldora: el chip mide 38 y el

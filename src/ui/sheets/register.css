@@ -72,20 +72,12 @@
   overflow: hidden;
 }
 
-/* Transición, no keyframes: estas filas se rehacen en cada tecla, y
-   un keyframe reiniciaría desde cero en cada pulsación. */
-.register__choices .list-row {
-  opacity: 0;
-  transform: translateY(-4px);
-  transition:
-    opacity var(--motion-row) var(--ease-out),
-    transform var(--motion-row) var(--ease-out);
-}
+/* Las sugerencias no animan al aparecer.
 
-.register__choices .list-row--in {
-  opacity: 1;
-  transform: none;
-}
+   Se rehacen en cada pulsación: escribir ocho letras son decenas de
+   entradas en un segundo. La tabla de frecuencia de la skill animate
+   es tajante para lo que pasa cien veces al día: no se anima, punto.
+   Hacerla interrumpible fue tratar el síntoma. */
 
 .register__empty {
   margin: 0;
@@ -119,7 +111,8 @@
   transition: transform 120ms var(--ease-out);
 }
 
-.register__search-row:active {
+.register__search-row:active,
+.register__search-row.is-pressed {
   transform: scale(var(--press-scale));
 }
 
@@ -265,6 +258,7 @@
   transition: transform 120ms var(--ease-out);
 }
 
-.register__save:active {
+.register__save:active,
+.register__save.is-pressed {
   transform: scale(var(--press-scale));
 }

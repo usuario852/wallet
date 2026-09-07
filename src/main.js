@@ -5,6 +5,7 @@ import { loadState, attachPersistence } from './state/persist.js';
 import { runMigration } from './state/migrate.js';
 import { removeOperations, findEmptyOperations } from './state/remove.js';
 import { balancesByAccount, totalsByCurrency } from './state/derive.js';
+import { attachPressFeedback } from './ui/press.js';
 import { mountApp } from './ui/render.js';
 
 /*
@@ -56,6 +57,9 @@ export function boot(root) {
       if (document.visibilityState === 'hidden') persistence.flush();
     });
   }
+
+  /* Respuesta al pulsar: un escucha para toda la app, en captura. */
+  attachPressFeedback();
 
   exposeConsoleBridge(persistence);
 

@@ -29,7 +29,8 @@ button.list-row:focus-visible {
   outline-offset: -2px;
 }
 
-button.list-row:active {
+button.list-row:active,
+button.list-row.is-pressed {
   transform: scale(var(--press-scale));
 }
 

@@ -1,5 +1,6 @@
 import './sheet.css';
 import { ico } from './ico.js';
+import { attachSheetDrag } from '../drag-sheet.js';
 
 /*
   sheet — hoja inferior. El contenedor de Registrar, Cuenta,
@@ -87,6 +88,9 @@ export function createSheet(options = {}) {
     }
   }
 
+  /* Se declara antes que api porque open y close lo usan. */
+  let drag = null;
+
   const api = {
     el,
     body,
@@ -95,7 +99,21 @@ export function createSheet(options = {}) {
       mounted = true;
       lastFocus = document.activeElement;
       container.appendChild(el);
+
+      /* Abajo del todo antes del primer cuadro, y desde ahí sube con
+         el resorte. Es la misma física con la que vuelve cuando se
+         suelta a medias, así que agarrarla mientras sube la engancha
+         donde esté en vez de esperar a que termine. */
+      drag.placeOffscreen();
+      drag.animateTo(0);
+
+      /* El velo sí espera un cuadro: es una transición de opacidad y
+         necesita que el estado inicial se haya pintado. La hoja no
+         depende de ese cuadro —arranca ya— porque si los cuadros se
+         retrasan, una opacidad tardía se ve mal y una hoja que nunca
+         sube es una app rota. */
       requestAnimationFrame(() => el.classList.add('sheet-overlay--open'));
+
       document.addEventListener('keydown', onKeydown);
       const target = panel.querySelector(FOCUSABLE) || closeBtn;
       target.focus();
@@ -105,6 +123,7 @@ export function createSheet(options = {}) {
       mounted = false;
       document.removeEventListener('keydown', onKeydown);
       el.classList.remove('sheet-overlay--open');
+
       let removed = false;
       const remove = () => {
         if (removed) return;
@@ -113,8 +132,13 @@ export function createSheet(options = {}) {
         if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
         if (typeof onClose === 'function') onClose();
       };
-      panel.addEventListener('transitionend', remove, { once: true });
-      setTimeout(remove, 360);
+
+      /* Sale por donde entró, con el mismo resorte. */
+      drag.animateTo(drag.height(), { onRest: remove });
+      /* Red de seguridad: si el resorte no llegara a descansar —una
+         pestaña en segundo plano no ejecuta cuadros— la hoja se
+         quita igual. */
+      setTimeout(remove, 900);
     },
   };
 
@@ -122,6 +146,35 @@ export function createSheet(options = {}) {
   el.addEventListener('click', (event) => {
     if (event.target === el) api.close();
   });
+
+  /* Arrastrar hacia abajo para cerrar. El gesto vive aparte, en
+     drag-sheet.js, porque no es cosa de esta hoja sino de cualquiera.
+
+     canDrag decide si el gesto empieza. Se deja pasar cuando el dedo
+     cae sobre algo desplazable que todavía tiene recorrido hacia
+     arriba: ahí el gesto es scroll, no cierre. */
+  drag = attachSheetDrag({
+    panel,
+    onClose: () => {
+      /* El gesto ya la dejó fuera de pantalla: se desmonta sin volver
+         a animar la salida. */
+      api.close();
+    },
+    canDrag: (event) => {
+      let node = event.target;
+      while (node && node !== panel) {
+        if (node.scrollHeight - node.clientHeight > 1 && node.scrollTop > 0) return false;
+        node = node.parentElement;
+      }
+      return true;
+    },
+  });
+
+  api.destroy = () => {
+    drag.destroy();
+    document.removeEventListener('keydown', onKeydown);
+    el.remove();
+  };
 
   return api;
 }

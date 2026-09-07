@@ -235,7 +235,8 @@
   transition: transform 120ms var(--ease-out);
 }
 
-.home__register-button:active {
+.home__register-button:active,
+.home__register-button.is-pressed {
   transform: scale(var(--press-scale));
 }
 

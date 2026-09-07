@@ -7,12 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "verify": "node tools/verify-state.mjs && node tools/verify-predict.mjs && node tools/verify-balance.mjs",
+    "verify": "node tools/verify-state.mjs && node tools/verify-predict.mjs && node tools/verify-balance.mjs && node tools/verify-gestures.mjs",
     "migrate:backup": "node tools/migrate-backup.mjs",
     "cross-check": "node tools/cross-check.mjs",
     "verify:predict": "node tools/verify-predict.mjs",
     "verify:balance": "node tools/verify-balance.mjs",
-    "contrast": "node tools/contrast.mjs"
+    "contrast": "node tools/contrast.mjs",
+    "verify:gestures": "node tools/verify-gestures.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.5"

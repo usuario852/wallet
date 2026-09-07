@@ -7,6 +7,7 @@ import { iconForCategory } from '../../logic/seed.js';
 import { nowLocalISO } from '../../logic/parse.js';
 import { totalsByCurrency, operationsInPeriod } from '../../state/derive.js';
 import { updateSettings } from '../../state/store.js';
+import { hapticTap } from '../press.js';
 import { t } from '../../copy.js';
 
 /*
@@ -106,11 +107,11 @@ function renderBalance(store, state, totals, language) {
   amount.textContent = money(totals.totalMinor, state.settings.activeCurrency, { sign: 'auto' });
   amount.setAttribute('aria-label', t(language, hidden ? 'showBalance' : 'hideBalance'));
 
-  /* El momento firmado. Solo hay uno en toda la app. */
+  /* El momento firmado. Solo hay uno en toda la app, y lleva
+     háptico: pasa una o dos veces al día y la vibración es parte de
+     él, no un adorno. Sección 3. */
   amount.addEventListener('click', () => {
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      navigator.vibrate(10);
-    }
+    hapticTap();
     updateSettings(store, { balanceHidden: !hidden });
   });
   block.appendChild(amount);

@@ -28,7 +28,8 @@
   outline-offset: -2px;
 }
 
-.keypad__key:active {
+.keypad__key:active,
+.keypad__key.is-pressed {
   transform: scale(var(--press-scale));
 }
 

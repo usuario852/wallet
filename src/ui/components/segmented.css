@@ -32,7 +32,8 @@
   outline-offset: 2px;
 }
 
-.segmented__option:active {
+.segmented__option:active,
+.segmented__option.is-pressed {
   transform: scale(var(--press-scale));
 }
 

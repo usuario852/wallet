@@ -108,7 +108,8 @@
   transition: transform 120ms var(--ease-out);
 }
 
-.settings__button:active {
+.settings__button:active,
+.settings__button.is-pressed {
   transform: scale(var(--press-scale));
 }
 

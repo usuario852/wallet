@@ -25,12 +25,10 @@
   border-radius: var(--radius-sheet-top) var(--radius-sheet-top) 0 0;
   background: var(--surface);
   box-shadow: var(--shadow-sheet);
-  transform: translateY(100%);
-  transition: transform 320ms var(--ease-drawer);
-}
-
-.sheet-overlay--open .sheet {
-  transform: translateY(0);
+  /* La posición la escribe el resorte, en línea. No hay transición
+     de transform: entrar, salir y volver del gesto son el mismo
+     movimiento, y una transición no se puede agarrar a medio camino.
+     Ver drag-sheet.js. */
 }
 
 .sheet__header {
@@ -70,7 +68,8 @@
   outline-offset: 2px;
 }
 
-.sheet__close:active {
+.sheet__close:active,
+.sheet__close.is-pressed {
   transform: scale(var(--press-scale));
 }
 
@@ -103,4 +102,32 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+}
+
+/* Mientras el dedo la lleva, ninguna transición: el resorte y el
+   seguimiento 1:1 escriben transform directamente, y una transición
+   por encima añadiría un retraso entre el dedo y la hoja. */
+/* Mientras el dedo la lleva. El transform ya lo escribe el resorte
+   sin transición; esto solo avisa al compositor. */
+.sheet--dragging {
+  will-change: transform;
+}
+
+/* El asa de arrastre. No es decorativa: dice que la hoja se puede
+   agarrar, que es información que sin ella hay que descubrir. */
+.sheet__grab {
+  flex: none;
+  align-self: center;
+  width: 36px;
+  height: 4px;
+  margin-top: var(--space-sibling);
+  border-radius: var(--radius-pill);
+  background: var(--line);
+}
+
+/* Sin gesto no hay nada que anunciar. */
+@media (hover: hover) and (pointer: fine) {
+  .sheet__grab {
+    opacity: .6;
+  }
 }

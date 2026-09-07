@@ -17,6 +17,7 @@ import { createChip } from '../components/chip.js';
 import { addOperation, removeOperation } from '../../state/store.js';
 import { money, operationAmount } from '../format.js';
 import { showToast } from '../toast-host.js';
+import { hapticTap } from '../press.js';
 import { markInsight } from '../../logic/mark.js';
 import { t, stateLabels, markPhrase, STATE_PRIMARY } from '../../copy.js';
 
@@ -318,9 +319,6 @@ export function openRegisterSheet(options = {}) {
       });
       row.setAttribute('role', 'listitem');
       container.appendChild(row);
-      /* Un cuadro con el estado inicial pintado antes de pasar al
-         final; si no, la transición no arranca. */
-      requestAnimationFrame(() => row.classList.add('list-row--in'));
     }
     emptyNode.hidden = list.length > 0;
     container.hidden = list.length === 0;
@@ -444,6 +442,11 @@ export function openRegisterSheet(options = {}) {
       showToast({ message: t(language, 'saveFailed'), duration: 4000 });
       return;
     }
+
+    /* En el mismo instante en que la operación entra al estado, no
+       cuando aparece el toast: la causa del háptico tiene que ser
+       evidente, y el retraso entre sentir y ver rompe la ilusión. */
+    hapticTap();
 
     sheet.close();
     confirmSaved(store, operation, language);
