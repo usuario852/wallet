@@ -318,6 +318,9 @@ export function openRegisterSheet(options = {}) {
       });
       row.setAttribute('role', 'listitem');
       container.appendChild(row);
+      /* Un cuadro con el estado inicial pintado antes de pasar al
+         final; si no, la transición no arranca. */
+      requestAnimationFrame(() => row.classList.add('list-row--in'));
     }
     emptyNode.hidden = list.length > 0;
     container.hidden = list.length === 0;

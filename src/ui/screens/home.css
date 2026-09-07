@@ -61,6 +61,11 @@
   background: transparent;
   color: var(--ink-soft);
   cursor: pointer;
+
+  /* Área táctil de 44px. El fondo es transparente, así que crecer
+     hacia el aire no cambia nada de lo que se ve. */
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
 }
 
 /* -------- saldo -------- */
@@ -227,7 +232,7 @@
   font-weight: var(--type-label-weight);
   box-shadow: var(--shadow-toast);
   cursor: pointer;
-  transition: transform 90ms var(--ease-out);
+  transition: transform 120ms var(--ease-out);
 }
 
 .home__register-button:active {
@@ -239,4 +244,25 @@
 .is-pending {
   opacity: .45;
   cursor: default;
+}
+
+/* -------- área táctil --------
+   Estos dos sí tienen fondo o posición que se vería alterada al
+   estirarlos, así que el área crece con un pseudo-elemento centrado
+   que no pinta nada. */
+
+.home__currency,
+.home__see-all {
+  position: relative;
+}
+
+.home__currency::after,
+.home__see-all::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, var(--tap-min));
+  height: max(100%, var(--tap-min));
+  transform: translate(-50%, -50%);
 }

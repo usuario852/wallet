@@ -1,5 +1,5 @@
 /*
-  Sistema visual "Garúa" — tokens
+  Sistema visual "Lino" — tokens
   Fuente única de verdad para color, tipografía, espaciado, forma,
   elevación y movimiento. Sección 3 del documento base.
 
@@ -31,6 +31,32 @@
    elemento se dibuja igual. */
 [hidden] {
   display: none !important;
+}
+
+/* Los controles no heredan la tipografía: cada navegador les pone la
+   suya. Sin esto, un botón sin font-family propio sale en Arial y la
+   pantalla mezcla dos familias sin que se note al leer el CSS.
+   Solo la familia: el tamaño y el peso los decide cada componente. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Área táctil mínima. 44px es el mínimo cómodo con el pulgar.
+
+   Dos técnicas, según el control:
+
+   · Si el fondo no se ve —un botón de solo icono, transparente—
+     basta con min-width y min-height: crece hacia el aire y no
+     cambia nada de lo que se mira.
+   · Si el fondo sí se ve —un chip, una píldora—, estirarlo cambiaría
+     la composición. Ahí va un ::after centrado que crece hacia fuera
+     sin pintar nada. Cada componente lo declara en su archivo, junto
+     a la forma que está compensando. */
+:root {
+  --tap-min: 44px;
 }
 
 /* ---------------------------------------------------------------
@@ -148,10 +174,10 @@
 
   --ease-signed: cubic-bezier(.16, 1, .3, 1);  /* el momento firmado */
 
-  /* Resorte de la hoja que sube: rigidez 300, amortiguación 30.
-     Resorte del chip al seleccionar: rigidez 400, amortiguación 25.
-     Aproximados como curvas de salida para CSS. */
-  --spring-sheet: cubic-bezier(.22, 1, .28, 1);
+  /* Resorte del chip al seleccionar: rigidez 400, amortiguación 25.
+     Es la única curva con rebote de la app, y es deliberada: el chip
+     responde al dedo. La hoja usa --ease-drawer, que es la curva de
+     cajón de la skill, y ya no necesita resorte propio. */
   --spring-chip: cubic-bezier(.34, 1.56, .48, 1);
   --chip-grow: 4px;             /* ensanchamiento del chip seleccionado */
 

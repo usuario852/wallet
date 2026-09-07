@@ -72,13 +72,19 @@
   overflow: hidden;
 }
 
+/* Transición, no keyframes: estas filas se rehacen en cada tecla, y
+   un keyframe reiniciaría desde cero en cada pulsación. */
 .register__choices .list-row {
-  animation: register-row-in var(--motion-row) var(--ease-out) both;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--motion-row) var(--ease-out),
+    transform var(--motion-row) var(--ease-out);
 }
 
-@keyframes register-row-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: none; }
+.register__choices .list-row--in {
+  opacity: 1;
+  transform: none;
 }
 
 .register__empty {
@@ -110,7 +116,7 @@
   line-height: var(--type-body-line);
   text-align: left;
   cursor: pointer;
-  transition: transform 90ms var(--ease-out);
+  transition: transform 120ms var(--ease-out);
 }
 
 .register__search-row:active {
@@ -146,6 +152,11 @@
   background: transparent;
   color: var(--ink-soft);
   cursor: pointer;
+
+  /* Área táctil de 44px. El fondo es transparente, así que crecer
+     hacia el aire no cambia nada de lo que se ve. */
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
 }
 
 
@@ -251,7 +262,7 @@
   line-height: var(--type-label-line);
   font-weight: var(--type-label-weight);
   cursor: pointer;
-  transition: transform 90ms var(--ease-out);
+  transition: transform 120ms var(--ease-out);
 }
 
 .register__save:active {

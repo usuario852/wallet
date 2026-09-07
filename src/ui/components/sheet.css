@@ -26,7 +26,7 @@
   background: var(--surface);
   box-shadow: var(--shadow-sheet);
   transform: translateY(100%);
-  transition: transform 320ms var(--spring-sheet);
+  transition: transform 320ms var(--ease-drawer);
 }
 
 .sheet-overlay--open .sheet {
@@ -58,6 +58,11 @@
   cursor: pointer;
   display: inline-flex;
   border-radius: var(--radius-avatar);
+
+  /* Área táctil de 44px. El fondo es transparente, así que crecer
+     hacia el aire no cambia nada de lo que se ve. */
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
 }
 
 .sheet__close:focus-visible {

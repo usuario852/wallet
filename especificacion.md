@@ -88,11 +88,13 @@ Gastos fijos, compromisos, deudas y suscripciones eran cuatro conceptos para lo 
 
 # 3. Sistema visual
 
-## Dirección: "Garúa"
+## Dirección: "Lino"
 
-La referencia es la luz de la costa de Lima. Gris luminoso, sin sol directo, sin contraste agresivo. Es una decisión local y específica, no un estilo tomado de un catálogo.
+La referencia es la fibra sin blanquear: el crudo del lino, el papel de algodón, la cal de una pared vieja. Un blanco que tira a hueso, nunca a azul. Un negro que tira a tierra, nunca a acero.
 
-Esto sustituye deliberadamente la combinación crema + terracota de la versión anterior, que es el patrón cromático más reconocible de interfaces generadas automáticamente y que un ojo entrenado detecta de inmediato.
+Sustituye a "Garúa", que buscaba el gris luminoso de la costa de Lima. Aquel gris era correcto y era frío, y en una pantalla que se mira a las 11 de la noche el frío se lee como distancia. Lino es la misma sobriedad con temperatura: la misma cantidad de color, más grados.
+
+El verde se hizo más profundo y el ámbar se volvió terracota. Ninguno de los dos cambió de trabajo.
 
 ## Color
 
@@ -138,15 +140,46 @@ No es una inversión. Es una paleta propia, con el mismo verde y el mismo ámbar
 - No existe el rojo de advertencia. Ver principio 3.
 - No hay gradientes en ninguna parte.
 
+### Contraste
+
+Todo el texto llega a AA: 4.5:1 el texto normal, 3:1 los montos, que van a 17px en semibold. Se comprueba con `npm run contrast`, que mide los pares que la interfaz usa de verdad, no combinaciones teóricas.
+
+Dos casos merecen quedar por escrito.
+
+**El anillo de foco sí es innegociable.** Es siempre `--accent`, 2px, y llega a 3:1 contra la superficie donde aparece en los 21 controles de la app, en los dos modos. El peor caso es 5.49:1. Sin él la app no se puede usar con teclado, así que el 1.4.11 aplica sin excepción y la comprobación falla el build si algún control baja de 3:1.
+
+Donde el `outline-offset` es negativo —las teclas del teclado y las filas tocables— el anillo cae sobre el fondo del propio control, y ahí también se mide. En los tres botones cuyo fondo ya es `--accent`, el anillo se separa del botón por los 2px de hueco del offset, que dejan ver el fondo del contenedor.
+
+**`--line` se queda en 1.18:1, y es una decisión, no un descuido.** Está muy por debajo del 3:1 que pediría un componente de interfaz. Se acepta porque:
+
+- Es un **separador, no un indicador**. Marca dónde acaba una fila y empieza la siguiente, y esa información ya la da la posición: quitarlo entero no impediría leer ni usar nada.
+- **Ningún control depende solo de él para leerse.** Una tecla se distingue por su superficie sobre el fondo de la hoja; un chip, por su forma y su texto; el campo, por su fondo. El borde afina, no sostiene.
+- Subirlo a 3:1 exigiría `#8D8C83` en claro y `#64635D` en oscuro, que convierten una línea de pelo en un trazo. La separación pasaría a hacerse por línea en vez de por superficie, que es exactamente lo contrario de lo que pide la dirección: la profundidad viene del contraste entre `--paper` y `--surface`, no de dibujar cajas.
+
+Si algún día un borde `--line` pasa a ser la única señal de que algo es tocable, deja de valer esta excepción y hay que subirlo.
+
 ## Tipografía
 
 Dos familias con roles claramente distintos.
 
-**Interfaz:** pila del sistema.
+**Interfaz:** Instrument Sans, con la pila del sistema como respaldo.
+
 ```css
--apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+'Instrument Sans', -apple-system, BlinkMacSystemFont,
+'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif
 ```
-Carga instantánea, y es la razón principal por la que algo se siente nativo en vez de portado.
+
+**Por qué se cambió.** La pila del sistema daba carga instantánea y tacto nativo, pero también significaba que la app no tenía letra propia: se veía distinta en cada teléfono y en ninguno se veía como ella misma. Instrument Sans tiene la geometría estrecha y el ojo abierto que hacen falta para poner cifras y etiquetas juntas sin que compitan, y da una identidad que no depende del dispositivo.
+
+**Lo que cuesta, dicho sin adornos.** Una petición más antes del primer pintado, y una dependencia de red en una app que por lo demás funciona sin ella. Se mitiga así:
+
+- `font-display: swap`, en el parámetro `display=swap` de la URL. La app se dibuja de inmediato con la pila del sistema y cambia a Instrument Sans cuando llega. Nunca hay texto invisible ni bloqueo.
+- `preconnect` a los dos dominios de Google Fonts y `preload` de las dos hojas, para que la petición salga en el primer lote y no espere al analizador.
+- La pila del sistema no es un último recurso decorativo: es lo que se ve mientras carga, y lo que se ve para siempre si la red falla. Por eso lleva `SF Pro Text` delante, que es lo que toca en un iPhone.
+
+Instrument Sans se sirve por rangos Unicode, así que el navegador baja solo el bloque latino. No se puede subconjuntar más con `text=`, porque los conceptos los escribe el usuario y no se sabe de antemano qué letras usará.
+
+Es un intercambio consciente: identidad propia a cambio de una petición. Si el arranque en frío se degrada por debajo del criterio 3, la decisión se revisa.
 
 **Cifras de dinero:** Archivo (variable, Google Fonts, cifras tabulares reales).
 
@@ -884,7 +917,7 @@ La v1 está lista cuando:
 
    El tercer tap del camino frecuente no es una concesión: existe para ver el monto antes de confirmarlo. Sin esa confirmación se guardaron montos que el usuario nunca llegó a mirar, porque tocar una sugerencia arrastraba el importe recordado en silencio. Un tap que evita un dato falso vale su coste.
 2. Las sugerencias aparecen en menos de 150ms sin conexión.
-3. La app arranca en menos de 300ms con 1,000 movimientos cargados.
+3. La app arranca en menos de 300ms con 1,000 movimientos cargados, **con la fuente en caché**. En el primer arranque, sin caché, el texto se dibuja con la pila del sistema y cambia a Instrument Sans al llegar; el umbral de 300ms mide hasta el primer pintado, no hasta la fuente.
 4. Todo funciona completamente sin conexión salvo la capa 3 de predicción.
 5. Ninguna pantalla usa emojis.
 6. Existe un estado vacío escrito para cada lista de la app.

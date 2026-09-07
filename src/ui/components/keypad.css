@@ -20,7 +20,6 @@
   line-height: var(--type-title-line);
   font-weight: var(--type-amount-weight);
   cursor: pointer;
-  transition: transform 0s;
   user-select: none;
 }
 

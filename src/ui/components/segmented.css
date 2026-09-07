@@ -40,3 +40,19 @@
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+/* Misma técnica que en el chip: la opción mide 36 y el área táctil
+   llega a 44 sin cambiar la píldora ni el alto del segmento. */
+.segmented__option {
+  position: relative;
+}
+
+.segmented__option::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: max(100%, var(--tap-min));
+  transform: translate(-50%, -50%);
+}

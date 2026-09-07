@@ -93,6 +93,14 @@ export function createToast(options = {}) {
     el.appendChild(detailEl);
   }
 
+  /* La entrada es una transición, no un keyframe: el toast se puede
+     disparar dos veces en un segundo y una transición retoma desde
+     donde está en vez de reiniciar. Necesita un cuadro con el estado
+     inicial pintado antes de cambiar al final. */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => el.classList.add('toast--in'));
+  });
+
   if (duration > 0) {
     timer = setTimeout(() => finish('timeout'), duration);
   }

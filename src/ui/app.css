@@ -8,9 +8,13 @@
   --app-max-width: 520px;
 }
 
+/* El documento no hace scroll: lo hace la pantalla, por dentro. Así
+   no hay dos barras compitiendo, y en iOS desaparece el rebote de la
+   página entera al llegar al final de una lista. */
 html,
 body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -30,14 +34,23 @@ body {
   outline-offset: 2px;
 }
 
+/* Alto exacto, no mínimo.
+
+   Con min-height, el contenido alto hacía crecer la columna por
+   debajo de la ventana; la barra de pestañas, que era pegajosa, se
+   quedaba flotando encima y el botón Registrar aterrizaba sobre ella.
+   Con height fijo, la pantalla recibe justo lo que sobra, hace scroll
+   por dentro, y la barra ocupa su sitio en el flujo sin montarse
+   sobre nada. */
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   max-width: var(--app-max-width);
   margin: 0 auto;
   background: var(--paper);
+  overflow: hidden;
 }
 
 /* Columna, no bloque: así la pantalla de dentro puede estirarse hasta
@@ -56,9 +69,10 @@ body {
   flex: 1 0 auto;
 }
 
+/* Sin sticky: la barra es un hermano de la pantalla en una columna de
+   alto fijo, así que ya está abajo por construcción. Pegarla además
+   era lo que la dejaba montarse sobre el contenido. */
 .app .tabbar {
-  position: sticky;
-  bottom: 0;
   flex: none;
   min-height: var(--tabbar-height);
 }
