@@ -3,8 +3,8 @@
   Fuente única de verdad para color, tipografía, espaciado, forma,
   elevación y movimiento. Sección 3 del documento base.
 
-  Regla de color: verde y ámbar son los únicos colores; todo lo
-  demás es gris. Positivo y negativo solo tiñen el signo y el monto
+  Regla de color: verde y terracota son los únicos colores; todo lo
+  demás es gris cálido. Positivo y negativo solo tiñen el signo y el monto
   de un movimiento, nunca un fondo. No hay rojo de advertencia.
 */
 
@@ -37,24 +37,37 @@
    Color — Claro
    --------------------------------------------------------------- */
 :root {
-  --paper:        #EDEEEA;   /* fondo de la app */
-  --surface:      #F6F7F4;   /* tarjetas y hojas */
-  --ink:          #1C1F1D;   /* texto principal */
-  --ink-soft:     #5B615D;   /* texto secundario */
-  --line:         #D8DBD4;   /* bordes y separadores */
-  --accent:       #2F5D52;   /* verde petróleo — acción, selección, foco */
-  --accent-soft:  #DCE6E2;   /* fondo de estado seleccionado */
-  --pledge:       #9A7B3F;   /* ámbar — comprometido, por cobrar, disponible bajo cero */
-  --positive:     #3F6B4A;   /* solo para el signo de un ingreso */
-  --negative:     #8A4038;   /* solo para el signo de un gasto */
+  --paper:        #F4F2EC;   /* fondo de la app */
+  --surface:      #FBFAF6;   /* tarjetas y hojas */
+  --ink:          #161915;   /* texto principal */
+  --ink-soft:     #6B706A;   /* texto secundario */
+  --line:         #E3E0D6;   /* bordes y separadores */
+  --accent:       #1E4436;   /* verde profundo — acción, selección, foco */
+  --accent-soft:  #E7EDE9;   /* fondo de estado seleccionado */
+  --pledge:       #9E5334;   /* terracota — comprometido, por cobrar, disponible bajo cero */
+  --positive:     #2C6B4A;   /* solo para el signo de un ingreso */
+  --negative:     #8C3B33;   /* solo para el signo de un gasto */
 
   color-scheme: light;
 
   /* -------------------------------------------------------------
      Tipografía
      ------------------------------------------------------------- */
-  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-money: 'Archivo', system-ui;
+  /* Instrument Sans para la interfaz, con la pila del sistema detrás.
+     El respaldo no es decorativo: si la fuente remota tarda o no
+     llega, la app se ve con la del teléfono y no con un serif de
+     último recurso.
+
+     Se sirve por rangos Unicode, así que el navegador baja solo el
+     bloque latino; el resto no viaja. Con `text=` no se puede
+     subconjuntar más, porque los conceptos los escribe el usuario y
+     no se sabe de antemano qué letras usará.
+
+     Archivo se queda solo para las cifras, y esa sí va subconjuntada
+     a mano: son doce caracteres conocidos. */
+  --font-ui: 'Instrument Sans', -apple-system, BlinkMacSystemFont,
+             'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-money: 'Archivo', 'Instrument Sans', system-ui;
 
   /* Escala — seis tamaños, ninguno más, nada en mayúsculas.
      size / line-height / weight */
@@ -118,9 +131,22 @@
      ------------------------------------------------------------- */
   --motion-row: 180ms;          /* fila nueva, desplaza a las de abajo */
   --motion-tab: 140ms;          /* cambio de pestaña, cruce de opacidad */
-  --ease-out: ease-out;
-  --ease-signed: cubic-bezier(.16, 1, .3, 1);  /* el momento firmado */
   --press-scale: 0.97;          /* presión de botón, instantáneo */
+
+  /* Curvas. Valores exactos de la skill animate; no se aproximan ni
+     se inventan variantes.
+
+     ease-out       lo que entra o sale
+     ease-in-out    lo que se mueve o se transforma en pantalla
+     ease-drawer    la hoja que sube, curva de iOS
+
+     Nunca ease-in en la interfaz: empieza lento justo en el instante
+     que el usuario está mirando. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --ease-signed: cubic-bezier(.16, 1, .3, 1);  /* el momento firmado */
 
   /* Resorte de la hoja que sube: rigidez 300, amortiguación 30.
      Resorte del chip al seleccionar: rigidez 400, amortiguación 25.
@@ -140,21 +166,21 @@
 
 /* ---------------------------------------------------------------
    Color — Oscuro
-   No es una inversión. Paleta propia, con el mismo verde y el
-   mismo ámbar.
+   No es una inversión. Paleta propia: negro cálido, no gris
+   azulado, con el mismo verde y la misma terracota.
    --------------------------------------------------------------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper:        #141715;
-    --surface:      #1D211F;
-    --ink:          #E8EAE6;
-    --ink-soft:     #949A95;
-    --line:         #2C312E;
-    --accent:       #6FA394;
+    --paper:        #141613;
+    --surface:      #1D211E;
+    --ink:          #E9E7E0;
+    --ink-soft:     #91968E;
+    --line:         #2C302B;
+    --accent:       #7BAE9C;
     --accent-soft:  #22302C;
-    --pledge:       #C4A268;
-    --positive:     #7BA987;
-    --negative:     #C08379;
+    --pledge:       #C89268;
+    --positive:     #8FBE9B;
+    --negative:     #D28C80;
 
     color-scheme: dark;
   }
@@ -175,31 +201,31 @@
    sitios — claro, oscuro por preferencia y oscuro explícito.
    --------------------------------------------------------------- */
 [data-theme="light"] {
-  --paper:        #EDEEEA;
-  --surface:      #F6F7F4;
-  --ink:          #1C1F1D;
-  --ink-soft:     #5B615D;
-  --line:         #D8DBD4;
-  --accent:       #2F5D52;
-  --accent-soft:  #DCE6E2;
-  --pledge:       #9A7B3F;
-  --positive:     #3F6B4A;
-  --negative:     #8A4038;
+  --paper:        #F4F2EC;
+  --surface:      #FBFAF6;
+  --ink:          #161915;
+  --ink-soft:     #6B706A;
+  --line:         #E3E0D6;
+  --accent:       #1E4436;
+  --accent-soft:  #E7EDE9;
+  --pledge:       #9E5334;
+  --positive:     #2C6B4A;
+  --negative:     #8C3B33;
 
   color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --paper:        #141715;
-  --surface:      #1D211F;
-  --ink:          #E8EAE6;
-  --ink-soft:     #949A95;
-  --line:         #2C312E;
-  --accent:       #6FA394;
+  --paper:        #141613;
+  --surface:      #1D211E;
+  --ink:          #E9E7E0;
+  --ink-soft:     #91968E;
+  --line:         #2C302B;
+  --accent:       #7BAE9C;
   --accent-soft:  #22302C;
-  --pledge:       #C4A268;
-  --positive:     #7BA987;
-  --negative:     #C08379;
+  --pledge:       #C89268;
+  --positive:     #8FBE9B;
+  --negative:     #D28C80;
 
   color-scheme: dark;
 }
