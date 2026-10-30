@@ -41,11 +41,14 @@ button{-webkit-user-select:none;user-select:none}
 
 /* hero */
 .hero{margin-top:14px;border-radius:var(--rd);background:var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--hb);color:var(--hi);padding:20px 20px 18px;display:flex;flex-direction:column;align-items:flex-start;min-height:150px;position:relative}
-.hero.total{background:var(--sf);color:var(--tx)}
+.hero.total{background:var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--tb,var(--sf));color:var(--ti,var(--tx))}
+.hero.total .lbl{color:color-mix(in srgb,currentColor 82%,transparent)}
+.hero.total .band2 i{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ti,var(--tx)) 35%,transparent)}
+.hero.total .liq.pri{background:var(--ti,var(--pa));color:var(--tb,var(--pi))}
 .hero.withband,.hero.withpill{min-height:196px}
 .hero.first{min-height:0;gap:6px}
 .hero.first .ft{font-size:22px;font-weight:720;letter-spacing:-.03em;line-height:1.15;margin-top:2px}
-.hero.first .sub{color:var(--t2)}
+.hero.first .sub{color:color-mix(in srgb,currentColor 80%,transparent)}
 .hero.first .liq{margin-top:8px;min-height:44px;padding:0 18px;font-size:15px}
 .lbl{font-size:13px;font-weight:660;display:inline-flex;align-items:center;gap:8px;min-height:24px}
 .hmk{max-height:16px;max-width:52px;width:auto}.hmk.w{max-height:17px;max-width:72px}.hmk.s{max-height:24px;max-width:28px}
@@ -163,6 +166,8 @@ button.lr{cursor:pointer}
 .nav{position:absolute;z-index:20;left:12px;right:12px;bottom:calc(10px + var(--safe-b));height:66px;display:flex;align-items:center;justify-content:space-around;border-radius:min(var(--rd),33px);background:var(--nv);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);box-shadow:0 8px 24px -10px rgba(0,0,0,.25),inset 0 0 0 1px var(--ln);color:var(--t2)}
 .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:650;min-width:56px;min-height:52px;justify-content:center;border:0;background:none;color:inherit;cursor:pointer;padding:0}
 .tab.on{color:var(--tx)}
+.tab svg{box-sizing:content-box;padding:3px 10px;border-radius:13px}
+.tab.on svg{background:color-mix(in srgb,var(--pa) 16%,transparent)}
 .plus{width:52px;height:52px;border:0;border-radius:min(var(--r2),26px);background:var(--pl);color:var(--pli);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 140ms}
 
 /* aviso */
@@ -224,7 +229,7 @@ button.lr{cursor:pointer}
 .wq input,.wq select,.wq textarea{min-height:44px;border:0;border-radius:var(--r2);background:var(--sf);padding:0 14px;font-size:16px;font-weight:600;color:var(--tx);outline:none;width:100%}
 .wq textarea{padding:12px 14px;min-height:80px;resize:none}
 .wq input::placeholder,.wq textarea::placeholder{color:var(--t2);font-weight:400}
-.wq input:focus-visible,.wq select:focus-visible{box-shadow:inset 0 0 0 2px var(--hb)}
+.wq input:focus-visible,.wq select:focus-visible{box-shadow:inset 0 0 0 2px var(--pa)}
 .fq,.cats,.raccs{display:flex;gap:6px;overflow-x:auto;flex:none;margin:0 -16px;padding:1px 16px;scroll-padding-left:16px}
 .fqc,.cc{position:relative;flex:none;min-height:36px;padding:0 13px;border:0;border-radius:min(var(--r2),18px);background:var(--sf);color:var(--tx);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .cc.on{background:var(--pa);color:var(--pi)}
@@ -322,8 +327,8 @@ button.lr{cursor:pointer}
 .l0{background:color-mix(in srgb,var(--tx) 5%,transparent)}
 .l1{background:color-mix(in srgb,var(--hv,var(--hb)) 18%,var(--sf))}
 .l2{background:color-mix(in srgb,var(--hv,var(--hb)) 40%,var(--sf))}
-.l3{background:color-mix(in srgb,var(--hv,var(--hb)) 68%,var(--sf));color:var(--hi)}
-.l4{background:var(--hv,var(--hb));color:var(--hi)}
+.l3{background:color-mix(in srgb,var(--hv,var(--hb)) 80%,var(--sf));color:var(--hvi,var(--hi))}
+.l4{background:var(--hv,var(--hb));color:var(--hvi,var(--hi))}
 .lf{background:transparent;color:color-mix(in srgb,var(--tx) 40%,transparent);cursor:default}
 .cd.on{box-shadow:0 0 0 2px var(--sf),0 0 0 4px var(--tx)}
 .calk{display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:8px;font-size:11px;color:var(--t2);font-weight:600;flex-wrap:wrap}

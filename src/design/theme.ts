@@ -6,6 +6,21 @@ export type Palette = Record<string, any>;
 const LIGHT: Record<string, Palette> = (BR as any).light;
 const DARK: Record<string, Palette> = (BR as any).dark;
 
+// Piel Wallet (sin banco), dirección Bóveda: gris frío, índigo profundo y menta.
+// Las pieles de banco no cambian. hvi = tinta sobre el color de los gráficos.
+Object.assign(LIGHT.wallet, {
+  pg: '#EEF0F4', sf: '#FFFFFF', s2: '#FFFFFF', ln: 'rgba(18,24,38,.09)', tx: '#121826', t2: '#586174',
+  hb: '#1E2B4A', hi: '#FFFFFF', pa: '#2C3E8C', pi: '#FFFFFF', ac: '#2C3E8C', nv: 'rgba(255,255,255,.92)',
+  cb: '#1E2B4A', ci: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', pl: '#2C3E8C', pli: '#FFFFFF',
+  dot: '#6F86E8', hv: '#2C3E8C', hvi: '#FFFFFF', wb: '#FCEBD3', wt: '#7A4A0B'
+});
+Object.assign(DARK.wallet, {
+  pg: '#0B0F18', sf: '#161C2A', s2: '#161C2A', ln: 'rgba(237,240,246,.09)', tx: '#EDF0F6', t2: '#A3ABBD',
+  hb: '#22315A', hi: '#FFFFFF', pa: '#9DB0FF', pi: '#0B0F18', ac: '#9DB0FF', nv: '#161C2AEB',
+  cb: '#22315A', ci: '#FFFFFF', pc: 'rgba(11,15,24,.14)', pci: '#0B0F18', pl: '#9DB0FF', pli: '#0B0F18',
+  dot: '#9DB0FF', hv: '#9DB0FF', hvi: '#0B0F18', wb: '#3A2C12', wt: '#F5CF8A'
+});
+
 const clean = (s: any) => String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
 // Qué banco es una cuenta: por su entidad o, si no, por su nombre.
@@ -42,7 +57,7 @@ export function tileSrc(key: string) { return LIGHT[key] && LIGHT[key].hasMark ?
 export function markAspect(key: string) { return (LIGHT[key] || {}).ma || 's'; }
 export function cardColors(key: string, dark: boolean) { const p = palette(key, dark); return { cb: p.cb, ci: p.ci }; }
 
-const VARS = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'hb', 'hi', 'hm', 'pa', 'pi', 'ac', 'rd', 'r2', 'nv', 'dot', 'pc', 'pci', 'pl', 'pli', 'hv', 'wb', 'wt', 'dg'];
+const VARS = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'hb', 'hi', 'hm', 'pa', 'pi', 'ac', 'rd', 'r2', 'nv', 'dot', 'pc', 'pci', 'pl', 'pli', 'hv', 'hvi', 'tb', 'ti', 'wb', 'wt', 'dg'];
 export function cssVars(p: Palette): Record<string, string> {
   const out: Record<string, string> = {};
   VARS.forEach((k) => { if (p[k] != null) out['--' + k] = String(p[k]); });
@@ -59,6 +74,9 @@ export function skinFor(bank: string, dark: boolean, look: any): Palette {
   } else if (look && look.style === 'mono') {
     p = Object.assign({}, base, { hm: 'none' });
   }
+  // Tarjeta del total (tb/ti): toma el color de la piel; "Sin color" la deja neutra.
+  if (look && look.style === 'mono') { p.tb = p.sf; p.ti = p.tx; }
+  else { p.tb = p.hb; p.ti = p.hi; }
   const R: any = { r: ['26px', '16px'], m: ['16px', '10px'], s: ['6px', '4px'] };
   if (look && look.corner && look.corner !== 'bank' && R[look.corner]) { p.rd = R[look.corner][0]; p.r2 = R[look.corner][1]; }
   return p;
