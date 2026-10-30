@@ -24,15 +24,11 @@ Responde siempre en español. Avisa antes de cambios grandes.
 - `src/sheets/`: Register (registrar gasto/ingreso/mover) y Host (resto de hojas).
 - `src/ui/bits.tsx`: piezas comunes (Money, Odometer, CardFace, Keypad, Seg…).
 
-## Estado (29 oct 2026)
-Wallet 22 publicada. Funciona. El usuario pide mejorar el estilo: hoy se ve "simple y monse",
-sobre todo al inicio (sin cuentas todo queda gris/blanco/negro; el color solo aparece con las marcas de banco).
-
-### Errores visuales pendientes
-- Inicio vacío: la tarjeta de patrimonio tiene mucho espacio muerto y no invita a nada.
-- Análisis vacío: tooltip con S/ 0.00 siempre visible, línea vertical suelta, "↓ Igual que el mes pasado" con flecha cuando no hay cambio.
-- Textos cortados con "…": "1 vencido, 2 …" (tile Por salir), "Vencido hace 3 dí" (Próximo y Agenda), "Próxima cuota el 28 oct" (Lo que debes), placeholder "Buscar por nombre, categoría o mont".
-- Fila de filtros de Movimientos corta "Transf" sin pista de que se desplaza.
-
-### Siguiente paso
-Rediseño visual (color, carácter del modo Wallet sin banco, estados vacíos) explorado primero en un artefacto de diseño, luego implementado aquí.
+## Estado (30 oct 2026)
+Wallet 22 publicada, con estilo **Bóveda** en el modo Wallet (sin banco): gris frío, índigo profundo (#1E2B4A tarjeta, #2C3E8C acento) y menta; en oscuro, índigo claro #9DB0FF.
+- La paleta Bóveda vive en `src/design/theme.ts` (sobrescribe `wallet` de `brands.json`; las pieles de banco no cambian).
+- Variables propias: `tb`/`ti` (tarjeta del total: índigo; con "Sin color" queda neutra) y `hvi` (tinta sobre el color de gráficos).
+- "Sin color" en Personaliza es neutro (tinta y superficie), no índigo.
+- Errores visuales de la fase 1 resueltos: estados vacíos de Inicio/Análisis, textos cortados (pasan a 2 líneas), filtros de Movimientos en 2 filas, contraste en oscuro.
+- `npm test`: sin `QA_DIR` (con `seed.json` y `old.json` de la v21) la paridad se salta; con ellos, se corre.
+- Diseño explorado en un lienzo de Claude (3 direcciones: Libreta, Bóveda, Marea); se eligió Bóveda.
