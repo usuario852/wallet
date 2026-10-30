@@ -25,7 +25,7 @@ Responde siempre en español. Avisa antes de cambios grandes.
 - `src/ui/bits.tsx`: piezas comunes (Money, Odometer, CardFace, Keypad, Seg…).
 
 ## Estado (30 oct 2026)
-Wallet 22 publicada, con estilo **Bóveda** en el modo Wallet (sin banco): gris frío, índigo profundo (#1E2B4A tarjeta, #2C3E8C acento) y menta; en oscuro, índigo claro #9DB0FF.
+Wallet 22 publicada, con estilo **Bóveda** en el modo Wallet (sin banco): gris frío, índigo profundo (#1E2B4A tarjeta, #2C3E8C acento); en oscuro, índigo claro #9DB0FF.
 - La paleta Bóveda vive en `src/design/theme.ts` (sobrescribe `wallet` de `brands.json`; las pieles de banco no cambian).
 - Variables propias: `tb`/`ti` (tarjeta del total: índigo; con "Sin color" queda neutra) y `hvi` (tinta sobre el color de gráficos).
 - "Sin color" en Personaliza es neutro (tinta y superficie), no índigo.
