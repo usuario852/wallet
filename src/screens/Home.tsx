@@ -126,7 +126,7 @@ export default function Home() {
         : <div className="tile"><span className="tk">Por día</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note.replace(', hasta fin de mes', '')}</span></div>}
       {sel
         ? <div className="tile"><span className="tk">Este mes</span><b className="tv nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b><span className="td">gastado aquí</span></div>
-        : <button className="tile" onClick={() => go('plan')}><span className="tk">Por salir</span><b className="tv nums">{out.count ? M(out.minor, cur) : 'Nada'}</b><span className="td">{!out.count ? 'en el mes' : out.late ? out.late + ' vencido' + (out.count - out.late ? ', ' + (out.count - out.late) + ' más' : '') : out.count + (out.count === 1 ? ' pago' : ' pagos') + ' este mes'}</span></button>}
+        : <button className="tile" onClick={() => go('plan')}><span className="tk">Por salir</span><b className="tv nums">{out.count ? M(out.minor, cur) : 'Nada'}</b><span className="td">{!out.count ? 'en el mes' : out.late ? out.late + (out.late === 1 ? ' vencido' : ' vencidos') + (out.count - out.late ? ' y ' + (out.count - out.late) + ' más' : '') : out.count + (out.count === 1 ? ' pago' : ' pagos') + ' este mes'}</span></button>}
     </div>
   );
 
@@ -146,7 +146,7 @@ export default function Home() {
         return (
           <button key={d.id} className="debt" onClick={() => open('debt', { id: d.id })}>
             <span className="lft"><RowIcon text={d.name} /><span className="nm"><span>{d.name}</span><span className="dt">{nx ? (nx.dueDate < C.todayLocal() ? 'Cuota vencida el ' : 'Próxima cuota el ') + C.shortDate(nx.dueDate) : 'Sin cuotas pendientes'}</span></span></span>
-            <b className="am">Debes {M(C.debtRemainingMinor(d), cur)}</b>
+            <b className="am">{M(C.debtRemainingMinor(d), cur)}</b>
           </button>
         );
       })}
@@ -199,7 +199,16 @@ export default function Home() {
             <CurTabs value={cur} list={enabled} onChange={(c) => { setSel(null); setCurrency(c); }} />
             {cur === 'PEN' ? <FxStrip /> : <span />}
           </div>
-          <div className="sec">
+          {!accounts.length ? (
+            <div className="sec">
+              <div className="hero total first">
+                <span className="lbl">Patrimonio líquido</span>
+                <b className="ft">Agrega tu primera cuenta en {C.currencyMeta(cur).name.toLowerCase()}</b>
+                <span className="sub">Tu banco, Yape o el efectivo que tienes a la mano. Desde ahí, Wallet suma todo por ti.</span>
+                <button className="liq pri" onClick={() => open('account-new', { currency: cur })}>Agregar cuenta</button>
+              </div>
+            </div>
+          ) : <div className="sec">
             <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
               <span className="lbl">{mk ? <img className={'hmk ' + markAspect(heroBank)} src={mk} alt={String(label)} /> : label}</span>
               {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
@@ -214,12 +223,8 @@ export default function Home() {
                 </>
               )}
             </div>
-          </div>
-          {!accounts.length ? (
-            <div className="sec"><div className="empty"><b>Todavía no tienes cuentas en {C.currencyMeta(cur).name.toLowerCase()}.</b><span>Agrega una para empezar a llevar tu dinero aquí.</span><button className="liq pri" onClick={() => open('account-new', { currency: cur })}>Agregar cuenta</button></div></div>
-          ) : (
-            blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}</React.Fragment>)
-          )}
+          </div>}
+          {accounts.length > 0 && blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}</React.Fragment>)}
           {accRecent}
           <div className="endpad" />
         </div>

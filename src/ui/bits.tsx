@@ -71,7 +71,7 @@ export function CardFace({ account, dark, className = 'rb', children, style }: {
   const p = palette(bank, dark);
   const src = markSrc(bank);
   return (
-    <span className={className} style={Object.assign({ ['--cb' as any]: account.kind === 'reserve' && bank === 'wallet' ? 'color-mix(in srgb, var(--tx) 70%, var(--pg))' : p.cb, ['--ci' as any]: p.ci }, style || {})}>
+    <span className={className} style={Object.assign({ ['--cb' as any]: account.kind === 'reserve' && bank === 'wallet' ? 'color-mix(in srgb, var(--tx) 70%, var(--pg))' : p.cb, ['--ci' as any]: account.kind === 'reserve' && bank === 'wallet' ? 'var(--pg)' : p.ci }, style || {})}>
       <span className="mkw">{src ? <img className={'mk ' + markAspect(bank)} src={src} alt="" /> : <b className="nmB">{account.name}</b>}</span>
       {children}
     </span>

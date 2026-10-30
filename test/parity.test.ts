@@ -8,8 +8,9 @@ const seedPath = QA + '/seed.json', oldPath = QA + '/old.json';
 const has = QA && fs.existsSync(seedPath) && fs.existsSync(oldPath);
 
 describe.skipIf(!has)('paridad con la app anterior', () => {
-  const s = C.repairState(JSON.parse(fs.readFileSync(seedPath, 'utf8')));
-  const old = JSON.parse(fs.readFileSync(oldPath, 'utf8'));
+  // El cuerpo se evalúa aunque el bloque se salte: sin QA_DIR no se lee nada.
+  const s = has ? C.repairState(JSON.parse(fs.readFileSync(seedPath, 'utf8'))) : null;
+  const old = has ? JSON.parse(fs.readFileSync(oldPath, 'utf8')) : null;
   it('totales por moneda', () => {
     expect(C.currencyTotals(s, 'PEN')).toEqual(old.totalsPEN);
     expect(C.currencyTotals(s, 'USD')).toEqual(old.totalsUSD);

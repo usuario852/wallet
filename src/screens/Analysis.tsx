@@ -67,6 +67,9 @@ export default function Analysis() {
   const avgT = (arr: any[]) => (arr.length ? Math.round(C.sumMinor(arr.map((x) => x.o)) / arr.length) : 0);
 
   const cmp = (a: number, b: number, what: string) => (a === b ? 'Igual que ' + what : M(Math.abs(a - b), cur) + (a > b ? ' más que ' : ' menos que ') + what);
+  // La flecha solo aparece si hay cambio; sin cambio, el texto basta.
+  const arrow = (a: number, b: number) => (a === b ? null : <i aria-hidden="true">{a > b ? '↑' : '↓'}</i>);
+  const hasLine = cm.cum.slice(0, day).some((v) => v > 0) || pm.cum.some((v) => v > 0);
 
   return (
     <div className="scr noscr nohdr">
@@ -79,16 +82,16 @@ export default function Analysis() {
             <span className="lbl">{range === 'month' ? 'Gastado en ' + C.monthName(now.getMonth()) : 'Gastado en 7 días'}</span>
             {(() => { const mp = C.moneyParts(range === 'month' ? spent : weekTotal, cur); return <div className="big"><span className="cu">{mp.symbol}</span><span className="odo">{hide ? '••••' : mp.whole}<span className="sep dec">{hide || !mp.dec ? '' : '.' + mp.dec}</span></span></div>; })()}
             {range === 'month' ? <>
-              <span className="cmp"><i>{spent > prevAt ? '↑' : '↓'}</i>{cmp(spent, prevAt, 'el mes pasado a esta altura')}</span>
-              {has3 && <span className="cmp"><i>{spent > avg3 ? '↑' : '↓'}</i>{cmp(spent, avg3, 'tu promedio de 3 meses')}</span>}
-            </> : <span className="cmp"><i>{weekTotal > prevWeek ? '↑' : '↓'}</i>{cmp(weekTotal, prevWeek, 'los 7 días anteriores')}</span>}
+              <span className="cmp">{arrow(spent, prevAt)}{cmp(spent, prevAt, 'el mes pasado a esta altura')}</span>
+              {has3 && <span className="cmp">{arrow(spent, avg3)}{cmp(spent, avg3, 'tu promedio de 3 meses')}</span>}
+            </> : <span className="cmp">{arrow(weekTotal, prevWeek)}{cmp(weekTotal, prevWeek, 'los 7 días anteriores')}</span>}
           </div>
         </div>
 
         {range === 'month' ? (
           <div className="sec"><div className="card">
             <div className="ch"><b>Gasto acumulado</b></div>
-            <div className="chart">
+            {!hasLine ? <p className="tsm2">Todavía no hay gastos este mes ni el anterior. Cuando registres uno, aquí verás cómo avanza el mes frente al pasado.</p> : <div className="chart">
               <div className="tt" style={{ left: Math.min(70, Math.max(30, (x(hd2) / W) * 100)) + '%' }}>
                 <b className="nums">{M(cm.cum[Math.min(hd2, day) - 1] || 0, cur)}</b><span><i className="k1" />Este mes, al {hd2 <= day ? hd2 : day}</span>
                 <b className="nums">{M(pm.cum[Math.min(hd2, pm.n) - 1] || 0, cur)}</b><span><i className="k2" />Mes pasado, mismo día</span>
@@ -105,7 +108,7 @@ export default function Analysis() {
                 {Array.from({ length: cm.n }).map((_, i) => <rect key={i} x={x(i + 1) - 5} y={YT} width="10" height={Y0 - YT} className="hit" onMouseEnter={() => setHov(i + 1)} onClick={() => setHov(i + 1)} />)}
               </svg>
               <div className="xa"><span style={{ left: (x(1) / W) * 100 + '%', transform: 'none' }}>1</span>{day > 3 && day < cm.n - 3 && <span style={{ left: (x(day) / W) * 100 + '%' }}>{day}</span>}<span style={{ left: (x(cm.n) / W) * 100 + '%', transform: 'translateX(-100%)' }}>{cm.n}</span></div>
-            </div>
+            </div>}
           </div></div>
         ) : (
           <div className="sec"><div className="card">
@@ -150,6 +153,7 @@ export default function Analysis() {
 
         <div className="sec"><div className="card">
           <div className="ch"><b>Dónde está tu dinero</b></div>
+          {!accs.length && <p className="tsm2" style={{ marginTop: 0 }}>Todavía no tienes cuentas en {C.currencyMeta(cur).name.toLowerCase()}.</p>}
           {accs.map((a: any) => {
             const b = C.balanceOf(s, a); const bank = bankOf(a);
             return (
@@ -159,7 +163,7 @@ export default function Analysis() {
               </div>
             );
           })}
-          <p className="wsum"><span>Disponible <b className="nums">{M(totals.available, cur)}</b></span><span>Reservado <b className="nums">{M(totals.reserved, cur)}</b></span><span>Patrimonio líquido <b className="nums">{M(totals.total, cur)}</b></span></p>
+          {accs.length > 0 && <p className="wsum"><span>Disponible <b className="nums">{M(totals.available, cur)}</b></span><span>Reservado <b className="nums">{M(totals.reserved, cur)}</b></span><span>Patrimonio líquido <b className="nums">{M(totals.total, cur)}</b></span></p>}
         </div></div>
 
         <div className="sec"><div className="card">

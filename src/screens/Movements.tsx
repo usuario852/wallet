@@ -51,7 +51,7 @@ export default function Movements() {
           <span><small>Salidas</small><b className="nums">{M(out, cur)}</b></span>
           <span><small>Neto</small><b className="nums">{M(net, cur, true)}</b></span>
         </div></div>
-        <div className="sec"><label className="srch"><ISearch /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nombre, categoría o monto" aria-label="Buscar movimientos" /></label></div>
+        <div className="sec"><label className="srch"><ISearch /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nombre, categoría o monto" aria-label="Buscar movimientos" /></label></div>
         <div className="sec flt noscr" role="group" aria-label="Filtrar">
           <select className="fsel" value={month} onChange={(e) => setMonth(e.target.value)} aria-label="Mes">
             <option value="all">Todo</option>
