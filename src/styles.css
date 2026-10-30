@@ -201,6 +201,7 @@ button.lr{cursor:pointer}
 .dh b{font-size:15px;color:var(--tx);font-weight:700}
 .dh span{font-weight:700;color:var(--t2)}
 .empty{margin-top:24px;background:var(--sf);border-radius:var(--r2);padding:22px;display:flex;flex-direction:column;gap:6px;text-align:center;align-items:center}
+.empty::before{content:"";width:40px;height:28px;border-radius:8px;margin:2px 0 8px 8px;background:color-mix(in srgb,var(--pa) 18%,var(--sf));box-shadow:-8px 6px 0 -1px var(--sf),-8px 6px 0 0 color-mix(in srgb,var(--pa) 40%,var(--sf))}
 .empty b{font-size:15px}.empty span{font-size:13px;color:var(--t2)}
 .empty .liq{margin-top:6px}
 
@@ -467,6 +468,12 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .onb h1{font-size:40px;line-height:1.02;letter-spacing:-.045em;margin:0;font-weight:760}
 .onb p{margin:0;font-size:17px;line-height:1.45;color:var(--t2)}
 .onb .stack{display:flex;flex-direction:column;gap:10px}
+.onbart{position:relative;flex:1;min-height:210px;max-height:320px}
+.onbart .fan{position:absolute;left:50%;top:50%;width:200px;height:126px;margin:-63px 0 0 -100px;border-radius:18px;box-shadow:0 18px 32px -16px rgba(0,0,0,.45);padding:16px}
+.onbart .f0{transform:translate(-62px,-34px) rotate(-14deg)}.onbart .f1{transform:translate(-14px,-48px) rotate(-3deg)}.onbart .f2{transform:translate(40px,-30px) rotate(9deg)}
+.onbart .rb .mk.w{max-width:72px;max-height:24px}.onbart .rb .mk.s{max-width:40px;max-height:40px}
+.onbart .wal{z-index:6;transform:translate(12px,40px) rotate(-3deg);background:var(--hb);color:var(--hi);display:flex;flex-direction:column;justify-content:space-between;--tx:var(--hi);--pg:var(--hb);--pa:color-mix(in srgb,var(--hi) 55%,var(--hb))}
+.onbart .wal svg{width:32px;height:32px}.onbart .wal b{font-size:20px;font-weight:760;letter-spacing:-.03em}
 
 .mo-none *,.mo-none *::before{transition:none!important;animation:none!important}
 .dn-c .tile{padding:8px 9px}.dn-c .hero{padding:14px 16px 12px}.dn-c .rail .lr{padding:5px 6px}.dn-c .blk{margin-top:14px}

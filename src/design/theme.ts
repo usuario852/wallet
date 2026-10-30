@@ -72,7 +72,9 @@ export function skinFor(bank: string, dark: boolean, look: any): Palette {
     const a = look.accent || '#1D4ED8';
     p = Object.assign({}, base, { hb: a, hi: '#FFFFFF', pa: a, pi: '#FFFFFF', pl: a, pli: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', dot: a, hv: a, ac: dark ? base.ac : a, hm: 'none' });
   } else if (look && look.style === 'mono') {
-    p = Object.assign({}, base, { hm: 'none' });
+    // Sin color: la base Bóveda sin su índigo; tinta y superficie neutras.
+    const ink = base.tx, paper = dark ? base.pg : base.sf;
+    p = Object.assign({}, base, { hm: 'none', hb: ink, hi: paper, pa: ink, pi: paper, ac: ink, pl: ink, pli: paper, pc: dark ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.2)', pci: paper, dot: ink, hv: ink, hvi: paper });
   }
   // Tarjeta del total (tb/ti): toma el color de la piel; "Sin color" la deja neutra.
   if (look && look.style === 'mono') { p.tb = p.sf; p.ti = p.tx; }

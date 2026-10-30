@@ -5,6 +5,7 @@ import { useWallet, commit, notify, replaceState } from '../store';
 import { useUI } from '../ui/ctx';
 import { CardFace } from '../ui/bits';
 import { BANK_KEYS, bankName } from '../design/theme';
+import { Mark } from '../ui/icons';
 
 export default function Onboarding() {
   const { s } = useWallet();
@@ -41,6 +42,10 @@ export default function Onboarding() {
 
   if (step === 0) return (
     <div className="onb">
+      <div className="onbart" aria-hidden="true">
+        {['yape', 'interbank', 'bcp'].map((k, i) => <CardFace key={k} account={{ brand: k, name: bankName(k) }} dark={dark} className={'rb on fan f' + i} />)}
+        <span className="fan wal"><Mark /><b>Wallet</b></span>
+      </div>
       <h1>Tu dinero, en orden y a la vista.</h1>
       <p>Wallet lleva tus cuentas, tus gastos y lo que viene, sin mezclar monedas. Todo se guarda en este teléfono.</p>
       <div className="stack">
