@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Wallet Personal",
+  "short_name": "Wallet",
+  "description": "Wallet personal local-first para finanzas, ahorro, compromisos y contexto emocional.",
+  "lang": "es",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#F6F1E8",
+  "theme_color": "#F6F1E8",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "utilities"],
+  "icons": [
+    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"./icons/icon-512-maskable.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+  ]
+}

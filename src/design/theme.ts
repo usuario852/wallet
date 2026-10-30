@@ -1,0 +1,107 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import BR from './brands.json';
+import { ICONS, ALIASES } from './brandIcons.js';
+
+export type Palette = Record<string, any>;
+const LIGHT: Record<string, Palette> = (BR as any).light;
+const DARK: Record<string, Palette> = (BR as any).dark;
+
+const clean = (s: any) => String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+// Qué banco es una cuenta: por su entidad o, si no, por su nombre.
+const BANK_ALIASES: [string, string[]][] = [
+  ['bcp', ['bcp', 'banco de credito', 'viabcp', 'credito del peru']],
+  ['interbank', ['interbank', 'ibk']],
+  ['bbva', ['bbva', 'continental', 'bbva continental']],
+  ['scotiabank', ['scotiabank', 'scotia']],
+  ['bn', ['banco de la nacion', 'banco nacion', 'bn']],
+  ['pichincha', ['pichincha', 'banco pichincha']],
+  ['mibanco', ['mibanco']],
+  ['bancofalabella', ['banco falabella', 'falabella', 'cmr']],
+  ['bancoripley', ['banco ripley', 'ripley']],
+  ['citi', ['citibank', 'citi']],
+  ['santander', ['santander']],
+  ['yape', ['yape']],
+  ['cash', ['efectivo', 'cash', 'billetera', 'sencillo']]
+];
+export function bankOf(account: any): string {
+  if (!account) return 'wallet';
+  if (account.brand && LIGHT[account.brand]) return account.brand;
+  const hay = ' ' + clean((account.institution || '') + ' ' + (account.name || '')) + ' ';
+  for (const [key, names] of BANK_ALIASES) {
+    for (const n of names) { if (hay.includes(' ' + n + ' ')) return key; }
+  }
+  return 'wallet';
+}
+export const BANK_KEYS = Object.keys(LIGHT).filter((k) => k !== 'wallet');
+export function bankName(key: string) { return (LIGHT[key] || {}).n || 'Otra'; }
+
+export function palette(key: string, dark: boolean): Palette { return (dark ? DARK : LIGHT)[key] || (dark ? DARK : LIGHT).wallet; }
+export function markSrc(key: string) { return LIGHT[key] && LIGHT[key].hasMark ? '/brands/' + key + '.png' : ''; }
+export function tileSrc(key: string) { return LIGHT[key] && LIGHT[key].hasMark ? '/brands/tile_' + key + '.png' : ''; }
+export function markAspect(key: string) { return (LIGHT[key] || {}).ma || 's'; }
+export function cardColors(key: string, dark: boolean) { const p = palette(key, dark); return { cb: p.cb, ci: p.ci }; }
+
+const VARS = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'hb', 'hi', 'hm', 'pa', 'pi', 'ac', 'rd', 'r2', 'nv', 'dot', 'pc', 'pci', 'pl', 'pli', 'hv', 'wb', 'wt', 'dg'];
+export function cssVars(p: Palette): Record<string, string> {
+  const out: Record<string, string> = {};
+  VARS.forEach((k) => { if (p[k] != null) out['--' + k] = String(p[k]); });
+  return out;
+}
+
+// Personalización: un color o sin color reemplazan la piel del banco.
+export function skinFor(bank: string, dark: boolean, look: any): Palette {
+  const base = palette('wallet', dark);
+  let p: Palette = Object.assign({}, bank === 'wallet' ? base : palette(bank, dark));
+  if (look && look.style === 'one') {
+    const a = look.accent || '#1D4ED8';
+    p = Object.assign({}, base, { hb: a, hi: '#FFFFFF', pa: a, pi: '#FFFFFF', pl: a, pli: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', dot: a, hv: a, ac: dark ? base.ac : a, hm: 'none' });
+  } else if (look && look.style === 'mono') {
+    p = Object.assign({}, base, { hm: 'none' });
+  }
+  const R: any = { r: ['26px', '16px'], m: ['16px', '10px'], s: ['6px', '4px'] };
+  if (look && look.corner && look.corner !== 'bank' && R[look.corner]) { p.rd = R[look.corner][0]; p.r2 = R[look.corner][1]; }
+  return p;
+}
+
+// ---------------------------------------------------------------------------
+// Logos de comercios: Simple Icons (CC0) + monogramas de marcas peruanas (v19)
+// ---------------------------------------------------------------------------
+const LOCAL: [string, string, string[]][] = [
+  ['WON', '#D6001C', ['wong']], ['TOT', '#005DAA', ['tottus']], ['MET', '#005CB9', ['metro', 'supermercado metro']], ['PVE', '#E20613', ['plaza vea']], ['VIV', '#8DC63F', ['vivanda']], ['MAK', '#005DAA', ['makro']],
+  ['INK', '#F58220', ['inkafarma']], ['MIF', '#E4002B', ['mifarma', 'boticas']], ['RAP', '#FF441F', ['rappi']], ['PYA', '#FA0050', ['pedidosya', 'pedidos ya']], ['DID', '#FF7A45', ['didi', 'didi food']], ['CBY', '#7145D6', ['cabify']],
+  ['SGA', '#62B346', ['saga falabella', 'saga']], ['OEC', '#E4002B', ['oechsle']], ['PRO', '#F26522', ['promart']], ['SOD', '#004B8D', ['sodimac']],
+  ['CLA', '#DA291C', ['claro']], ['ENT', '#0033A0', ['entel']], ['BIT', '#00A0DF', ['bitel']], ['WIN', '#6D2077', ['win internet']], ['LAT', '#E60C2D', ['latam', 'latam airlines']], ['CDS', '#003DA5', ['cruz del sur']],
+  ['MTR', '#E4002B', ['metropolitano', 'corredor']], ['SUN', '#8B1A1A', ['sunat']], ['SED', '#0072BC', ['sedapal']], ['LUZ', '#FDB913', ['luz del sur', 'enel', 'distriluz']], ['CAL', '#009EE3', ['calidda', 'gas natural']],
+  ['PLN', '#00B5B8', ['plin']], ['IZI', '#2E3192', ['izipay']], ['PPE', '#FF6900', ['pago efectivo', 'pagoefectivo']]
+];
+export type Brand = { kind: 'icon'; hex: string; path: string; title: string } | { kind: 'mark'; mark: string; hex: string; title: string } | { kind: 'bank'; key: string; title: string };
+const index = new Map<string, Brand>();
+Object.keys(ICONS as any).forEach((slug) => {
+  const ic = (ICONS as any)[slug];
+  const b: Brand = { kind: 'icon', hex: '#' + ic.h, path: ic.d, title: ic.t };
+  index.set(clean(ic.t), b); index.set(clean(ic.t).replace(/ /g, ''), b);
+});
+Object.keys(ALIASES as any).forEach((slug) => {
+  const ic = (ICONS as any)[slug]; if (!ic) return;
+  ((ALIASES as any)[slug] || []).forEach((a: string) => index.set(clean(a), { kind: 'icon', hex: '#' + ic.h, path: ic.d, title: ic.t }));
+});
+LOCAL.forEach(([mark, hex, names]) => names.forEach((n) => index.set(clean(n), { kind: 'mark', mark, hex, title: names[0] })));
+BANK_ALIASES.forEach(([key, names]) => { if (key === 'cash') return; if (!LIGHT[key] || !LIGHT[key].hasMark) return; names.forEach((n) => { if (n.length > 2) index.set(clean(n), { kind: 'bank', key, title: n }); }); });
+const multi: [string, Brand][] = []; const single = new Map<string, Brand>();
+index.forEach((v, k) => { if (!k) return; if (k.includes(' ')) multi.push([k, v]); else single.set(k, v); });
+multi.sort((a, b) => b[0].length - a[0].length);
+const cache = new Map<string, Brand | null>();
+export function brandFor(text: string): Brand | null {
+  const q = clean(text);
+  if (!q || q.length < 2) return null;
+  if (cache.has(q)) return cache.get(q) || null;
+  let found: Brand | null = index.get(q) || null;
+  if (!found) for (const [k, v] of multi) { if (q.includes(k)) { found = v; break; } }
+  if (!found) for (const w of q.split(' ')) { if (w.length < 3) continue; const h = single.get(w); if (h) { found = h; break; } }
+  cache.set(q, found);
+  return found;
+}
+
+export const LOOK_DEFAULTS = { style: 'bank', accent: '#1D4ED8', corner: 'bank', size: 'm', dens: 'n', big: 'liq', cents: true, hide: false, motion: 'full', greet: 'fecha', name: '', naip: 'naipes', sound: false, blocks: [['naipes', true], ['hoy', true], ['acc', true], ['deuda', true], ['prox', true]] };
+export function lookOf(settings: any) { return Object.assign({}, LOOK_DEFAULTS, settings.look || {}); }
