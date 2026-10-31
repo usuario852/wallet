@@ -1,6 +1,6 @@
 // Wallet 22 — service worker. Navegación: red primero (siempre la última
 // versión); recursos con hash: caché primero. Avisos: igual que antes.
-const CACHE = 'wallet-pwa-v22';
+const CACHE = 'wallet-pwa-v23';
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.webmanifest', '/icons/icon-192.png'])).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE && (k.startsWith('wallet-personal-pwa-') || k.startsWith('wallet-pwa-'))).map((k) => caches.delete(k)))).then(() => self.clients.claim()));

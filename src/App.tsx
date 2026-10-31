@@ -101,6 +101,8 @@ export default function App() {
         {screen}
         {tabs && (
           <nav className="nav" aria-label="Secciones">
+            {/* Lente de vidrio: se desliza a la pestaña activa y se deforma un instante al llegar. */}
+            <span className="lens" aria-hidden="true" style={{ ['--i' as any]: ({ home: 0, movs: 1, plan: 3, ana: 4 } as any)[view] }}><i key={view} /></span>
             <button className={'tab' + (view === 'home' ? ' on' : '')} aria-current={view === 'home'} onClick={() => go('home')}><IHome />Inicio</button>
             <button className={'tab' + (view === 'movs' ? ' on' : '')} aria-current={view === 'movs'} onClick={() => go('movs')}><IList />Movimientos</button>
             <button className="plus" aria-label="Registrar" onClick={() => open('register', { accountId: sel || undefined })}><IPlus /></button>
