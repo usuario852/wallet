@@ -40,6 +40,11 @@ const INK = {
   dark: { pg: '#0F2422', sf: '#16302D', s2: '#16302D', ln: 'rgba(234,240,236,.10)', tx: '#EAF0EC', t2: '#A3B7B2', hb: '#1A3D3A', hi: '#F4EFE6', pa: '#E8805F', pi: '#1A0D07', ac: '#F09A7C', pl: '#E8805F', pli: '#1A0D07', pc: 'rgba(15,36,34,.14)', pci: '#0F2422', hv: '#7FC4B5', hvi: '#0F2422', dot: '#E8805F', nv: '#16302DEE', cb: '#1A3D3A', ci: '#F4EFE6' }
 };
 
+const WARM = {
+  light: { pg: '#F4EFE6', sf: '#FBF8F2', s2: '#FBF8F2', ln: 'rgba(30,43,74,.12)', nv: 'rgba(244,239,230,.94)' },
+  dark: { pg: '#14120F', sf: '#1D1B17', s2: '#1D1B17', ln: 'rgba(240,236,228,.10)', nv: '#1D1B17EE' }
+};
+
 function rasgosSkin(p: any, bank: string, dark: boolean, r: string) {
   let out = p;
   if (r.includes('t')) {
@@ -47,6 +52,11 @@ function rasgosSkin(p: any, bank: string, dark: boolean, r: string) {
     const mono = p.tb === p.sf;
     if (bank === 'wallet') { out = { ...p, ...w }; if (mono) { out.tb = out.sf; out.ti = out.tx; } else { out.tb = out.hb; out.ti = out.hi; } }
     else { out = { ...p }; PAPER.forEach((k) => { out[k] = w[k]; }); }
+  } else if (r.includes('w')) {
+    // «Papel cálido»: solo el papel de la v21; la tinta índigo de Bóveda se queda.
+    const w: any = WARM[dark ? 'dark' : 'light'];
+    out = { ...p, ...w };
+    if (p.tb === p.sf) { out.tb = out.sf; }
   }
   // «Superficies tonales»: la tarjeta es el mismo papel, un tono más profundo.
   if (r.includes('s')) { const sf = `color-mix(in srgb, ${out.tx} ${dark ? 7 : 5}%, ${out.pg})`; out = { ...out, sf, s2: sf }; }

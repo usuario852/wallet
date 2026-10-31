@@ -20,6 +20,7 @@ const URLMAP: [keyof LabState, string][] = [['variant', 'v'], ['font', 'f'], ['s
 // Pestaña C: cada diferencia con la v21, por separado, sobre el Original.
 const RASGOS: [string, string, string][] = [
   ['t', 'Una sola tinta', 'Verde petróleo sobre papel cálido; el coral, solo en las acciones.'],
+  ['w', 'Papel cálido', 'Solo el papel de la v21; la tinta índigo de hoy se queda. Excluye a «Una sola tinta».'],
   ['s', 'Superficies tonales', 'Las tarjetas son el mismo papel un tono más hondo: sin blanco ni sombra.'],
   ['e', 'Contraste de escala', 'Etiquetas en mayúsculas pequeñas y espaciadas; mandan las cifras.'],
   ['n', 'El número como una pieza', 'S/ y decimales pequeños y tenues: se lee «35,323».'],
@@ -27,6 +28,8 @@ const RASGOS: [string, string, string][] = [
   ['i', 'Iconos suaves', 'Comercios en un tinte claro de su color, no en bloque saturado.'],
   ['f', 'Formas blandas', 'Esquina propia en el saldo, píldoras amplias y un + redondo.']
 ];
+// Rasgos que no pueden ir juntos: los dos cambian el papel.
+const EXCL: Record<string, string> = { t: 'w', w: 't' };
 let probe: string | null = null;
 
 function Opt<T extends string>({ items, value, onPick, label, wide = false }: { items: [T, string][]; value: T; onPick: (v: T) => void; label: string; wide?: boolean }) {
@@ -106,13 +109,13 @@ export function Lab() {
           {RASGOS.map(([k, t, d]) => {
             const on = lab.rasgos.includes(k);
             return (
-              <button key={k} role="switch" aria-checked={on} className={'lab-font' + (on ? ' on' : '')} onClick={() => setLab({ variant: 'orig', rasgos: on ? lab.rasgos.replace(k, '') : RASGOS.map((x) => x[0]).filter((x) => x === k || lab.rasgos.includes(x)).join('') })}>
+              <button key={k} role="switch" aria-checked={on} className={'lab-font' + (on ? ' on' : '')} onClick={() => setLab({ variant: 'orig', rasgos: on ? lab.rasgos.replace(k, '') : RASGOS.map((x) => x[0]).filter((x) => x === k || (lab.rasgos.includes(x) && !EXCL[k]?.includes(x))).join('') })}>
                 <b>{on ? '● ' : '○ '}{t}</b><small>{d}</small>
               </button>
             );
           })}
           <div className="lseg">
-            <button onClick={() => setLab({ variant: 'orig', rasgos: RASGOS.map((x) => x[0]).join('') })}>Todos</button>
+            <button onClick={() => setLab({ variant: 'orig', rasgos: RASGOS.map((x) => x[0]).filter((x) => x !== 'w').join('') })}>Todos</button>
             <button onClick={() => setLab({ rasgos: '' })}>Ninguno</button>
           </div>
           <span className="lab-l">Pantalla</span>

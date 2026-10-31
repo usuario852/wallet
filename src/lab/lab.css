@@ -334,7 +334,7 @@
 .labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .sh{font-size:12px;font-weight:780;letter-spacing:.08em;text-transform:uppercase}
 .labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) :is(.td,.dt,.pht small,.hero .sub){font-size:12px}
 .labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .nm>span:first-child{font-size:14px}
-.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .tv{font-size:clamp(15px,4.4vw,19px);letter-spacing:-.03em}
+.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .tv{font-size:clamp(14px,4.1vw,19px);letter-spacing:-.03em}
 .labroot[data-lab-r*=e] :is(.v-movs,.v-ana) .pht b{font-size:38px;letter-spacing:-.05em}
 /* n · el número como una pieza: símbolo y decimales pequeños y tenues */
 .labroot[data-lab-r*=n] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .big .cu{font-size:15px;opacity:.72;align-self:flex-start;margin-top:.35em;margin-right:5px}
@@ -359,3 +359,6 @@
 /* t en oscuro: los selectores segmentados dejan el gris azulado fijo y toman la tinta */
 .dark .labroot[data-lab-r*=t] :is(.v-home,.v-movs,.v-ana) :is(.tabs,.seg2){background:color-mix(in srgb,var(--tx) 7%,var(--pg))}
 .dark .labroot[data-lab-r*=t] :is(.v-home,.v-movs,.v-ana) :is(.tabs button.on,.seg2 .sk.on){background:color-mix(in srgb,var(--tx) 18%,var(--pg));color:var(--tx)}
+/* S3: las cifras de Geist son anchas; en los recuadros se cierra el tracking para que quepan a 375 px */
+.labroot[data-lab-font=s3] .ph .scr .tv{letter-spacing:-.05em}
+.labroot[data-lab-font=s3]:not([data-lab-r*=e]) .ph .scr .tv{font-size:min(17px,4.1vw)}

@@ -45,3 +45,8 @@ Un interruptor por cada diferencia con la v21, sobre el Original (`?lab=1&tab=c&
 - [H] Todos los pares pasan AA: el mínimo es 5.03:1 en el texto y 4.40:1 en las siglas de los iconos, en el peor caso (marca blanca). Los iconos mezclan solo un 27 % del color de la marca con la tinta: con más color, marcas como Spotify o Inkafarma bajaban a ~3.5:1.
 - [H] La voz se pone con CSS (`content`): un lector de pantalla sigue leyendo el título real. Solo sirve para comparar, no para producción.
 - [H] Ya existía en el Original y no se toca: con BCP y saldo extremo a 375 px, «S/ 1,222,800.95» se corta en los recuadros.
+
+## Selección del usuario y la duda de la tinta (31 oct 2026)
+Original + S3 (Bricolage + Geist), saldo cohesivo con numerales tabulares y rasgos **e**, **v** y **f**. Le gusta «Una sola tinta» pero duda.
+- Para separar las dos cosas que cambia «Una sola tinta» (el papel cálido y el verde petróleo), se añadió **w · Papel cálido**: solo el papel de la v21, con la tinta índigo de Bóveda. Excluye a **t**. Comparación: `wallet-qa/eleccion/tinta_*.png` (sin tinta · papel cálido · petróleo).
+- [H] Con S3, las cifras de Geist cortaban «S/ 23,556.92» en los recuadros a 375 px, incluso sin rasgos. Se corrigió con tracking −.05em y un tamaño de `min(17px, 4.1vw)`.
