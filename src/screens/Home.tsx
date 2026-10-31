@@ -49,7 +49,7 @@ export default function Home() {
   const M = useMoney();
   const cur = s.settings.activeCurrency;
   const [more, setMore] = useState(false);
-  const [bandOpen, setBandOpen] = useState(false);
+  const [bandOpen, setBandOpen] = useState(true);
   const accounts = D.accountsForHome(s, cur);
   const acc = sel ? C.accountById(s, sel) : null;
   const totals = C.currencyTotals(s, cur);
@@ -122,7 +122,7 @@ export default function Home() {
       <div className="tile"><span className="tk">Hoy</span><b className="tv nums">{M(today, cur)}</b><span className="td">{today ? 'gastado' : 'sin gastos todavía'}</span></div>
       {pd.kind === 'over'
         ? <div className="tile"><span className="tk">Te pasaste</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note}</span></div>
-        : <div className="tile"><span className="tk">Por día</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note.replace(', hasta fin de mes', '')}</span></div>}
+        : <div className="tile"><span className="tk">Por día</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note.startsWith('con lo disponible') ? 'hasta fin de mes' : pd.note.replace(', hasta fin de mes', '')}</span></div>}
       {sel
         ? <div className="tile"><span className="tk">Este mes</span><b className="tv nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b><span className="td">gastado aquí</span></div>
         : <button className="tile" onClick={() => go('plan')}><span className="tk">Por salir</span><b className="tv nums">{out.count ? M(out.minor, cur) : 'Nada'}</b><span className="td">{!out.count ? 'en el mes' : out.late ? out.late + (out.late === 1 ? ' vencido' : ' vencidos') + (out.count - out.late ? ' y ' + (out.count - out.late) + ' más' : '') : out.count + (out.count === 1 ? ' pago' : ' pagos') + ' este mes'}</span></button>}
@@ -212,7 +212,7 @@ export default function Home() {
             <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
               <span className="lbl">{mk ? <img className={'hmk ' + markAspect(heroBank)} src={mk} alt={String(label)} /> : label}</span>
               {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
-              {acc && <button className="pill" onClick={() => setSel(null)}>Ver todo <span aria-hidden="true">✕</span></button>}
+              {acc && <button className="pill" onClick={() => setSel(null)}>{'Ver las ' + accounts.length + ' cuentas'}</button>}
               {!hide && sub && <span className="sub nums">{sub}</span>}
               {!acc && positive.length > 1 && (
                 <>

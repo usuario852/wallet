@@ -48,6 +48,7 @@ export function useMoney() {
 
 // Icono de una fila: logo del comercio o banco, o inicial.
 export function RowIcon({ text, fallback, bank, cat }: { text?: string; fallback?: string; bank?: string; cat?: string }) {
+  if (bank === 'cash') return <span className="ic cash-ic">{catGlyph('efectivo')}</span>;
   if (bank) {
     const src = markSrc(bank);
     if (src) return <span className="ic brand-ic" style={{ ['--bc' as any]: palette(bank, false).cb }}><img src={src} alt="" style={{ objectFit: 'contain', padding: markAspect(bank) === 'w' ? 7 : 6 }} /></span>;

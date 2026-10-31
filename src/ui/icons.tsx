@@ -39,6 +39,7 @@ export function Mark() {
 
 // Glifos de categoría: misma familia y trazo que el resto (contorno 1.8).
 const CAT: [RegExp, React.ReactNode][] = [
+  [/efectivo|billete|cash/, <><rect x="3" y="6.5" width="18" height="11" rx="2" /><circle cx="12" cy="12" r="2.4" /><path d="M6.5 9.5v5M17.5 9.5v5" /></>],
   [/aliment|comida|restaur|menu|cafe|delivery/, <><path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8M7 7h4" /><path d="M16 21V3c2 1.5 3 4 3 7v3h-3" /></>],
   [/supermerc|mercado|bodega|compras/, <><path d="M4 5h2l2 10h10l2-7H7" /><circle cx="10" cy="19" r="1.4" /><circle cx="17" cy="19" r="1.4" /></>],
   [/transp|movilid|taxi|pasaje|combust|gasolin/, <><rect x="5" y="3.5" width="14" height="13" rx="3" /><path d="M5 10h14M8 19.5v-3M16 19.5v-3" /><circle cx="8.5" cy="13.2" r=".6" /><circle cx="15.5" cy="13.2" r=".6" /></>],

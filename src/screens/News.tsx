@@ -72,7 +72,7 @@ export default function News() {
               <span className="nsrc">{n.source} ›</span>
             </a>
           ))}
-          <p className="tsm2">Titulares de medios peruanos e internacionales. Wallet no guarda lo que lees.</p>
+          <p className="tsm2">Medios del Perú y del mundo. Lo que lees no se guarda.</p>
           <button className="opt" onClick={() => open('ask', { prompt: '¿Cómo me afectan las noticias económicas de hoy, mirando mis gastos?' })}><b>¿Cómo me afecta?</b><span>Titulares que tocan lo que gastas.</span></button>
         </div>
         <div className="endpad" />

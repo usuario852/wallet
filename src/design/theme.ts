@@ -22,6 +22,9 @@ Object.assign(DARK.wallet, {
   dot: '#9DB0FF', hv: '#9DB0FF', hvi: '#0B0F18', wb: '#3A2C12', wt: '#F5CF8A'
 });
 
+// Efectivo: el billete es crema, pero la selección y la acción van en tinta (no ocre).
+Object.assign(LIGHT.cash, { pa: '#17182A', pi: '#F3F0E9', pl: '#17182A', pli: '#F3F0E9', ac: '#17182A' });
+
 const clean = (s: any) => String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
 // Qué banco es una cuenta: por su entidad o, si no, por su nombre.

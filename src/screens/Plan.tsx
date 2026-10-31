@@ -49,7 +49,7 @@ export default function Plan() {
                   <button className="lb" aria-label="Bajar límite" onClick={() => setLim(lim - step)}>−</button>
                   <button className="liq" onClick={() => open('budget')} aria-label="Editar límite">{M(lim, cur)}</button>
                   <button className="lb" aria-label="Subir límite" onClick={() => setLim(lim + step)}>+</button>
-                </> : <button className="liq pri" onClick={() => open('budget')}>Poner un límite</button>}
+                </> : <button className="liq soft" onClick={() => open('budget')}>Poner un límite</button>}
               </span>
             </div>
             <div className="bv"><b className="nums">{M(spent, cur)}</b><span>gastados</span></div>
@@ -63,7 +63,7 @@ export default function Plan() {
               <p className="bl">A este ritmo cierras {C.monthName(now.getMonth())} en unos {C.currencyMeta(cur).symbol}{' '}{C.fmtNumber(C.fromMinor(proj, cur), 0)}{proj > lim ? ', unos ' + C.currencyMeta(cur).symbol + ' ' + C.fmtNumber(C.fromMinor(proj - lim, cur), 0) + ' sobre tu límite.' : ', dentro de tu límite.'}</p>
               <p className="tsm2">{spent >= lim ? 'Ya pasaste tu límite del mes.' : 'Para no pasar tu límite: hasta ' + M(Math.round((lim - spent) / (days - day + 1)), cur) + ' por día hasta el ' + days + '.'}</p>
             </>}
-            {!lim && <p className="tsm2">Pon un límite y te digo cuánto puedes gastar por día.</p>}
+            {!lim && <p className="tsm2">Con un límite verás cuánto puedes gastar por día.</p>}
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export default function Plan() {
                   </button>
                 ))}
               </div>
-            ) : <p className="tsm2">Alquiler, sueldo, internet: lo que se repite cada mes. Wallet te avisa antes.</p>}
+            ) : <p className="tsm2">Ninguno todavía.</p>}
 
             <div className="sh2r" style={{ marginTop: 22 }}><b>Límites por categoría</b><button className="lnk" onClick={() => open('cat-limits')}>{catLims.length ? 'Editar' : 'Poner'}</button></div>
             {catLims.length ? (
@@ -117,7 +117,7 @@ export default function Plan() {
                   );
                 })}
               </div>
-            ) : null}
+            ) : <p className="tsm2">Ninguna categoría con límite.</p>}
           </div>
         )}
 
