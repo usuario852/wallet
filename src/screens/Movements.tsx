@@ -8,6 +8,7 @@ import { ISearch } from '../ui/icons';
 import { OpRow } from './Home';
 import { PageTitle, Banner } from './parts';
 import { setCurrency } from '../App';
+import { LAB, getLab } from '../lab/mode';
 
 const FL: [string, string][] = [['all', 'Todo'], ['expense', 'Gastos'], ['income', 'Ingresos'], ['transfer', 'Transferencias'], ['adjustment', 'Ajustes']];
 
@@ -38,7 +39,9 @@ export default function Movements() {
   const groups: { key: string; ops: any[] }[] = [];
   list.forEach((o: any) => { const k = String(o.date || '').slice(0, 10); let g = groups.find((x) => x.key === k); if (!g) { g = { key: k, ops: [] }; groups.push(g); } g.ops.push(o); });
 
-  const title = acc ? 'Movimientos en ' + acc.name : 'Movimientos';
+  // Laboratorio, rasgo «voz propia»: el título se queda corto; la cuenta ya se ve en su filtro (con la ✕).
+  const shortTitle = LAB && getLab().variant === 'orig' && getLab().rasgos.includes('v');
+  const title = acc && !shortTitle ? 'Movimientos en ' + acc.name : 'Movimientos';
   const sub = (month === 'all' ? 'Todo el historial' : C.monthLabel(month)) + ', ' + list.length + (list.length === 1 ? ' movimiento' : ' movimientos');
 
   return (
