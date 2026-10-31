@@ -39,14 +39,17 @@ export default function Movements() {
   list.forEach((o: any) => { const k = String(o.date || '').slice(0, 10); let g = groups.find((x) => x.key === k); if (!g) { g = { key: k, ops: [] }; groups.push(g); } g.ops.push(o); });
 
   const title = acc ? 'Movimientos en ' + acc.name : 'Movimientos';
-  const sub = (month === 'all' ? 'Todo el historial' : C.monthLabel(month)) + ', ' + list.length + (list.length === 1 ? ' movimiento' : ' movimientos');
+  const period = month === 'all' ? 'Todo el historial' : C.monthLabel(month);
+  const eyebrow = period + ' · ' + C.currencyMeta(cur).name;
+  const sub = acc ? 'Todo lo que pasó por esta cuenta, día por día.' : 'Lo que entró y salió, día por día.';
+  const filtered = !!q || flt !== 'all';
 
   return (
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle title={title} sub={sub} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
-        <div className="sec"><div className="strip3">
+        <PageTitle eyebrow={eyebrow} title={title} sub={sub} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
+        <div className="sec"><div className="strip3 open">
           <span><small>Entradas</small><b className="nums">{M(inc, cur)}</b></span>
           <span><small>Salidas</small><b className="nums">{M(out, cur)}</b></span>
           <span><small>Neto</small><b className="nums">{M(net, cur, true)}</b></span>
@@ -61,21 +64,25 @@ export default function Movements() {
           {acc && <button className="fc" onClick={() => setSel(null)}>{acc.name} ✕</button>}
         </div>
         <div className="sec">
+          <div className="rh" aria-live="polite">
+            <span className="nums">{list.length} {list.length === 1 ? 'movimiento' : 'movimientos'}</span>
+            {filtered && <button className="lnk" onClick={() => { setQ(''); setFlt('all'); }}>Limpiar filtros</button>}
+          </div>
           {groups.map((g) => {
             const e = C.sumMinor(g.ops.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
             const i = C.sumMinor(g.ops.filter((o: any) => o.type === 'income'));
             return (
               <div className="day" key={g.key}>
-                <div className="dh"><b>{C.dayLabel(g.key)}</b>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
-                <div className="dl">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} />)}</div>
+                <div className="dh"><span className="dhl"><b>{C.dayLabel(g.key)}</b><small className="nums">{g.ops.length} mov.</small></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
+                <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
               </div>
             );
           })}
           {!groups.length && (
             <div className="empty">
-              <b>{q || flt !== 'all' ? 'No encontré movimientos así.' : 'Aquí todavía no pasa nada.'}</b>
-              <span>{q || flt !== 'all' ? 'Prueba otro mes, otro filtro u otra palabra.' : 'Cuando registres algo, aparece aquí.'}</span>
-              {q || flt !== 'all' ? <button className="liq" onClick={() => { setQ(''); setFlt('all'); }}>Limpiar filtros</button> : <button className="liq pri" onClick={() => open('register', { accountId: sel || undefined })}>Registrar</button>}
+              <b>{filtered ? 'No encontré movimientos así.' : 'Aquí todavía no pasa nada.'}</b>
+              <span>{filtered ? 'Prueba otro mes, otro filtro u otra palabra.' : 'Cuando registres algo, aparece aquí.'}</span>
+              {filtered ? <button className="liq" onClick={() => { setQ(''); setFlt('all'); }}>Limpiar filtros</button> : <button className="liq pri" onClick={() => open('register', { accountId: sel || undefined })}>Registrar</button>}
             </div>
           )}
         </div>

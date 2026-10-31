@@ -64,10 +64,10 @@ export function BackHeader({ label = 'Inicio', right }: { label?: string; right?
   );
 }
 
-export function PageTitle({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {
+export function PageTitle({ title, sub, right, eyebrow }: { title: string; sub?: string; right?: React.ReactNode; eyebrow?: string }) {
   return (
     <div className="sec phd">
-      <span className="pht"><b>{title}</b>{sub && <small>{sub}</small>}</span>
+      <span className="pht">{eyebrow && <span className="eyb">{eyebrow}</span>}<b>{title}</b>{sub && <small>{sub}</small>}</span>
       {right}
     </div>
   );

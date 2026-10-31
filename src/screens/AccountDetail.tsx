@@ -54,8 +54,8 @@ export default function AccountDetail({ id }: { id: string }) {
             <div className="sh"><span>Últimos movimientos</span></div>
             {groups.length ? groups.map((g) => (
               <div className="day" key={g.key} style={{ marginTop: 10 }}>
-                <div className="dh"><b>{C.dayLabel(g.key)}</b></div>
-                <div className="dl">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={a.currency} accountId={a.id} />)}</div>
+                <div className="dh"><span className="dhl"><b>{C.dayLabel(g.key)}</b><small className="nums">{g.ops.length} mov.</small></span></div>
+                <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={a.currency} accountId={a.id} time />)}</div>
               </div>
             )) : <div className="empt"><span>Sin movimientos todavía.</span><button className="lnk" onClick={() => open('register', { accountId: a.id })}>Registrar</button></div>}
             {ops.length > 12 && <button className="dall" onClick={() => go('movs')}>Ver todos</button>}

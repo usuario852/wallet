@@ -512,3 +512,68 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .ra2 .ck{right:-6px;top:-6px;box-shadow:0 0 0 2px var(--pg)}
 .seg2.n4 .sk{font-size:13px;white-space:nowrap}
 .invrow{margin-top:12px}
+
+/* ==========================================================================
+   Wallet 23 · Sensibilidad
+   Lo que hacía que Marea se sintiera hecha a mano, aplicado a Bóveda sin
+   cambiar su color: etiquetas editoriales, libro contable en vez de cajas,
+   un solo corte asimétrico en las superficies firma, íconos genéricos
+   delineados para que los logos reales destaquen, y detalle (hora, conteos).
+   ========================================================================== */
+
+/* 1 · Voz editorial: etiquetas pequeñas en mayúscula espaciada */
+.eyb,.sh>span:first-child,.tk,.strip3 small,.rh>span,.hero .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.eyb{display:block;color:var(--t2);margin-bottom:8px}
+.tk,.strip3 small,.rh>span{color:var(--t2)}
+
+/* 2 · Títulos con más carácter y tres intensidades: etiqueta, título, apoyo */
+.pht b{font-size:38px;font-weight:700;letter-spacing:-.055em;line-height:1}
+.pht small{margin-top:8px;font-size:14px;font-weight:450;line-height:1.4;max-width:30ch}
+.phd{align-items:flex-start}
+.phd>.tabs{margin-top:2px}
+.odo{font-weight:620;letter-spacing:-.055em}
+.tv{font-size:18px;font-weight:650;letter-spacing:-.035em}
+.nm>span:first-child{font-weight:650}
+.am{font-weight:650}
+
+/* 3 · Secciones como cabecera de libro: etiqueta + filete, no un título grande */
+.sh{align-items:center;font-size:inherit;padding:0 0 8px;margin-bottom:10px;box-shadow:inset 0 -1px 0 var(--ln)}
+.sh>span:first-child{color:color-mix(in srgb,var(--tx) 78%,transparent)}
+.sh .lnk{padding-top:4px;padding-bottom:4px;min-height:32px}
+.blk{margin-top:28px}
+
+/* 4 · Movimientos: libro contable abierto en vez de pila de tarjetas */
+.strip3.open{background:transparent;border-radius:0;padding:12px 0;box-shadow:inset 0 1px 0 var(--ln),inset 0 -1px 0 var(--ln)}
+.strip3.open span:first-child{padding-left:0}
+.strip3.open small{margin-bottom:4px}
+.strip3.open b{font-size:17px;font-weight:650;letter-spacing:-.035em}
+.srch{background:color-mix(in srgb,var(--tx) 5%,var(--pg))}
+.fc,.fsel{background:transparent;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tx) 16%,transparent)}
+.fc.on{background:var(--pa);box-shadow:none}
+.rh{display:flex;justify-content:space-between;align-items:center;min-height:36px;margin-top:14px;padding:0 2px 6px;border-bottom:1.5px solid var(--tx)}
+.rh .lnk{padding-right:0}
+.day{margin-top:20px}
+.dh{align-items:baseline;padding:0 2px 2px}
+.dhl{display:flex;align-items:baseline;gap:8px}
+.dh b{font-size:15px;font-weight:700;letter-spacing:-.015em}
+.dhl small{font-size:12px;font-weight:520;color:var(--t2)}
+.ledger .mrow{padding:12px 0;box-shadow:inset 0 -1px 0 var(--ln)}
+.ledger .mrow:last-child{box-shadow:none}
+
+/* 5 · Íconos: lo genérico se delinea, lo real (logos de marca) lleva su color */
+.ic:not(.brand-ic){background:transparent}
+.ic:not(.brand-ic):after{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tx) 16%,transparent)}
+.ic:not(.brand-ic) .ini{color:color-mix(in srgb,var(--tx) 72%,transparent)}
+
+/* 6 · Un corte firma: una esquina más cerrada solo en las superficies clave */
+.hero{border-bottom-left-radius:min(7px,var(--rd))}
+.act{border-bottom-right-radius:min(7px,var(--r2))}
+.toast{border-bottom-left-radius:min(7px,var(--r2))}
+.empty{border-bottom-left-radius:min(7px,var(--r2))}
+
+/* 7 · Inicio: los recuadros siguen siendo una sola pieza, pero abierta y con filetes */
+.tiles{background:transparent;border-radius:0;padding:12px 0;margin-top:14px;box-shadow:inset 0 1px 0 var(--ln),inset 0 -1px 0 var(--ln)}
+.tiles .tile{padding:4px 12px}
+.tiles .tile:first-child{padding-left:2px}
+.tiles .tk{margin-bottom:4px}
+.blk .empt{background:transparent;padding:0 2px;min-height:44px}

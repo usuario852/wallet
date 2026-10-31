@@ -120,7 +120,7 @@ export default function Home() {
 
   const tiles = (
     <div className="tiles" key="hoy">
-      <div className="tile"><span className="tk">Hoy</span><b className="tv nums">{M(today, cur)}</b><span className="td">{today ? 'gastado' : 'sin gastos'}</span></div>
+      <div className="tile"><span className="tk">Hoy</span><b className="tv nums">{M(today, cur)}</b><span className="td">{today ? 'gastado' : 'sin gastos todavía'}</span></div>
       {pd.kind === 'over'
         ? <div className="tile"><span className="tk">Te pasaste</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note}</span></div>
         : <div className="tile"><span className="tk">Por día</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note.replace(', hasta fin de mes', '')}</span></div>}
@@ -238,7 +238,15 @@ export function overdueText(date: string) {
   return days <= 0 ? 'Vence hoy' : days === 1 ? 'Venció ayer' : 'Atrasado ' + days + ' días';
 }
 
-export function OpRow({ op, cur, accountId, onOpen }: { op: any; cur: string; accountId?: string; onOpen?: () => void }) {
+// Hora del movimiento (8:02 p. m.), solo si se registró con hora.
+function opTime(date: any) {
+  const t = String(date || '').slice(11, 16);
+  if (!/^\d{2}:\d{2}$/.test(t) || t === '00:00') return '';
+  const [h, m] = t.split(':').map(Number);
+  return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + (h < 12 ? ' a. m.' : ' p. m.');
+}
+
+export function OpRow({ op, cur, accountId, onOpen, time = false }: { op: any; cur: string; accountId?: string; onOpen?: () => void; time?: boolean }) {
   const { s } = useWallet();
   const { open } = useUI();
   const M = useMoney();
@@ -247,10 +255,12 @@ export function OpRow({ op, cur, accountId, onOpen }: { op: any; cur: string; ac
   else { const d = C.operationDisplayAmount(op, cur); minor = d.minor; currency = d.currency; inc = d.minor > 0; }
   const title = C.operationTitle(s, op);
   let detail = '';
-  if (op.type === 'expense' || op.type === 'income') detail = C.showCat(op.category || '') + (accountId ? '' : ', ' + C.accountName(s, op.accountId));
+  if (op.type === 'expense' || op.type === 'income') detail = C.showCat(op.category || '') + (accountId ? '' : ' · ' + C.accountName(s, op.accountId));
   else if (op.type === 'transfer') detail = 'Entre tus cuentas';
   else if (op.type === 'fx') detail = 'Cambio de moneda';
-  else if (op.type === 'adjustment') detail = 'Ajuste, ' + C.accountName(s, op.accountId);
+  else if (op.type === 'adjustment') detail = 'Ajuste · ' + C.accountName(s, op.accountId);
+  const hm = time ? opTime(op.date) : '';
+  if (hm) detail += ' · ' + hm;
   const isT = op.type === 'transfer' && !accountId;
   return (
     <button className="mrow" onClick={onOpen || (() => open('op', { id: op.id }))}>
