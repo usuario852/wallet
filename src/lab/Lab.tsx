@@ -26,7 +26,8 @@ const RASGOS: [string, string, string][] = [
   ['n', 'El número como una pieza', 'S/ y decimales pequeños y tenues: se lee «35,323».'],
   ['v', 'Voz propia', 'Títulos y subtítulos que hablan, como en la v21.'],
   ['i', 'Iconos suaves', 'Comercios en un tinte claro de su color, no en bloque saturado.'],
-  ['f', 'Formas blandas', 'Esquina propia en el saldo, píldoras amplias y un + redondo.']
+  ['f', 'Formas blandas', 'Esquina propia en el saldo, píldoras amplias y un + redondo.'],
+  ['j', 'Intensidades', 'No todo pesa igual: el número manda; S/, decimales en alto, etiquetas y comparaciones más ligeras.']
 ];
 // Rasgos que no pueden ir juntos: los dos cambian el papel.
 const EXCL: Record<string, string> = { t: 'w', w: 't' };

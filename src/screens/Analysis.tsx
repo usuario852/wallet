@@ -8,6 +8,7 @@ import { useMoney, RowIcon, Seg, CurTabs } from '../ui/bits';
 import { bankOf, palette } from '../design/theme';
 import { PageTitle, Banner } from './parts';
 import { setCurrency } from '../App';
+import { LAB, getLab } from '../lab/mode';
 
 export default function Analysis() {
   const { s } = useWallet();
@@ -20,6 +21,8 @@ export default function Analysis() {
   const [hd, setHd] = useState<string>(C.todayLocal());
   const per = C.currentPeriod();
   const now = new Date(); const day = now.getDate();
+  // Laboratorio, rasgo «voz propia»: el mes por su nombre («que septiembre a esta altura»).
+  const prevLabel = LAB && getLab().variant === 'orig' && getLab().rasgos.includes('v') ? C.monthName((now.getMonth() + 11) % 12) + ' a esta altura' : 'el mes pasado a esta altura';
   const cm = D.cumulative(s, cur, per);
   const pm = D.cumulative(s, cur, D.prevPeriod(per));
   const spent = cm.cum[day - 1] || 0;
@@ -82,7 +85,7 @@ export default function Analysis() {
             <span className="lbl">{range === 'month' ? 'Gastado en ' + C.monthName(now.getMonth()) : 'Gastado en 7 días'}</span>
             {(() => { const mp = C.moneyParts(range === 'month' ? spent : weekTotal, cur); return <div className="big"><span className="cu">{mp.symbol}</span><span className="odo">{hide ? '••••' : mp.whole}<span className="sep dec">{hide || !mp.dec ? '' : '.' + mp.dec}</span></span></div>; })()}
             {range === 'month' ? <>
-              <span className="cmp">{arrow(spent, prevAt)}{cmp(spent, prevAt, 'el mes pasado a esta altura')}</span>
+              <span className="cmp">{arrow(spent, prevAt)}{cmp(spent, prevAt, prevLabel)}</span>
               {has3 && <span className="cmp">{arrow(spent, avg3)}{cmp(spent, avg3, 'tu promedio de 3 meses')}</span>}
             </> : <span className="cmp">{arrow(weekTotal, prevWeek)}{cmp(weekTotal, prevWeek, 'los 7 días anteriores')}</span>}
           </div>

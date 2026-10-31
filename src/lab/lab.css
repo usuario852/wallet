@@ -362,3 +362,15 @@
 /* S3: las cifras de Geist son anchas; en los recuadros se cierra el tracking para que quepan a 375 px */
 .labroot[data-lab-font=s3] .ph .scr .tv{letter-spacing:-.05em}
 .labroot[data-lab-font=s3]:not([data-lab-r*=e]) .ph .scr .tv{font-size:min(17px,4.1vw)}
+/* j · intensidades: cada nivel de texto con su propio peso y tinta; el número manda */
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .lbl{font-weight:600;color:color-mix(in srgb,currentColor 70%,transparent)}
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .big{align-items:flex-start;margin:10px 0 12px}
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .big .cu{font-size:15px;font-weight:600;opacity:.7;align-self:flex-start;margin:.1em 6px 0 0}
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .odo{align-items:flex-start}
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .odo .dec{font-size:.4em;font-weight:600;opacity:.78;align-self:flex-start;vertical-align:top;margin-left:2px;letter-spacing:0}
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .odo .cohn .dec,.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .cohn .dec{display:inline-block;transform:translateY(.12em)}
+.labroot[data-lab-r*=j] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .sub{font-weight:500;color:color-mix(in srgb,currentColor 84%,transparent)}
+.labroot[data-lab-r*=j] .v-ana .scr .cmp{font-weight:500;gap:8px;margin-top:6px;color:color-mix(in srgb,currentColor 88%,transparent)}
+.labroot[data-lab-r*=j] .v-ana .scr .cmp i{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;background:color-mix(in srgb,currentColor 16%,transparent)}
+.labroot[data-lab-r*=j] :is(.v-home,.v-movs,.v-ana) :is(.dt,.td,.pht small){font-weight:450}
+.labroot[data-lab-r*=j] :is(.v-home,.v-movs,.v-ana) :is(.tk,.strip3 small){font-weight:650}
