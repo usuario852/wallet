@@ -663,3 +663,8 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .rb.mvh{width:100%;height:64px;margin:14px 0 0;transform:none;flex-direction:row;align-items:center;justify-content:space-between;padding:0 16px;cursor:default}
 .rb.mvh .rbal{display:block;font-size:17px;font-weight:640}
 .rb.mvh::after{animation:none}
+
+/* Tras la ronda 5 (sin puntuar): totales de Movimientos sobre el papel como en Inicio; Efectivo visible en su barra */
+.strip3{background:transparent;padding:6px 0}
+.strip3 span:first-child{padding-left:2px}
+.cbar.naipe-bar{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.16),0 4px 8px -4px color-mix(in srgb,var(--cb) 70%,#000)}

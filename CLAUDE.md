@@ -44,3 +44,6 @@ Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque 
 - La tarjeta del total (Inicio y Análisis) es papel (`.hero.paper`, tb=sf/ti=tx): número en tinta, etiqueta en índigo, arcos tenues. Con color propio en Personaliza vuelve a ser bloque; al elegir una cuenta sigue la piel del banco.
 - Barra de vidrio líquido con temperatura de papel: brillo tibio, lente de tinta (no lila), + con el corte de Registrar; se tiñe con la piel del banco.
 - Vacíos con una "piedra" orgánica; filas y recuadros ceden al tocarlos (respeta reducir movimiento).
+
+## Wallet 24 · Estuche (rama redisenio-estuche, 31 oct 2026, sin publicar)
+Rediseño con el skill app-designer-pro. Concepto: estuche de naipes bancarios sobre papel tibio. Reemplaza el bloque Sensibilidad por `Wallet 24 · Estuche` al final de `styles.css`: sin manchas, anillos ni corte asimétrico; etiquetas en sentence case; Bóveda índigo con luz y bisel; naipes iluminados que se levantan con un destello; íconos de categoría; "Lo último" siempre en Inicio; naipe de la cuenta como cabecera en Movimientos filtrado; saldos como naipes en Análisis. Personaliza: arriba del Inicio solo Fecha o Wallet.
