@@ -753,3 +753,9 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .lr{grid-template-columns:48px 1fr auto}
 .empt.stamped{justify-content:flex-start;gap:14px}
 .empt.stamped .lnk{margin-left:auto}
+/* Tras ronda 7 (sin puntuar): la frase del día solo se parte en los puntos; cada naipe de la pila cabe su logo */
+.facts .fact{white-space:nowrap}
+.stack i{min-width:56px}
+.szone{min-width:56px}
+.facts{display:flex;flex-direction:column;gap:2px;line-height:1.45}
+.fact + .fact::before{content:none}

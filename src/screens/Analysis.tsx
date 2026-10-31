@@ -163,7 +163,7 @@ export default function Analysis() {
               {(pos.length > 0 || neg.length > 0) && (() => {
                 const nTot = neg.reduce((n: number, a: any) => n - C.balanceOf(s, a), 0);
                 const card = (a: any, minus: boolean) => { const bk = bankOf(a); const src = markSrc(bk); const bal = Math.abs(C.balanceOf(s, a));
-                  return <i key={a.id} className={minus ? 'owe' : ''} style={{ flexGrow: bal, ['--cb' as any]: palette(bk, dark).cb, ['--ci' as any]: palette(bk, dark).ci }}>{bal / (pTot + nTot) > 0.14 && (src ? <img className={'mk ' + markAspect(bk)} src={src} alt="" /> : <em>{a.name}</em>)}</i>; };
+                  return <i key={a.id} className={minus ? 'owe' : ''} style={{ flexGrow: bal, ['--cb' as any]: palette(bk, dark).cb, ['--ci' as any]: palette(bk, dark).ci }}>{src ? <img className={'mk ' + markAspect(bk)} src={src} alt="" /> : <em>{a.name}</em>}</i>; };
                 return <>
                   <div className={'stack' + (neg.length ? ' split' : '')} role="img" aria-label={(neg.length ? 'En negativo ' + M(-nTot, cur) + '. ' : '') + 'En positivo ' + M(pTot, cur) + ': ' + pos.map((a: any) => a.name).join(', ')}>
                     {neg.length > 0 && <span className="szone" style={{ flexGrow: nTot }}>{neg.map((a: any) => card(a, true))}</span>}
