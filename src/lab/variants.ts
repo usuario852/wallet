@@ -8,7 +8,8 @@ export const VARIANTS = [
   { id: 'orig', name: 'Original', thesis: 'Control: la app de hoy, con Bóveda, sin tocar.' },
   { id: 'a', name: 'A', thesis: 'Un solo calibre: radios de una escala, número calibrado y una esquina de anclaje en las dos superficies principales.' },
   { id: 'b', name: 'B', thesis: 'La superficie fluye: el color del banco sube hasta el borde y lo demás emerge sobre su labio.' },
-  { id: 'c', name: 'C', thesis: 'Mazo y libro mayor: las cuentas son un mazo de color; todo lo demás es tinta sobre papel, sin cajas.' }
+  { id: 'c', name: 'C', thesis: 'Mazo y libro mayor: las cuentas son un mazo de color; todo lo demás es tinta sobre papel, sin cajas.' },
+  { id: 'bc', name: 'B+C', thesis: 'El banco fluye arriba y el mazo emerge de su labio; debajo, el libro mayor: tinta sobre papel, sin cajas.' }
 ] as const;
 
 const WALLET: Record<string, { light: any; dark: any }> = {
@@ -23,6 +24,11 @@ const WALLET: Record<string, { light: any; dark: any }> = {
   c: {
     light: { pg: '#F3F1EA', sf: '#FBFAF6', s2: '#FBFAF6', ln: 'rgba(18,18,18,.13)', tx: '#121212', t2: '#55565A', hb: '#0F4A3D', hi: '#F3F1EA', pa: '#121212', pi: '#F3F1EA', ac: '#0E6650', pl: '#E3A23A', pli: '#121212', pc: 'rgba(243,241,234,.16)', pci: '#F3F1EA', hv: '#0E6650', hvi: '#FFFFFF', dot: '#E3A23A', nv: 'rgba(243,241,234,.96)', cb: '#0F4A3D', ci: '#F3F1EA' },
     dark: { pg: '#0D0D0E', sf: '#171718', s2: '#171718', ln: 'rgba(238,236,230,.13)', tx: '#EEECE6', t2: '#A6A6A2', hb: '#11493C', hi: '#F3F1EA', pa: '#EEECE6', pi: '#0D0D0E', ac: '#73D3B5', pl: '#E8A845', pli: '#121212', pc: 'rgba(13,13,14,.14)', pci: '#0D0D0E', hv: '#73D3B5', hvi: '#0D0D0E', dot: '#E8A845', nv: '#171718F0', cb: '#11493C', ci: '#F3F1EA' }
+  },
+  // B+C: banda de abeto y cobre (B) sobre el papel y la tinta de C.
+  bc: {
+    light: { pg: '#F3F1EA', sf: '#FBFAF6', s2: '#FBFAF6', ln: 'rgba(18,18,18,.13)', tx: '#121212', t2: '#55565A', hb: '#173F37', hi: '#F5F2EA', pa: '#173F37', pi: '#F5F2EA', ac: '#9C4322', pl: '#B4532E', pli: '#FFFFFF', pc: 'rgba(245,242,234,.16)', pci: '#F5F2EA', hv: '#2C7A68', hvi: '#FFFFFF', dot: '#E08A5B', nv: 'rgba(243,241,234,.96)', cb: '#173F37', ci: '#F5F2EA' },
+    dark: { pg: '#0D0D0E', sf: '#171718', s2: '#171718', ln: 'rgba(238,236,230,.13)', tx: '#EEECE6', t2: '#A6A6A2', hb: '#1B4239', hi: '#F5F2EA', pa: '#8ED2BE', pi: '#0C1614', ac: '#F2A784', pl: '#F2A784', pli: '#1E0F07', pc: 'rgba(13,13,14,.14)', pci: '#0D0D0E', hv: '#8ED2BE', hvi: '#0C1614', dot: '#F2A784', nv: '#171718F0', cb: '#1B4239', ci: '#F5F2EA' }
   }
 };
 const PAPER = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'nv'];
@@ -40,6 +46,6 @@ export function variantSkin(p: any, bank: string, dark: boolean, view: string) {
   }
   // Con banco: el banco conserva su color. B tiñe la página con él; C la deja en papel.
   if (v === 'b') return { ...p, pg: `color-mix(in srgb, ${p.hb} ${dark ? 12 : 7}%, ${dark ? '#0E0F11' : '#F5F3EE'})` };
-  if (v === 'c') { const out = { ...p }; PAPER.forEach((k) => { out[k] = w[k]; }); return out; }
+  if (v === 'c' || v === 'bc') { const out = { ...p }; PAPER.forEach((k) => { out[k] = w[k]; }); return out; }
   return p;
 }

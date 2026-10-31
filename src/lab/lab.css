@@ -168,107 +168,145 @@
    arquitectura de la página; los naipes se apilan como en una billetera
    y la cuenta elegida sube al saldo.
    ====================================================================== */
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana){--rd:16px!important;--r2:6px!important}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana){--rd:16px!important;--r2:6px!important}
 /* el saldo en papel */
-[data-lab-variant=c] .v-home .scr .hero.total{background:none;color:var(--tx);padding:18px 0 0;margin-top:6px;border-radius:0;min-height:0}
-[data-lab-variant=c] :is(.v-home,.v-ana) .scr :is(.hero.total,.ahero) .lbl{font-size:13px;font-weight:700;color:var(--t2)}
-[data-lab-variant=c] :is(.v-home,.v-ana) .scr .hero .big{margin:12px 0 12px}
-[data-lab-variant=c] :is(.v-home,.v-ana) .scr .hero .big .cu{font-size:20px;font-weight:600;align-self:flex-start;margin-top:.18em;margin-right:8px}
-[data-lab-variant=c] .v-home .scr .hero .odo{font-size:min(20vw,86px);font-weight:600;letter-spacing:-.07em}
-[data-lab-variant=c] .v-home .scr .hero .odo.md{font-size:min(13.5vw,60px)}
-[data-lab-variant=c] .v-home .scr .hero .odo.sm{font-size:min(11.5vw,50px)}
-[data-lab-variant=c] :is(.v-home,.v-ana) .scr .hero .odo .dec{font-size:.42em;font-weight:560;letter-spacing:-.01em;margin-left:3px}
-[data-lab-variant=c] .v-home .scr .hero.total .sub{color:var(--t2)}
-[data-lab-variant=c] .v-home .scr .hero .band2{height:14px;gap:2px;border-radius:0;margin-top:20px}
-[data-lab-variant=c] .v-home .scr .hero .bleg{color:var(--t2)}
-[data-lab-variant=c] .v-home .scr .hero .bleg b{color:var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero.total{background:none;color:var(--tx);padding:18px 0 0;margin-top:6px;border-radius:0;min-height:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-ana) .scr :is(.hero.total,.ahero) .lbl{font-size:13px;font-weight:700;color:var(--t2)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-ana) .scr .hero .big{margin:12px 0 12px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-ana) .scr .hero .big .cu{font-size:20px;font-weight:600;align-self:flex-start;margin-top:.18em;margin-right:8px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero .odo{font-size:min(20vw,86px);font-weight:600;letter-spacing:-.07em}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero .odo.md{font-size:min(13.5vw,60px)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero .odo.sm{font-size:min(11.5vw,50px)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-ana) .scr .hero .odo .dec{font-size:.42em;font-weight:560;letter-spacing:-.01em;margin-left:3px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero.total .sub{color:var(--t2)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero .band2{height:14px;gap:2px;border-radius:0;margin-top:20px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero .bleg{color:var(--t2)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero .bleg b{color:var(--tx)}
 /* la cuenta elegida sube al saldo */
-[data-lab-variant=c] .v-home .scr .hero.withpill{border-radius:16px;margin-top:8px;padding:20px 20px 18px;animation:labRise 440ms cubic-bezier(.2,.9,.25,1) both}
-[data-lab-variant=c] .v-home .scr .hero.withpill .odo{font-size:min(15vw,62px);font-weight:600;letter-spacing:-.065em}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero.withpill{border-radius:16px;margin-top:8px;padding:20px 20px 18px;animation:labRise 440ms cubic-bezier(.2,.9,.25,1) both}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .hero.withpill .odo{font-size:min(15vw,62px);font-weight:600;letter-spacing:-.065em}
 @keyframes labRise{from{transform:translateY(28px) scale(.97);opacity:.35}}
 /* el mazo */
-[data-lab-variant=c] .v-home .scr .accs{margin-top:26px}
-[data-lab-variant=c] .v-home .scr .selB{flex-direction:column;align-items:stretch;overflow:visible;margin:0;padding:0}
-[data-lab-variant=c] .v-home .scr .rb{width:auto;height:64px;margin:0 0 -16px;border-radius:16px 16px 10px 10px;padding:13px 16px;flex-direction:row;justify-content:space-between;align-items:flex-start;box-shadow:0 -10px 18px -12px rgba(0,0,0,.42);transition:height 420ms cubic-bezier(.22,1,.36,1),transform 420ms cubic-bezier(.22,1,.36,1),filter 300ms}
-[data-lab-variant=c] .v-home .scr .rb .rbal{display:block;font-size:15px;font-weight:650;letter-spacing:-.02em}
-[data-lab-variant=c] .v-home .scr .rb .mk.w{max-width:60px;max-height:18px}
-[data-lab-variant=c] .v-home .scr .rb .mk.s{max-height:26px;max-width:26px}
-[data-lab-variant=c] .v-home .scr .rb.on{width:auto;height:88px;margin:0 0 -16px;padding:13px 16px;transform:translateY(-4px);box-shadow:0 -12px 20px -12px rgba(0,0,0,.5),0 14px 22px -14px rgba(0,0,0,.45)}
-[data-lab-variant=c] .v-home .scr .rb.off{filter:saturate(.65)}
-[data-lab-variant=c] .v-home .scr .more{position:relative;width:auto;height:52px;margin:0;border-radius:10px;background:var(--sf);box-shadow:0 -8px 16px -12px rgba(0,0,0,.35),inset 0 0 0 1px var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .accs{margin-top:26px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .selB{flex-direction:column;align-items:stretch;overflow:visible;margin:0;padding:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rb{width:auto;height:64px;margin:0 0 -16px;border-radius:16px 16px 10px 10px;padding:13px 16px;flex-direction:row;justify-content:space-between;align-items:flex-start;box-shadow:0 -10px 18px -12px rgba(0,0,0,.42);transition:height 420ms cubic-bezier(.22,1,.36,1),transform 420ms cubic-bezier(.22,1,.36,1),filter 300ms}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rb .rbal{display:block;font-size:15px;font-weight:650;letter-spacing:-.02em}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rb .mk.w{max-width:60px;max-height:18px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rb .mk.s{max-height:26px;max-width:26px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rb.on{width:auto;height:88px;margin:0 0 -16px;padding:13px 16px;transform:translateY(-4px);box-shadow:0 -12px 20px -12px rgba(0,0,0,.5),0 14px 22px -14px rgba(0,0,0,.45)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rb.off{filter:saturate(.65)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .more{position:relative;width:auto;height:52px;margin:0;border-radius:10px;background:var(--sf);box-shadow:0 -8px 16px -12px rgba(0,0,0,.35),inset 0 0 0 1px var(--ln)}
 /* el libro mayor */
-[data-lab-variant=c] .v-home .scr .tiles{display:block;background:none;border-radius:0;margin:30px 16px 0;padding:0;box-shadow:inset 0 2px 0 var(--tx)}
-[data-lab-variant=c] .v-home .scr .tile{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k v" "d v";column-gap:12px;row-gap:2px;align-items:center;padding:12px 0;box-shadow:inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-home .scr .tile:last-child{box-shadow:inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-home .scr .tk{grid-area:k;font-size:15px;font-weight:700;color:var(--tx)}
-[data-lab-variant=c] .v-home .scr .td{grid-area:d}
-[data-lab-variant=c] .v-home .scr .tv{grid-area:v;font-size:24px;font-weight:600;letter-spacing:-.045em;text-align:right}
-[data-lab-variant=c] .v-home .scr .acts{margin-top:22px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr)}
-[data-lab-variant=c] .v-home .scr .act{min-height:56px}
-[data-lab-variant=c] .v-home .scr .act .ai{border-radius:4px}
-[data-lab-variant=c] .v-home .scr .act2{box-shadow:inset 0 0 0 1.5px var(--tx)}
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana) .scr .blk{margin-top:34px}
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana) .scr .sh{font-size:15px;font-weight:750;letter-spacing:0;padding:10px 0 4px;box-shadow:inset 0 2px 0 var(--tx)}
-[data-lab-variant=c] .v-home .scr .debt{background:none;border-radius:0;padding:12px 0;box-shadow:inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-home .scr .debt+.debt{margin-top:0}
-[data-lab-variant=c] .v-home .scr .rail{background:none;padding:0;border-radius:0}
-[data-lab-variant=c] .v-home .scr .rail::before,[data-lab-variant=c] .v-home .scr .rdot{display:none}
-[data-lab-variant=c] .v-home .scr .lr{grid-template-columns:54px minmax(0,1fr) auto;padding:11px 0;border-radius:0;box-shadow:inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-home .scr .lr+.lr{margin-top:0}
-[data-lab-variant=c] .v-home .scr .lr.late{margin:0;padding-left:8px;padding-right:8px;border-radius:4px;box-shadow:none}
-[data-lab-variant=c] .v-home .scr .rd8{font-weight:750;color:var(--tx)}
-[data-lab-variant=c] .v-home .scr .lr.late .rd8{color:var(--wt)}
-[data-lab-variant=c] .v-home .scr .empt{background:none;border-radius:0;padding:4px 0;box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .tiles{display:block;background:none;border-radius:0;margin:30px 16px 0;padding:0;box-shadow:inset 0 2px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .tile{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k v" "d v";column-gap:12px;row-gap:2px;align-items:center;padding:12px 0;box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .tile:last-child{box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .tk{grid-area:k;font-size:15px;font-weight:700;color:var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .td{grid-area:d}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .tv{grid-area:v;font-size:24px;font-weight:600;letter-spacing:-.045em;text-align:right}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .acts{margin-top:22px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.12fr)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .act{min-height:56px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .act .ai{border-radius:4px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .act2{box-shadow:inset 0 0 0 1.5px var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana) .scr .blk{margin-top:34px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana) .scr .sh{font-size:15px;font-weight:750;letter-spacing:0;padding:10px 0 4px;box-shadow:inset 0 2px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .debt{background:none;border-radius:0;padding:12px 0;box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .debt+.debt{margin-top:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rail{background:none;padding:0;border-radius:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rail::before,:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rdot{display:none}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .lr{grid-template-columns:54px minmax(0,1fr) auto;padding:11px 0;border-radius:0;box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .lr+.lr{margin-top:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .lr.late{margin:0;padding-left:8px;padding-right:8px;border-radius:4px;box-shadow:none}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .rd8{font-weight:750;color:var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .lr.late .rd8{color:var(--wt)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-home .scr .empt{background:none;border-radius:0;padding:4px 0;box-shadow:inset 0 -1px 0 var(--ln)}
 /* barra inferior: un canto fijo, no una cápsula flotante */
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana) .nav{left:0;right:0;bottom:0;height:calc(64px + var(--safe-b));padding-bottom:var(--safe-b);border-radius:0;box-shadow:inset 0 1px 0 var(--ln)}
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana) .plus{width:56px;height:44px;border-radius:8px}
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana) .tab.on svg{background:none;border-radius:0;box-shadow:inset 0 -2px 0 var(--tx)}
-[data-lab-variant=c] :is(.v-home,.v-movs,.v-ana).has-nav::after{height:calc(84px + var(--safe-b));background:linear-gradient(to top,var(--pg) 72%,transparent)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana) .nav{left:0;right:0;bottom:0;height:calc(64px + var(--safe-b));padding-bottom:var(--safe-b);border-radius:0;box-shadow:inset 0 1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana) .plus{width:56px;height:44px;border-radius:8px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana) .tab.on svg{background:none;border-radius:0;box-shadow:inset 0 -2px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-home,.v-movs,.v-ana).has-nav::after{height:calc(84px + var(--safe-b));background:linear-gradient(to top,var(--pg) 72%,transparent)}
 /* Movimientos: fechas que se quedan pegadas al bajar */
-[data-lab-variant=c] :is(.v-movs,.v-ana) .scr .pht b{font-size:46px;font-weight:650;letter-spacing:-.055em}
-[data-lab-variant=c] .v-movs .scr .strip3{background:none;border-radius:0;padding:12px 0;margin-top:18px;box-shadow:inset 0 2px 0 var(--tx),inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-movs .scr .strip3 span{padding:0 12px 0 0}
-[data-lab-variant=c] .v-movs .scr .strip3 span+span{padding-left:12px}
-[data-lab-variant=c] .v-movs .scr .strip3 b{font-size:clamp(15px,4.3vw,18px);font-weight:650;letter-spacing:-.03em}
-[data-lab-variant=c] .v-movs .scr .srch{background:none;border-radius:0;padding:0 2px;margin-top:14px;box-shadow:inset 0 -1.5px 0 var(--tx)}
-[data-lab-variant=c] .v-movs .scr .flt{gap:4px 18px}
-[data-lab-variant=c] .v-movs .scr :is(.fc,.fsel){background:none;border-radius:0;padding:0 1px;min-height:40px}
-[data-lab-variant=c] .v-movs .scr .fc{color:var(--t2)}
-[data-lab-variant=c] .v-movs .scr .fc.on{background:none;color:var(--tx);box-shadow:inset 0 -2.5px 0 var(--tx)}
-[data-lab-variant=c] .v-movs .scr .fsel{box-shadow:inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-movs .scr .day{display:grid;grid-template-columns:66px minmax(0,1fr);column-gap:10px;margin-top:0;box-shadow:inset 0 1px 0 var(--tx)}
-[data-lab-variant=c] .v-movs .scr .day:first-child{margin-top:20px}
-[data-lab-variant=c] .v-movs .scr .dh{position:sticky;top:calc(var(--safe-t) + 4px);align-self:start;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 0 10px}
-[data-lab-variant=c] .v-movs .scr .dh b{font-size:13px;font-weight:750;line-height:1.2}
-[data-lab-variant=c] .v-movs .scr .dh span{font-size:12px}
-[data-lab-variant=c] .v-movs .scr .dl{background:none;border-radius:0;padding:0}
-[data-lab-variant=c] .v-movs .scr .mrow{padding:12px 0}
-[data-lab-variant=c] .v-movs .scr .empty{background:none;border-radius:0;box-shadow:inset 0 2px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) :is(.v-movs,.v-ana) .scr .pht b{font-size:46px;font-weight:650;letter-spacing:-.055em}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .strip3{background:none;border-radius:0;padding:12px 0;margin-top:18px;box-shadow:inset 0 2px 0 var(--tx),inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .strip3 span{padding:0 12px 0 0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .strip3 span+span{padding-left:12px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .strip3 b{font-size:clamp(15px,4.3vw,18px);font-weight:650;letter-spacing:-.03em}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .srch{background:none;border-radius:0;padding:0 2px;margin-top:14px;box-shadow:inset 0 -1.5px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .flt{gap:4px 18px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr :is(.fc,.fsel){background:none;border-radius:0;padding:0 1px;min-height:40px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .fc{color:var(--t2)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .fc.on{background:none;color:var(--tx);box-shadow:inset 0 -2.5px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .fsel{box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .day{display:grid;grid-template-columns:66px minmax(0,1fr);column-gap:10px;margin-top:0;box-shadow:inset 0 1px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .day:first-child{margin-top:20px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .dh{position:sticky;top:calc(var(--safe-t) + 4px);align-self:start;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 0 10px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .dh b{font-size:13px;font-weight:750;line-height:1.2}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .dh span{font-size:12px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .dl{background:none;border-radius:0;padding:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .mrow{padding:12px 0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-movs .scr .empty{background:none;border-radius:0;box-shadow:inset 0 2px 0 var(--tx)}
 /* Análisis */
-[data-lab-variant=c] .v-ana .scr .seg2{background:none;border-radius:0;padding:0;gap:0;box-shadow:inset 0 -1px 0 var(--ln)}
-[data-lab-variant=c] .v-ana .scr .sk{border-radius:0;color:var(--t2)}
-[data-lab-variant=c] .v-ana .scr .sk.on{background:none;color:var(--tx);box-shadow:inset 0 -2.5px 0 var(--tx)}
-[data-lab-variant=c] .v-ana .scr .ahero{background:none;color:var(--tx);padding:18px 0 4px;margin-top:6px;border-radius:0}
-[data-lab-variant=c] .v-ana .scr .ahero .odo{font-size:min(17vw,72px);font-weight:600;letter-spacing:-.065em}
-[data-lab-variant=c] .v-ana .scr .cmp{font-size:14px}
-[data-lab-variant=c] .v-ana .scr .card{background:none;border-radius:0;padding:12px 0 6px;margin-top:30px;box-shadow:inset 0 2px 0 var(--tx)}
-[data-lab-variant=c] .v-ana .scr .ch b{font-size:15px;font-weight:750}
-[data-lab-variant=c] .v-ana .scr .lo{stroke-width:2.6}
-[data-lab-variant=c] .v-ana .scr .ar{opacity:.16}
-[data-lab-variant=c] .v-ana .scr .tt{background:var(--sf);border-radius:4px;box-shadow:inset 0 0 0 1px var(--ln)}
-[data-lab-variant=c] .v-ana .scr .wk{gap:6px}
-[data-lab-variant=c] .v-ana .scr .wb{width:100%;border-radius:0}
-[data-lab-variant=c] .v-ana .scr .cb{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n v" "t t";row-gap:7px;min-height:0;padding:10px 0;border-radius:0;box-shadow:inset 0 -1px 0 var(--ln);transition:opacity 260ms}
-[data-lab-variant=c] .v-ana .scr .cn{grid-area:n;font-size:14px}
-[data-lab-variant=c] .v-ana .scr .cv{grid-area:v;font-size:14px}
-[data-lab-variant=c] .v-ana .scr .cb .ctrack{grid-area:t}
-[data-lab-variant=c] .v-ana .scr .ctrack{height:6px;border-radius:0}
-[data-lab-variant=c] .v-ana .scr .cbar{border-radius:0}
-[data-lab-variant=c] .v-ana .scr .card:has(.cb.on) .cb:not(.on){opacity:.42}
-[data-lab-variant=c] .v-ana .scr .cal{gap:5px}
-[data-lab-variant=c] .v-ana .scr .cd{border-radius:50%;aspect-ratio:1;min-height:0}
-[data-lab-variant=c] .v-ana .scr .calk i{border-radius:50%}
-[data-lab-variant=c] .v-ana .scr .opt{background:none;border-radius:0;padding:14px 0;box-shadow:inset 0 2px 0 var(--tx),inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .seg2{background:none;border-radius:0;padding:0;gap:0;box-shadow:inset 0 -1px 0 var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .sk{border-radius:0;color:var(--t2)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .sk.on{background:none;color:var(--tx);box-shadow:inset 0 -2.5px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .ahero{background:none;color:var(--tx);padding:18px 0 4px;margin-top:6px;border-radius:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .ahero .odo{font-size:min(17vw,72px);font-weight:600;letter-spacing:-.065em}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cmp{font-size:14px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .card{background:none;border-radius:0;padding:12px 0 6px;margin-top:30px;box-shadow:inset 0 2px 0 var(--tx)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .ch b{font-size:15px;font-weight:750}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .lo{stroke-width:2.6}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .ar{opacity:.16}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .tt{background:var(--sf);border-radius:4px;box-shadow:inset 0 0 0 1px var(--ln)}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .wk{gap:6px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .wb{width:100%;border-radius:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cb{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n v" "t t";row-gap:7px;min-height:0;padding:10px 0;border-radius:0;box-shadow:inset 0 -1px 0 var(--ln);transition:opacity 260ms}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cn{grid-area:n;font-size:14px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cv{grid-area:v;font-size:14px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cb .ctrack{grid-area:t}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .ctrack{height:6px;border-radius:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cbar{border-radius:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .card:has(.cb.on) .cb:not(.on){opacity:.42}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cal{gap:5px}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .cd{border-radius:50%;aspect-ratio:1;min-height:0}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .calk i{border-radius:50%}
+:is([data-lab-variant=c],[data-lab-variant=bc]) .v-ana .scr .opt{background:none;border-radius:0;padding:14px 0;box-shadow:inset 0 2px 0 var(--tx),inset 0 -1px 0 var(--ln)}
+
+/* ======================================================================
+   B+C · El banco fluye sobre el libro mayor
+   De B: la banda de color hasta el borde, con su labio asimétrico.
+   De C: el mazo vertical (que ahora emerge del labio), el libro mayor
+   (tinta, reglas, sin cajas) y la barra anclada. Las reglas de C ya
+   cubren B+C; aquí van la banda y lo que cambia al montarse sobre ella.
+   ====================================================================== */
+/* banda: Inicio */
+[data-lab-variant=bc] .v-home .hdr{background:var(--hb);color:var(--hi);--tx:var(--hi);--pg:var(--hb);--pa:var(--dot)}
+[data-lab-variant=bc] .v-home .scr .sec.row{background:var(--hb);color:var(--hi)}
+[data-lab-variant=bc] .v-home .scr .sec:has(>.hero){background:var(--hb);border-radius:0 0 16px 56px;padding-top:4px;padding-bottom:64px}
+[data-lab-variant=bc] .v-home .scr :is(.hero.total,.hero.withpill){background:var(--hm) no-repeat right -60px top -10px / 460px 290px,transparent;color:var(--hi);margin-top:0;padding:14px 4px 0;min-height:0;border-radius:0;box-shadow:none}
+[data-lab-variant=bc] .v-home .scr :is(.hero.total,.hero.withpill) :is(.lbl,.sub,.bleg){color:color-mix(in srgb,var(--hi) 80%,transparent)}
+[data-lab-variant=bc] .v-home .scr :is(.hero.total,.hero.withpill) .bleg b{color:var(--hi)}
+[data-lab-variant=bc] .v-home .scr :is(.hero.total,.hero.withpill) .pill{border-color:color-mix(in srgb,var(--hi) 60%,transparent)}
+[data-lab-variant=bc] .v-home .scr :is(.hero.total,.hero.withpill) .liq.pri{background:var(--hi);color:var(--hb)}
+[data-lab-variant=bc] .v-home .fx{color:color-mix(in srgb,var(--hi) 80%,transparent)}
+[data-lab-variant=bc] .v-home .fx b{color:var(--hi)}
+/* banda: Movimientos y Análisis */
+[data-lab-variant=bc] :is(.v-movs,.v-ana) .scr .phd{background:var(--hb);color:var(--hi);margin-top:calc(-8px - var(--safe-t));padding-top:calc(26px + var(--safe-t))}
+[data-lab-variant=bc] .v-movs .scr .phd{padding-bottom:58px;border-radius:0 0 16px 56px}
+[data-lab-variant=bc] .v-ana .scr .phd{padding-bottom:2px}
+[data-lab-variant=bc] .v-ana .scr .phd+.sec{background:var(--hb);margin-top:0!important;padding-top:14px}
+[data-lab-variant=bc] .v-ana .scr .sec:has(>.ahero){background:var(--hb);border-radius:0 0 16px 56px;padding-top:6px;padding-bottom:56px}
+[data-lab-variant=bc] .v-ana .scr .ahero{background:var(--hm) no-repeat right -60px top -10px / 460px 290px,transparent;color:var(--hi);margin-top:0;padding:12px 4px 0;border-radius:0}
+[data-lab-variant=bc] .v-ana .scr .sec .ahero :is(.lbl,.cmp){color:color-mix(in srgb,var(--hi) 80%,transparent)}
+[data-lab-variant=bc] :is(.v-movs,.v-ana) .scr .pht small{color:color-mix(in srgb,var(--hi) 76%,transparent)}
+/* pestañas sobre la banda: subrayado, como el libro mayor, pero en la tinta de la banda */
+[data-lab-variant=bc] :is(.v-home .row,.v-movs .phd,.v-ana .phd,.v-ana .phd+.sec) :is(.tabs,.seg2){background:none;border-radius:0;box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--hi) 28%,transparent)}
+[data-lab-variant=bc] :is(.v-home .row,.v-movs .phd,.v-ana .phd,.v-ana .phd+.sec) :is(.tabs button,.seg2 .sk){background:none;border-radius:0;box-shadow:none;color:color-mix(in srgb,var(--hi) 78%,transparent)}
+[data-lab-variant=bc] :is(.v-home .row,.v-movs .phd,.v-ana .phd,.v-ana .phd+.sec) :is(.tabs button.on,.seg2 .sk.on){background:none;color:var(--hi);box-shadow:inset 0 -2.5px 0 var(--hi)}
+/* lo que emerge del labio: el mazo, el resumen y el primer gráfico */
+[data-lab-variant=bc] .v-home .scr .accs{margin-top:-46px;position:relative;z-index:3}
+[data-lab-variant=bc] .v-movs .scr .strip3{background:var(--sf);border-radius:16px 16px 16px 6px;margin-top:-40px;position:relative;z-index:2;padding:14px 0;box-shadow:0 14px 26px -18px rgba(0,0,0,.45),inset 0 0 0 1px var(--ln)}
+[data-lab-variant=bc] .v-movs .scr .strip3 span,[data-lab-variant=bc] .v-movs .scr .strip3 span+span{padding:0 12px}
+[data-lab-variant=bc] .v-ana .scr .sec:has(>.ahero)+.sec .card{background:var(--sf);border-radius:16px 16px 16px 6px;padding:16px;margin-top:-40px;position:relative;z-index:2;box-shadow:0 14px 26px -18px rgba(0,0,0,.45),inset 0 0 0 1px var(--ln)}
+[data-lab-variant=bc] :is(.v-home,.v-movs,.v-ana) .plus{border-radius:12px 12px 12px 4px}
 
 /* Al final a propósito: el sistema tipográfico elegido manda sobre el peso y el tracking de la variante. */
 .labroot:not([data-lab-font=s1]) .ph .scr .odo{font-weight:var(--lab-dw);letter-spacing:var(--lab-ls);font-feature-settings:var(--lab-feat)}

@@ -55,7 +55,7 @@ export function clearLaunchQuery() {
 // Estado del laboratorio: lo comparten el HUD, App y el saldo.
 // ---------------------------------------------------------------------------
 export type LabState = {
-  variant: 'orig' | 'a' | 'b' | 'c';
+  variant: 'orig' | 'a' | 'b' | 'c' | 'bc';
   font: 's1' | 's2' | 's3' | 's4' | 's5' | 's6' | 's7' | 's8';
   saldo: 'odo' | 'coh';
   num: 'tnum' | 'pnum';

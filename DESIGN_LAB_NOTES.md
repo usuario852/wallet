@@ -25,3 +25,9 @@ Leyenda: **[H]** hecho verificado · **[O]** hipótesis óptica · **[P]** prefe
 ## Aislamiento
 - [H] `src/lab/mode.ts` se importa primero en `main.tsx`. Con `?lab=1`, cambia `localStorage`, `sessionStorage`, `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon` y `serviceWorker.register` por versiones en memoria o bloqueadas, antes de que `store.ts` lea nada. `store.ts` y `net.ts` además usan memoria explícitamente.
 - [H] `test/lab-isolation.test.ts` fallaba (3 de 6) al desactivar los bloqueos a propósito; con ellos activos pasa.
+
+## B+C (31 oct 2026)
+- [P] Toma de B la banda de color hasta el borde con su labio asimétrico, y de C el mazo vertical, el libro mayor (reglas, sin cajas), las fechas fijas y la barra anclada. El mazo ahora emerge del labio, como los naipes de B.
+- [H] Paleta Wallet: abeto `#173F37` y cobre de B sobre el papel y la tinta de C. Contraste mínimo 4.98:1 (blanco sobre cobre en el `+`). Con banco, la banda toma el color del banco y la página queda en papel.
+- [H] Las reglas de C cubren B+C con `:is([data-lab-variant=c],[data-lab-variant=bc])`; el bloque B+C de `lab.css` solo añade la banda y lo que se monta sobre ella. En la banda, las pestañas son subrayadas en la tinta de la banda.
+- [H] Corregido de paso en C (y B+C): «Preguntar» se salía de su botón; las columnas pasan a 1.3 / 1 / 1.12 y caben de 375 a 430 px con S1, S2, S6 y S7.
