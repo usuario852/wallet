@@ -265,7 +265,7 @@ export function OpRow({ op, cur, accountId, onOpen, time = false }: { op: any; c
   return (
     <button className="mrow" onClick={onOpen || (() => open('op', { id: op.id }))}>
       <span className="lft">
-        {op.type === 'transfer' || op.type === 'fx' ? <span className="ic"><span className="ini">⇄</span></span> : <RowIcon text={op.concept} />}
+        {op.type === 'transfer' || op.type === 'fx' ? <span className="ic"><span className="ini">⇄</span></span> : <RowIcon text={op.concept} cat={op.type === 'adjustment' ? '' : op.category} />}
         <span className="nm"><span>{title}</span><span className="dt">{detail}</span></span>
       </span>
       <span className={'am' + (inc ? ' inc' : '')}>{isT ? M(op.amountMinor, op.currency) : M(minor, currency, true)}</span>

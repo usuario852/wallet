@@ -36,3 +36,24 @@ export function Mark() {
     </svg>
   );
 }
+
+// Glifos de categoría: misma familia y trazo que el resto (contorno 1.8).
+const CAT: [RegExp, React.ReactNode][] = [
+  [/aliment|comida|restaur|menu|cafe|delivery/, <><path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8M7 7h4" /><path d="M16 21V3c2 1.5 3 4 3 7v3h-3" /></>],
+  [/supermerc|mercado|bodega|compras/, <><path d="M4 5h2l2 10h10l2-7H7" /><circle cx="10" cy="19" r="1.4" /><circle cx="17" cy="19" r="1.4" /></>],
+  [/transp|movilid|taxi|pasaje|combust|gasolin/, <><rect x="5" y="3.5" width="14" height="13" rx="3" /><path d="M5 10h14M8 19.5v-3M16 19.5v-3" /><circle cx="8.5" cy="13.2" r=".6" /><circle cx="15.5" cy="13.2" r=".6" /></>],
+  [/hogar|casa|alquiler|vivienda|servicio/, <path d="M4 10.5 12 4l8 6.5V20H15v-5H9v5H4z" />],
+  [/finanz|banco|tarjeta|deuda|credito|prestamo/, <><rect x="3.5" y="6" width="17" height="12" rx="2.5" /><path d="M3.5 10h17M7 14.5h4" /></>],
+  [/suscrip|entreten|ocio|stream|musica|cine/, <><rect x="3.5" y="5" width="17" height="14" rx="3" /><path d="m10.5 9.5 4 2.5-4 2.5z" /></>],
+  [/salud|farmac|medic|clinica/, <><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M12 8.5v7M8.5 12h7" /></>],
+  [/educa|curso|libro|estudio/, <path d="M4 5.5h6a2 2 0 0 1 2 2V20a2 2 0 0 0-2-2H4zM20 5.5h-6a2 2 0 0 0-2 2V20a2 2 0 0 1 2-2h6z" />],
+  [/ropa|moda|vestim/, <path d="M8.5 4 4 7l2 3.5 2-1V20h8V9.5l2 1L20 7l-4.5-3a3.5 3.5 0 0 1-7 0z" />],
+  [/sueldo|salario|ingreso|honorar|pago recib/, <><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5" /><path d="M5 19.5h14" /></>],
+  [/regalo|donac/, <><rect x="4" y="9" width="16" height="11" rx="2" /><path d="M12 9v11M3.5 9h17M12 9c-1.5-3-5-3-5-1s3.5 1 5 1c1.5 0 5 1 5-1s-3.5-2-5 1" /></>],
+  [/viaje|vuelo|hotel/, <path d="M3 13.5 21 6l-3.5 13-5-4.5-3 3v-5z" />]
+];
+export function catGlyph(category: string, size = 20): React.ReactNode | null {
+  const k = String(category || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [re, g] of CAT) if (re.test(k)) return S(size, g, false, 1.8);
+  return null;
+}

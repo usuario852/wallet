@@ -39,7 +39,7 @@ export default function Plan() {
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Planifica" sub={subtitle} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
+        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Planifica" sub={out.count ? subtitle : undefined} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
 
         <div className="sec">
           <div className={'card bud' + (lim && proj > lim ? ' over' : '')}>
@@ -63,7 +63,7 @@ export default function Plan() {
               <p className="bl">A este ritmo cierras {C.monthName(now.getMonth())} en unos {C.currencyMeta(cur).symbol}{' '}{C.fmtNumber(C.fromMinor(proj, cur), 0)}{proj > lim ? ', unos ' + C.currencyMeta(cur).symbol + ' ' + C.fmtNumber(C.fromMinor(proj - lim, cur), 0) + ' sobre tu límite.' : ', dentro de tu límite.'}</p>
               <p className="tsm2">{spent >= lim ? 'Ya pasaste tu límite del mes.' : 'Para no pasar tu límite: hasta ' + M(Math.round((lim - spent) / (days - day + 1)), cur) + ' por día hasta el ' + days + '.'}</p>
             </>}
-            {!lim && <p className="tsm2">Con un límite, Wallet te dice cuánto puedes gastar por día y si vas bien.</p>}
+            {!lim && <p className="tsm2">Pon un límite y te digo cuánto puedes gastar por día.</p>}
           </div>
         </div>
 
@@ -117,7 +117,7 @@ export default function Plan() {
                   );
                 })}
               </div>
-            ) : <p className="tsm2">Solo si una categoría necesita frontera.</p>}
+            ) : null}
           </div>
         )}
 

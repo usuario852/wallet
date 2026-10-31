@@ -58,7 +58,7 @@ export default function Settings() {
           <span className="glab">Apariencia</span>
           <div className="card">
             <Seg items={[['system', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']]} value={st.theme === 'dark' || st.theme === 'light' ? st.theme : 'system'} onChange={(v) => set((x) => { x.settings.theme = v; })} label="Tema" className="n3" />
-            <p className="tsm2">{st.theme === 'system' || !['light', 'dark'].includes(st.theme) ? 'Sigue al iPhone. Ahora está en modo ' + (sysDark ? 'oscuro' : 'claro') + '.' : 'Fijado a mano, sin importar el iPhone.'}</p>
+            <p className="tsm2">{st.theme === 'system' || !['light', 'dark'].includes(st.theme) ? 'Sigue al iPhone. Ahora está en modo ' + (sysDark ? 'oscuro' : 'claro') + '.' : 'No sigue al iPhone.'}</p>
             <button className="srow" onClick={() => go('look')}><span className="sc"><b>Personaliza</b><small>Colores, tamaño de letra, qué se ve en el Inicio.</small></span><span className="chr"><IChevR /></span></button>
             <div className="srow"><span className="sc"><b>Logos de bancos y comercios</b><small>Si lo apagas, se muestran iniciales.</small></span><Switch on={st.brandLogos !== false} onChange={(v) => set((x) => { x.settings.brandLogos = v; })} label="Logos" /></div>
           </div>
@@ -83,7 +83,7 @@ export default function Settings() {
 
           <span className="glab">Monedas</span>
           <div className="card">
-            {st.enabledCurrencies.map((c: string) => <div className="srow" key={c}><span className="sc"><b>{C.currencyMeta(c).name}, {C.currencyMeta(c).symbol}</b><small>{C.accountsByCurrency(s, c).length === 1 ? '1 cuenta' : C.accountsByCurrency(s, c).length + ' cuentas'}. Nunca se mezcla con las demás.</small></span></div>)}
+            {st.enabledCurrencies.map((c: string) => <div className="srow" key={c}><span className="sc"><b>{C.currencyMeta(c).name} · {C.currencyMeta(c).symbol}</b><small>{C.accountsByCurrency(s, c).length === 0 ? 'Sin cuentas' : C.accountsByCurrency(s, c).length === 1 ? '1 cuenta' : C.accountsByCurrency(s, c).length + ' cuentas'}</small></span></div>)}
             <button className="srow" onClick={() => go('inv')}><span className="sc"><b>Inversiones</b><small>Acciones, fondos y cripto que sigues. No suman a tu patrimonio.</small></span><span className="chr"><IChevR /></span></button>
             <button className="srow" onClick={() => open('currency')}><span className="sc"><b>Agregar moneda</b></span><span className="chr"><IChevR /></span></button>
           </div>

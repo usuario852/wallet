@@ -76,7 +76,7 @@ export default function Analysis() {
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Análisis" sub={'Cómo va el mes, al día ' + day + '.'} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
+        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Análisis" right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
         <div className="sec" style={{ marginTop: 12 }}><Seg items={[['month', 'Este mes'], ['week', 'Últimos 7 días']]} value={range} onChange={setRange} label="Periodo" /></div>
         <div className="sec">
           <div className="hero total ahero">
@@ -174,10 +174,10 @@ export default function Analysis() {
             <div className="mrw"><span>Tensión alta</span><span className="ctrack"><span className="cbar" style={{ width: C.pct(C.sumMinor(tense.map((x: any) => x.o)), Math.max(1, C.sumMinor(withMood.map((x: any) => x.o)))) + '%' }} /></span><b className="nums">{M(C.sumMinor(tense.map((x: any) => x.o)), cur)}</b></div>
             <div className="mrw"><span>Con calma</span><span className="ctrack"><span className="cbar" style={{ width: C.pct(C.sumMinor(calm.map((x: any) => x.o)), Math.max(1, C.sumMinor(withMood.map((x: any) => x.o)))) + '%' }} /></span><b className="nums">{M(C.sumMinor(calm.map((x: any) => x.o)), cur)}</b></div>
             <p className="tsm2">Es una relación, no una causa. Sirve para notar patrones.</p>
-          </> : <p className="tsm2">Cuando registres cómo te sientes, aquí verás si tu ánimo se relaciona con tu gasto.</p>}
+          </> : <p className="tsm2">Registra cómo te sientes y lo verás junto a tu gasto.</p>}
         </div></div>
 
-        <div className="sec"><button className="qrow" onClick={() => open('ask', { prompt: 'Analiza mis gastos de este mes. Busca patrones entre categorías, días y ánimo. Separa hechos de interpretaciones.' })}><span className="sc"><b>¿Qué cambió este mes?</b><small>Patrones entre categorías, días y ánimo. Solo lee tus datos.</small></span><span className="chr"><IChevR /></span></button></div>
+        <div className="sec"><button className="qrow" onClick={() => open('ask', { prompt: 'Analiza mis gastos de este mes. Busca patrones entre categorías, días y ánimo. Separa hechos de interpretaciones.' })}><span className="sc"><b>¿Qué cambió este mes?</b><small>Categorías, días y ánimo, comparados con {C.monthName((new Date().getMonth() + 11) % 12)}.</small></span><span className="chr"><IChevR /></span></button></div>
         <div className="endpad" />
       </div>
     </div>

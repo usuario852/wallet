@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as C from '../domain/core';
 import { brandFor, markSrc, markAspect, bankOf, palette } from '../design/theme';
-import { IX } from './icons';
+import { IX, catGlyph } from './icons';
 import { useUI } from './ctx';
 
 // Contador tipo odómetro: cada dígito rueda hasta su valor.
@@ -47,7 +47,7 @@ export function useMoney() {
 }
 
 // Icono de una fila: logo del comercio o banco, o inicial.
-export function RowIcon({ text, fallback, bank }: { text?: string; fallback?: string; bank?: string }) {
+export function RowIcon({ text, fallback, bank, cat }: { text?: string; fallback?: string; bank?: string; cat?: string }) {
   if (bank) {
     const src = markSrc(bank);
     if (src) return <span className="ic brand-ic" style={{ ['--bc' as any]: palette(bank, false).cb }}><img src={src} alt="" style={{ objectFit: 'contain', padding: markAspect(bank) === 'w' ? 7 : 6 }} /></span>;
@@ -56,6 +56,8 @@ export function RowIcon({ text, fallback, bank }: { text?: string; fallback?: st
   if (b && b.kind === 'icon') return <span className="ic brand-ic" style={{ ['--bc' as any]: b.hex }}><svg viewBox="0 0 24 24" fill={contrastOn(b.hex)}><path d={b.path} /></svg></span>;
   if (b && b.kind === 'mark') return <span className="ic brand-ic" style={{ ['--bc' as any]: b.hex }}><span className="mono" style={{ color: contrastOn(b.hex) }}>{b.mark}</span></span>;
   if (b && b.kind === 'bank') return <RowIcon bank={b.key} />;
+  const g = cat ? catGlyph(cat) : null;
+  if (g) return <span className="ic cat-ic">{g}</span>;
   return <span className="ic"><span className="ini">{(fallback || text || '?').trim().charAt(0).toUpperCase()}</span></span>;
 }
 function lum(hex: string) {

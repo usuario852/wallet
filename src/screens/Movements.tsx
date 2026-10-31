@@ -41,14 +41,13 @@ export default function Movements() {
   const title = acc ? 'Movimientos en ' + acc.name : 'Movimientos';
   const period = month === 'all' ? 'Todo el historial' : C.monthLabel(month);
   const eyebrow = period + ' · ' + C.currencyMeta(cur).name;
-  const sub = acc ? 'Todo lo que pasó por esta cuenta, día por día.' : 'Lo que entró y salió, día por día.';
   const filtered = !!q || flt !== 'all';
 
   return (
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle eyebrow={eyebrow} title={title} sub={sub} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
+        <PageTitle eyebrow={eyebrow} title={title} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
         <div className="sec"><div className="strip3 open">
           <span><small>Entradas</small><b className="nums">{M(inc, cur)}</b></span>
           <span><small>Salidas</small><b className="nums">{M(out, cur)}</b></span>

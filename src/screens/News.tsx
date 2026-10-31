@@ -56,7 +56,7 @@ export default function News() {
             <span className="sl">En corto</span>
             {sum.text ? <><ul>{sum.text.split('\n').map((l) => l.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).slice(0, 4).map((l, i) => <li key={i}>{l}</li>)}</ul><span className="sw2">Resumen hecho con IA. Puede equivocarse: lee las fuentes.</span></>
               : sum.loading ? <span className="tsm">Leyendo los titulares…</span>
-                : <><span className="tsm">{sum.err || 'La IA puede resumir lo que más te afecta de hoy.'}</span><button className="liq" style={{ alignSelf: 'flex-start' }} onClick={summarize} disabled={!list.length}>Resumir con IA</button></>}
+                : <><span className="tsm">{sum.err || 'Lo que más toca tus gastos hoy, en pocas líneas.'}</span><button className="liq" style={{ alignSelf: 'flex-start' }} onClick={summarize} disabled={!list.length}>Resumir el día</button></>}
           </div>
           <Seg items={[['pe', 'Perú'], ['mundo', 'Mundo']]} value={region} onChange={(v) => { setRegion(v); setTopic('todo'); }} label="Región" />
           <div className="flt noscr" style={{ marginTop: 0 }}>
@@ -73,7 +73,7 @@ export default function News() {
             </a>
           ))}
           <p className="tsm2">Titulares de medios peruanos e internacionales. Wallet no guarda lo que lees.</p>
-          <button className="opt" onClick={() => open('ask', { prompt: '¿Cómo me afectan las noticias económicas de hoy, mirando mis gastos?' })}><b>¿Cómo me afecta?</b><span>La IA cruza los titulares con tus gastos.</span></button>
+          <button className="opt" onClick={() => open('ask', { prompt: '¿Cómo me afectan las noticias económicas de hoy, mirando mis gastos?' })}><b>¿Cómo me afecta?</b><span>Titulares que tocan lo que gastas.</span></button>
         </div>
         <div className="endpad" />
       </div>

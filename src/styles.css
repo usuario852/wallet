@@ -611,3 +611,18 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 @media (prefers-reduced-transparency:reduce){.nav,.dk .nav{background:var(--nv);-webkit-backdrop-filter:none;backdrop-filter:none}}
 @media (prefers-reduced-motion:reduce){.rb.on{transform:none}}
 .empt{background:transparent;padding:0 2px;min-height:44px}
+
+/* Ronda 2 · luz en los objetos, una sola acción fuerte, categorías con glifo */
+.hero{background:radial-gradient(120% 90% at 0% 0%,rgba(255,255,255,.12),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 60%),var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--hb)}
+.hero.total{background:radial-gradient(120% 90% at 0% 0%,rgba(255,255,255,.12),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 60%),var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--tb,var(--sf))}
+.rb{background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 84%,#fff),var(--cb));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.06),-5px 0 12px -6px rgba(0,0,0,.4)}
+.rb.on{transform:translateY(-6px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.06),0 16px 28px -12px color-mix(in srgb,var(--cb) 75%,#000)}
+.more{background:transparent;border:1.5px dashed color-mix(in srgb,var(--tx) 24%,transparent);color:var(--t2)}
+.act{background:color-mix(in srgb,var(--pa) 12%,var(--pg));color:var(--pa)}
+.act .ai{background:var(--pa);color:var(--pi)}
+.sh>span:first-child,.sh2r>b{font-size:17px;font-weight:650}
+.tiles .tile{padding:4px 10px}
+.tiles .tile:first-child{padding-left:14px}
+.td{font-size:12px}
+.ic.cat-ic{color:color-mix(in srgb,var(--tx) 78%,transparent)}
+.ic.cat-ic svg{width:20px;height:20px}
