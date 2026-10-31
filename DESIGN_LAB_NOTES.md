@@ -31,3 +31,4 @@ Leyenda: **[H]** hecho verificado · **[O]** hipótesis óptica · **[P]** prefe
 - [H] Paleta Wallet: abeto `#173F37` y cobre de B sobre el papel y la tinta de C. Contraste mínimo 4.98:1 (blanco sobre cobre en el `+`). Con banco, la banda toma el color del banco y la página queda en papel.
 - [H] Las reglas de C cubren B+C con `:is([data-lab-variant=c],[data-lab-variant=bc])`; el bloque B+C de `lab.css` solo añade la banda y lo que se monta sobre ella. En la banda, las pestañas son subrayadas en la tinta de la banda.
 - [H] Corregido de paso en C (y B+C): «Preguntar» se salía de su botón; las columnas pasan a 1.3 / 1 / 1.12 y caben de 375 a 430 px con S1, S2, S6 y S7.
+- [H] Mazo compacto en B+C: cada naipe deja 44 px visibles (antes 48), el elegido mide 72 (antes 88), «+N» 44 y el mazo sube 12 px más sobre el labio. Los recuadros de Inicio suben unos 40 px.

@@ -307,6 +307,13 @@
 [data-lab-variant=bc] .v-movs .scr .strip3 span,[data-lab-variant=bc] .v-movs .scr .strip3 span+span{padding:0 12px}
 [data-lab-variant=bc] .v-ana .scr .sec:has(>.ahero)+.sec .card{background:var(--sf);border-radius:16px 16px 16px 6px;padding:16px;margin-top:-40px;position:relative;z-index:2;box-shadow:0 14px 26px -18px rgba(0,0,0,.45),inset 0 0 0 1px var(--ln)}
 [data-lab-variant=bc] :is(.v-home,.v-movs,.v-ana) .plus{border-radius:12px 12px 12px 4px}
+/* mazo compacto: cada naipe deja una franja de 44 px (el mínimo de toque) y sube más sobre el labio */
+[data-lab-variant=bc] .v-home .scr .accs{margin-top:-58px}
+[data-lab-variant=bc] .v-home .scr .rb{height:58px;margin:0 0 -14px;padding:11px 16px}
+[data-lab-variant=bc] .v-home .scr .rb .rbal{font-size:14px}
+[data-lab-variant=bc] .v-home .scr .rb .mk.s{max-height:22px;max-width:22px}
+[data-lab-variant=bc] .v-home .scr .rb.on{height:72px;margin:0 0 -14px;padding:11px 16px;transform:translateY(-3px)}
+[data-lab-variant=bc] .v-home .scr .more{height:44px}
 
 /* Al final a propósito: el sistema tipográfico elegido manda sobre el peso y el tracking de la variante. */
 .labroot:not([data-lab-font=s1]) .ph .scr .odo{font-weight:var(--lab-dw);letter-spacing:var(--lab-ls);font-feature-settings:var(--lab-feat)}
