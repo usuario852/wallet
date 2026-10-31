@@ -155,15 +155,27 @@ export default function Analysis() {
         <div className="sec"><div className="card">
           <div className="ch"><b>Dónde está tu dinero</b></div>
           {!accs.length && <p className="tsm2" style={{ marginTop: 0 }}>Todavía no tienes cuentas en {C.currencyMeta(cur).name.toLowerCase()}.</p>}
-          {accs.map((a: any) => {
-            const b = C.balanceOf(s, a); const bank = bankOf(a);
-            return (
-              <div key={a.id} className="wr" style={{ cursor: 'default' }}>
-                <RowIcon bank={bank} text={a.name} />
-                <span className="wn"><span className="wt"><b>{a.name}</b><span className="nums">{M(b, cur)}</span></span><span className="ctrack"><span className="cbar naipe-bar" style={{ width: Math.max(4, (Math.abs(b) / amax) * 100) + '%', ['--cb' as any]: palette(bank, dark).cb }} /></span></span>
-              </div>
-            );
-          })}
+          {accs.length > 0 && (() => {
+            const pos = accs.filter((a: any) => C.balanceOf(s, a) > 0);
+            const neg = accs.filter((a: any) => C.balanceOf(s, a) < 0);
+            const pTot = pos.reduce((n: number, a: any) => n + C.balanceOf(s, a), 0);
+            return <>
+              {pos.length > 0 && <div className="stack" role="img" aria-label={'Reparto: ' + pos.map((a: any) => a.name + ' ' + Math.round((C.balanceOf(s, a) / pTot) * 100) + '%').join(', ')}>
+                {pos.map((a: any) => <i key={a.id} style={{ flexGrow: C.balanceOf(s, a), ['--cb' as any]: palette(bankOf(a), dark).cb }} />)}
+              </div>}
+              {accs.map((a: any) => {
+                const b = C.balanceOf(s, a); const bank = bankOf(a);
+                return (
+                  <div key={a.id} className={'srow2' + (b < 0 ? ' neg' : '')}>
+                    <RowIcon bank={bank} text={a.name} />
+                    <span className="nm"><span>{a.name}</span><span className="dt">{b > 0 ? Math.round((b / pTot) * 100) + '% de lo que tienes' : b < 0 ? 'en negativo' : 'en cero'}</span></span>
+                    <b className="am nums">{M(b, cur)}</b>
+                  </div>
+                );
+              })}
+              {neg.length > 0 && <p className="tsm2">{neg.length === 1 ? 'Una cuenta está' : neg.length + ' cuentas están'} en negativo y resta{neg.length === 1 ? '' : 'n'} del total.</p>}
+            </>;
+          })()}
           {accs.length > 0 && <p className="wsum"><span>Disponible <b className="nums">{M(totals.available, cur)}</b></span><span>Reservado <b className="nums">{M(totals.reserved, cur)}</b></span><span>Patrimonio líquido <b className="nums">{M(totals.total, cur)}</b></span></p>}
         </div></div>
 

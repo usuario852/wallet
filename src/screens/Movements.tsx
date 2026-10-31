@@ -9,6 +9,10 @@ import { OpRow } from './Home';
 import { PageTitle, Banner } from './parts';
 import { setCurrency } from '../App';
 
+const WD = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+// "Hoy", "Ayer" o el día de la semana; el número va en el sello.
+function dayHead(key: string) { const l = C.dayLabel(key); return /^(Hoy|Ayer)$/.test(l) ? l : l.split(' ')[0]; }
+
 const FL: [string, string][] = [['all', 'Todo'], ['expense', 'Gastos'], ['income', 'Ingresos'], ['transfer', 'Transferencias'], ['adjustment', 'Ajustes']];
 
 export default function Movements() {
@@ -34,6 +38,7 @@ export default function Movements() {
   const out = C.sumMinor(list.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
   const inc = C.sumMinor(list.filter((o: any) => o.type === 'income'));
   const net = inc - out;
+  const maxF = Math.max(inc, out, 1);
 
   const groups: { key: string; ops: any[] }[] = [];
   list.forEach((o: any) => { const k = String(o.date || '').slice(0, 10); let g = groups.find((x) => x.key === k); if (!g) { g = { key: k, ops: [] }; groups.push(g); } g.ops.push(o); });
@@ -49,10 +54,10 @@ export default function Movements() {
         <Banner />
         <PageTitle eyebrow={eyebrow} title={title} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
         {acc && <div className="sec"><CardFace account={acc} dark={dark} className="rb on mvh"><span className="rbal">{M(C.balanceOf(s, acc), acc.currency)}</span></CardFace></div>}
-        <div className="sec"><div className="strip3 open">
-          <span><small>Entradas</small><b className="nums">{M(inc, cur)}</b></span>
-          <span><small>Salidas</small><b className="nums">{M(out, cur)}</b></span>
-          <span><small>Neto</small><b className="nums">{M(net, cur, true)}</b></span>
+        <div className="sec"><div className="flow" role="group" aria-label="Entradas y salidas">
+          <div className="frow"><span>Entró</span><i className="fb"><i className="fin" style={{ width: (inc / maxF) * 100 + '%' }} /></i><b className="nums">{M(inc, cur)}</b></div>
+          <div className="frow"><span>Salió</span><i className="fb"><i className="fout" style={{ width: (out / maxF) * 100 + '%' }} /></i><b className="nums">{M(out, cur)}</b></div>
+          <p className="fnet">{!inc && !out ? 'Nada entró ni salió todavía.' : net >= 0 ? <>Te quedan <b className="nums">{M(net, cur)}</b> de lo que entró.</> : <>Salió <b className="nums">{M(-net, cur)}</b> más de lo que entró.</>}</p>
         </div></div>
         <div className="sec"><label className="srch"><ISearch /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nombre, categoría o monto" aria-label="Buscar movimientos" /></label></div>
         <div className="sec flt noscr" role="group" aria-label="Filtrar">
@@ -72,9 +77,12 @@ export default function Movements() {
             const e = C.sumMinor(g.ops.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
             const i = C.sumMinor(g.ops.filter((o: any) => o.type === 'income'));
             return (
-              <div className="day" key={g.key}>
-                <div className="dh"><span className="dhl"><b>{C.dayLabel(g.key)}</b><small className="nums">{g.ops.length} mov.</small></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
-                <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
+              <div className="day dayx" key={g.key}>
+                <span className={'dstamp' + (g.key === C.todayLocal() ? ' today' : '')} aria-hidden="true"><b className="nums">{C.dateFromLocalIso(g.key).getDate()}</b><small>{WD[C.dateFromLocalIso(g.key).getDay()]}</small></span>
+                <div className="dbody">
+                  <div className="dh"><span className="dhl"><b>{dayHead(g.key)}</b><small className="nums">{g.ops.length === 1 ? '1 movimiento' : g.ops.length + ' movimientos'}</small></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
+                  <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
+                </div>
               </div>
             );
           })}

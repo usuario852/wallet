@@ -5,7 +5,7 @@ import * as D from '../domain/derive';
 import { useWallet } from '../store';
 import { useUI } from '../ui/ctx';
 import { Odometer, CardFace, RowIcon, useMoney, CurTabs } from '../ui/bits';
-import { Mark, INews, IEye, IPlus, IMove, IChat } from '../ui/icons';
+import { Mark, INews, IEye, IMove, IChat } from '../ui/icons';
 import { bankOf, markSrc, markAspect, palette, tileSrc } from '../design/theme';
 import { useMarkets, marketItem } from '../net';
 import { setCurrency } from '../App';
@@ -56,12 +56,14 @@ export default function Home() {
   const enabled = s.settings.enabledCurrencies;
 
   // Número grande
+  const positive = accounts.filter((a: any) => C.balanceOf(s, a) > 0);
   let bigMinor = totals.total, label: React.ReactNode = 'Patrimonio líquido', sub = totals.reserved
     ? 'Disponible ' + M(totals.available, cur) + ', reservado ' + M(totals.reserved, cur)
-    : 'En ' + accounts.length + (accounts.length === 1 ? ' cuenta' : ' cuentas') + ', todo disponible.';
+    : totals.total < 0
+      ? 'Tus cuentas suman menos que cero. ' + (positive.length ? 'Solo ' + positive.length + (positive.length === 1 ? ' está' : ' están') + ' en positivo.' : 'Ninguna está en positivo.')
+      : 'En ' + accounts.length + (accounts.length === 1 ? ' cuenta' : ' cuentas') + ', todo disponible.';
   if (!acc && look.big === 'disp') { bigMinor = totals.available; label = 'Disponible para gastar'; sub = 'Sin contar ' + M(totals.reserved, cur) + ' reservados'; }
   if (!acc && look.big === 'hoy') { bigMinor = D.todaySpent(s, cur); label = 'Gastado hoy'; const pd = D.perDay(s, cur); sub = pd.kind === 'over' ? 'Vas ' + M(pd.minor, cur) + ' sobre tu límite' : 'Puedes gastar ' + M(pd.minor, cur) + ' por día'; }
-  const positive = accounts.filter((a: any) => C.balanceOf(s, a) > 0);
   const posTotal = positive.reduce((n: number, a: any) => n + C.balanceOf(s, a), 0);
   let heroBank = 'wallet';
   if (acc) {
@@ -117,25 +119,27 @@ export default function Home() {
     </div>
   );
 
+  // Los datos del día como una sola línea, no como tres recuadros iguales.
+  const perNote = pd.note.startsWith('con lo disponible') ? 'hasta fin de mes' : pd.note.replace(', hasta fin de mes', '');
   const tiles = (
-    <div className="tiles" key="hoy">
-      <div className="tile"><span className="tk">Hoy</span><b className="tv nums">{M(today, cur)}</b><span className="td">{today ? 'gastado' : 'sin gastos todavía'}</span></div>
+    <div className="sec facts" key="hoy">
+      <span className="fact"><b className="nums">{M(today, cur)}</b> {today ? 'gastado hoy' : 'hoy, todavía nada'}</span>
       {pd.kind === 'over'
-        ? <div className="tile"><span className="tk">Te pasaste</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note}</span></div>
-        : <div className="tile"><span className="tk">Por día</span><b className="tv nums">{M(pd.minor, cur)}</b><span className="td">{pd.note.startsWith('con lo disponible') ? 'hasta fin de mes' : pd.note.replace(', hasta fin de mes', '')}</span></div>}
+        ? <span className="fact over"><b className="nums">{M(pd.minor, cur)}</b> {pd.note}</span>
+        : pd.minor > 0 ? <span className="fact"><b className="nums">{M(pd.minor, cur)}</b> por día, {perNote}</span> : <span className="fact">sin margen por día hasta fin de mes</span>}
       {sel
-        ? <div className="tile"><span className="tk">Este mes</span><b className="tv nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b><span className="td">gastado aquí</span></div>
-        : <button className="tile" onClick={() => go('plan')}><span className="tk">Por salir</span><b className="tv nums">{out.count ? M(out.minor, cur) : 'Nada'}</b><span className="td">{!out.count ? 'en el mes' : out.late ? out.late + (out.late === 1 ? ' vencido' : ' vencidos') + (out.count - out.late ? ' y ' + (out.count - out.late) + ' más' : '') : out.count + (out.count === 1 ? ' pago' : ' pagos') + ' este mes'}</span></button>}
+        ? <span className="fact"><b className="nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b> gastado aquí este mes</span>
+        : <span className="fact"><button className="lnkf" onClick={() => go('plan')}>{out.count ? <><b className="nums">{M(out.minor, cur)}</b> por salir{out.late ? ', ' + out.late + (out.late === 1 ? ' vencido' : ' vencidos') : ''}</> : <><b>Nada</b> por salir este mes</>}</button></span>}
     </div>
   );
 
-  const acts = (
-    <div className="sec acts" key="acc">
-      <button className="act" onClick={() => open('register', { accountId: sel || undefined })}><span className="ai"><IPlus size={20} /></span><b>Registrar</b></button>
-      <button className="act2" onClick={() => open('register', { tab: 'move', fromId: sel || undefined })}><IMove /><b>Mover</b></button>
-      <button className="act2" onClick={() => open('ask')}><IChat /><b>Preguntar</b></button>
-    </div>
-  );
+  const showActs = blocks.some((b) => b[0] === 'acc' && b[1]);
+  const chips = showActs ? (
+    <span className="hchips">
+      <button className="hchip" onClick={() => open('register', { tab: 'move', fromId: sel || undefined })}><IMove size={18} /><b>Mover</b></button>
+      <button className="hchip" onClick={() => open('ask')}><IChat size={18} /><b>Preguntar</b></button>
+    </span>
+  ) : null;
 
   const debts = !sel && payable.length ? (
     <div className="sec blk" key="deuda">
@@ -187,7 +191,8 @@ export default function Home() {
   const inv = !sel && (s.watchlist || []).length ? (
     <div className="sec invrow" key="inv"><button className="debt" onClick={() => go('inv')}><span className="lft"><span className="ic"><span className="ini">↗</span></span><span className="nm"><span>Inversiones</span><span className="dt">{(s.watchlist || []).length} que sigues</span></span></span><span className="lnk">Ver</span></button></div>
   ) : null;
-  const blockEls: Record<string, React.ReactNode> = { naipes: <>{naipes}{inv}</>, hoy: tiles, acc: acts, deuda: debts, prox };
+  const inCase = look.naip !== 'fila' && blocks.some((b) => b[0] === 'naipes' && b[1]);
+  const blockEls: Record<string, React.ReactNode> = { naipes: <>{!inCase && naipes}{inv}</>, hoy: tiles, acc: null, deuda: debts, prox };
 
   return (
     <>
@@ -208,7 +213,8 @@ export default function Home() {
                 <button className="liq pri" onClick={() => open('account-new', { currency: cur })}>Agregar cuenta</button>
               </div>
             </div>
-          ) : <div className="sec">
+          ) : <div className={'sec' + (inCase ? ' case' : '')}>
+            {inCase && naipes}
             <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
               <span className="lbl">{mk ? <img className={'hmk ' + markAspect(heroBank)} src={mk} alt={String(label)} /> : label}</span>
               {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
@@ -222,6 +228,7 @@ export default function Home() {
                   {bandOpen && <span className="bleg">{positive.map((a: any) => <span key={a.id}>{tileSrc(bankOf(a)) ? <img className="blogo" src={tileSrc(bankOf(a))} alt="" /> : <i style={{ background: palette(bankOf(a), dark).dot }} />}{a.name} <b className="nums">{Math.round((C.balanceOf(s, a) / posTotal) * 100)}%</b></span>)}</span>}
                 </>
               )}
+              {chips}
             </div>
           </div>}
           {accounts.length > 0 && blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}{b[0] === 'acc' && accRecent}</React.Fragment>)}
