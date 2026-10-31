@@ -33,7 +33,7 @@ Wallet 22 publicada, con estilo **Bóveda** en el modo Wallet (sin banco): gris 
 - `npm test`: sin `QA_DIR` (con `seed.json` y `old.json` de la v21) la paridad se salta; con ellos, se corre.
 - Diseño explorado en un lienzo de Claude (3 direcciones: Libreta, Bóveda, Marea); se eligió Bóveda.
 
-## Rama marea-sensibilidad (31 oct 2026, sin publicar)
+## Wallet 23 · Sensibilidad (publicada el 31 oct 2026, rama marea-sensibilidad)
 Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque `Wallet 23 · Sensibilidad` al final de `styles.css`):
 - Papel, no blanco: Bóveda pasa a neutros tibios (`#F3F0E9` fondo, `#FAF8F3` superficie); en claro, una superficie blanca de cualquier piel toma un poco de su fondo (`skinFor`).
 - Etiquetas editoriales (mayúscula espaciada) sobre títulos, números y secciones; títulos 38px/700.
