@@ -613,3 +613,31 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .hero.paper .band2 i{box-shadow:none}
 .more{background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tx) 18%,transparent);color:var(--t2);font-weight:520;font-size:20px}
 .ahero.paper .cmp i{background:color-mix(in srgb,var(--pa) 12%,transparent);color:var(--pa)}
+
+/* 11 · Barra de vidrio líquido con temperatura de papel
+   Sigue siendo vidrio (desenfoque, canto de luz, lente que se desliza), pero el
+   brillo es tibio, la lente es de tinta y el + comparte el corte de Registrar. */
+.nav{background:color-mix(in srgb,var(--sf) 58%,transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--sf) 40%,#fff),inset 0 0 0 .5px color-mix(in srgb,var(--tx) 10%,transparent),
+    0 14px 30px -16px color-mix(in srgb,var(--tx) 38%,transparent),0 2px 6px -3px color-mix(in srgb,var(--tx) 14%,transparent)}
+.nav::before{background:radial-gradient(120% 150% at 18% -55%,color-mix(in srgb,var(--sf) 30%,rgba(255,255,255,.55)),transparent 55%),linear-gradient(180deg,color-mix(in srgb,var(--sf) 50%,rgba(255,255,255,.3)),transparent 55%)}
+.lens i{background:color-mix(in srgb,var(--tx) 7%,transparent);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--sf) 50%,rgba(255,255,255,.6)),inset 0 -1px 1px color-mix(in srgb,var(--tx) 6%,transparent)}
+.tab{color:color-mix(in srgb,var(--tx) 52%,transparent)}
+.tab.on{color:var(--tx);font-weight:650}
+.plus{border-radius:16px 16px 7px 16px;background:var(--pl) linear-gradient(180deg,rgba(255,255,255,.16),transparent 60%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 8px 16px -8px color-mix(in srgb,var(--pl) 70%,transparent)}
+.dk .nav{background:color-mix(in srgb,var(--sf) 62%,transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 0 0 .5px rgba(255,255,255,.12),0 14px 34px -14px rgba(0,0,0,.7)}
+.dk .nav::before{background:radial-gradient(120% 150% at 18% -55%,rgba(255,255,255,.08),transparent 55%)}
+.dk .lens i{background:color-mix(in srgb,var(--tx) 10%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+@media (prefers-reduced-transparency:reduce){.nav,.dk .nav{background:var(--nv);-webkit-backdrop-filter:none;backdrop-filter:none}}
+
+/* 12 · Vacíos con una piedra en vez de dos rectángulos */
+.empty::before{width:46px;height:40px;margin:2px 0 10px;border-radius:58% 42% 51% 49%/47% 55% 45% 53%;box-shadow:none;
+  background:radial-gradient(circle at 63% 40%,color-mix(in srgb,var(--pa) 55%,var(--sf)) 0 4.5px,transparent 5.5px),color-mix(in srgb,var(--pa) 11%,var(--sf))}
+
+/* 13 · Respuesta al toque: las filas ceden un poco, como algo físico */
+.mrow,.debt,.lr,.fr2,button.tile{transition:transform .2s cubic-bezier(.2,.8,.2,1),background-color .2s}
+.mrow:active{transform:translateX(3px)}
+.debt:active,.lr:active,.fr2:active,button.tile:active{transform:scale(.985)}

@@ -42,3 +42,5 @@ Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque 
 - Un corte firma (esquina más cerrada) solo en tarjeta principal, Registrar, toasts y vacíos.
 - Forma y materia: manchas irregulares de fondo y dentro de la tarjeta, cabecera translúcida, grano fino.
 - La tarjeta del total (Inicio y Análisis) es papel (`.hero.paper`, tb=sf/ti=tx): número en tinta, etiqueta en índigo, arcos tenues. Con color propio en Personaliza vuelve a ser bloque; al elegir una cuenta sigue la piel del banco.
+- Barra de vidrio líquido con temperatura de papel: brillo tibio, lente de tinta (no lila), + con el corte de Registrar; se tiñe con la piel del banco.
+- Vacíos con una "piedra" orgánica; filas y recuadros ceden al tocarlos (respeta reducir movimiento).
