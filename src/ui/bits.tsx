@@ -17,8 +17,9 @@ export function Odometer({ minor, currency, cents = true, size = '' }: { minor: 
   const label = (p.sign ? 'menos ' : '') + p.symbol + ' ' + str;
   return (
     <div className="big" role="img" aria-label={label}>
-      <span className="cu">{p.sign}{p.symbol}</span>
+      <span className="cu">{p.symbol}</span>
       <span className={'odo ' + size} aria-hidden="true">
+        {p.sign && <span className="sep neg">−</span>}
         {chars.split('').map((ch, i) => {
           const dec = dot >= 0 && i >= dot ? ' dec' : '';
           if (!/\d/.test(ch)) return <span key={i} className={'sep' + dec}>{ch}</span>;

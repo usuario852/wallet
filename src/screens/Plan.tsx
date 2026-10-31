@@ -74,12 +74,12 @@ export default function Plan() {
             <div className="sh2r"><b>Agenda</b><span className="tsm">Por salir este mes <b className="nums">{M(out.minor, cur)}</b></span></div>
             {items.length ? (
               <div className="rail">
-                {items.map((u) => {
+                {items.map((u, ix) => {
                   const late = u.status === 'overdue';
                   const isSave = u.type === 'fixed' && /ahorro|aporte/i.test(u.label + ' ' + (u.category || ''));
                   return (
                     <div key={u.type + u.id + (u.installmentId || '')} className={'lr' + (late ? ' late' : '')}>
-                      <i className="rdot" /><span className="rd8">{C.shortDate(u.date)}</span>
+                      <i className="rdot" /><Stamp iso={u.date} on={ix === 0 && !late} />
                       <span className="lft"><RowIcon text={u.label} /><span className="nm"><span>{u.label}</span><span className="dt">{late && <i className="wi" aria-hidden="true">!</i>}{late ? overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : u.type === 'debt' ? 'Cuota' : 'Fijo mensual'}</span></span></span>
                       <span className="agr">
                         <span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span>
@@ -89,7 +89,7 @@ export default function Plan() {
                   );
                 })}
               </div>
-            ) : <div className="empt"><span>Nada pendiente.</span><button className="lnk" onClick={() => open('fixed-new')}>Agregar pago</button></div>}
+            ) : <div className="empt stamped"><Stamp iso={C.todayLocal()} on /><span>Nada pendiente.</span><button className="lnk" onClick={() => open('fixed-new')}>Agregar pago</button></div>}
 
             <div className="sh2r" style={{ marginTop: 22 }}><b>Pagos fijos cada mes</b><button className="lnk" onClick={() => open('fixed-new')}>Agregar</button></div>
             {fixed.length ? (
@@ -172,4 +172,11 @@ export default function Plan() {
       </div>
     </div>
   );
+}
+
+// Sello de fecha, el mismo de Movimientos: número grande y mes.
+const MON3 = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'set', 'oct', 'nov', 'dic'];
+function Stamp({ iso, on = false }: { iso: string; on?: boolean }) {
+  const d = C.dateFromLocalIso(iso);
+  return <span className={'dstamp mini' + (on ? ' today' : '')} aria-label={C.shortDate(iso)}><b className="nums">{d.getDate()}</b><small>{MON3[d.getMonth()]}</small></span>;
 }

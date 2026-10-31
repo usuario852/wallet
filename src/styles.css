@@ -729,3 +729,27 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .srow2:last-of-type{box-shadow:none}
 .srow2 .nm{flex:1}
 .srow2.neg .am{color:var(--wt)}
+
+/* Tras ronda 6 · signo a tamaño completo, cabecera de banco limpia, estuche que recorta, pila con deuda */
+.odo .sep.neg{margin-right:.04em}
+.hero .sub{text-wrap:balance}
+.hrow{display:flex;justify-content:space-between;align-items:center;width:100%}
+.hback{min-height:44px;margin:-10px -8px -10px 0;padding:0 8px;border:0;background:none;color:inherit;font:inherit;font-size:15px;font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);cursor:pointer}
+.case .rb.on .rbal{display:none}
+.case .accs{margin-left:10px;margin-right:10px}
+.case .selB{margin:0 -26px;padding-left:26px;padding-right:26px}
+.case{padding-top:2px}
+.stack{display:flex;gap:6px;height:48px;margin:4px 0 6px;align-items:stretch}
+.szone{display:flex;gap:4px;min-width:24px}
+.stack i{display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--ci)}
+.stack i .mk.w{max-width:46px;max-height:14px}.stack i .mk.s{max-height:22px;max-width:22px}
+.stack i em{font-style:normal;font-size:12px;font-weight:650;white-space:nowrap}
+.stack i.owe{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--cb) 70%,transparent) 0 5px,color-mix(in srgb,var(--cb) 30%,transparent) 5px 10px);box-shadow:inset 0 0 0 1.5px var(--cb);color:var(--tx)}
+.stack .zero{flex:none;width:2px;margin:-6px 0;border-radius:1px;background:var(--tx)}
+.slab{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:var(--t2)}
+.slab b{color:var(--tx);font-weight:640}
+.dstamp.mini{position:static;width:40px;padding:4px 0 5px;border-radius:10px}
+.dstamp.mini b{font-size:17px}
+.lr{grid-template-columns:48px 1fr auto}
+.empt.stamped{justify-content:flex-start;gap:14px}
+.empt.stamped .lnk{margin-left:auto}

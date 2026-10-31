@@ -5,7 +5,7 @@ import * as D from '../domain/derive';
 import { useWallet } from '../store';
 import { useUI } from '../ui/ctx';
 import { useMoney, RowIcon, Seg, CurTabs } from '../ui/bits';
-import { bankOf, palette } from '../design/theme';
+import { bankOf, palette, markSrc, markAspect } from '../design/theme';
 import { PageTitle, Banner } from './parts';
 import { IChevR } from '../ui/icons';
 import { setCurrency } from '../App';
@@ -160,20 +160,29 @@ export default function Analysis() {
             const neg = accs.filter((a: any) => C.balanceOf(s, a) < 0);
             const pTot = pos.reduce((n: number, a: any) => n + C.balanceOf(s, a), 0);
             return <>
-              {pos.length > 0 && <div className="stack" role="img" aria-label={'Reparto: ' + pos.map((a: any) => a.name + ' ' + Math.round((C.balanceOf(s, a) / pTot) * 100) + '%').join(', ')}>
-                {pos.map((a: any) => <i key={a.id} style={{ flexGrow: C.balanceOf(s, a), ['--cb' as any]: palette(bankOf(a), dark).cb }} />)}
-              </div>}
+              {(pos.length > 0 || neg.length > 0) && (() => {
+                const nTot = neg.reduce((n: number, a: any) => n - C.balanceOf(s, a), 0);
+                const card = (a: any, minus: boolean) => { const bk = bankOf(a); const src = markSrc(bk); const bal = Math.abs(C.balanceOf(s, a));
+                  return <i key={a.id} className={minus ? 'owe' : ''} style={{ flexGrow: bal, ['--cb' as any]: palette(bk, dark).cb, ['--ci' as any]: palette(bk, dark).ci }}>{bal / (pTot + nTot) > 0.14 && (src ? <img className={'mk ' + markAspect(bk)} src={src} alt="" /> : <em>{a.name}</em>)}</i>; };
+                return <>
+                  <div className={'stack' + (neg.length ? ' split' : '')} role="img" aria-label={(neg.length ? 'En negativo ' + M(-nTot, cur) + '. ' : '') + 'En positivo ' + M(pTot, cur) + ': ' + pos.map((a: any) => a.name).join(', ')}>
+                    {neg.length > 0 && <span className="szone" style={{ flexGrow: nTot }}>{neg.map((a: any) => card(a, true))}</span>}
+                    {neg.length > 0 && pos.length > 0 && <span className="zero" />}
+                    {pos.length > 0 && <span className="szone" style={{ flexGrow: pTot }}>{pos.map((a: any) => card(a, false))}</span>}
+                  </div>
+                  {neg.length > 0 && <div className="slab"><span>Debes <b className="nums">{M(nTot, cur)}</b></span>{pos.length > 0 && <span>Tienes <b className="nums">{M(pTot, cur)}</b></span>}</div>}
+                </>;
+              })()}
               {accs.map((a: any) => {
                 const b = C.balanceOf(s, a); const bank = bankOf(a);
                 return (
                   <div key={a.id} className={'srow2' + (b < 0 ? ' neg' : '')}>
                     <RowIcon bank={bank} text={a.name} />
-                    <span className="nm"><span>{a.name}</span><span className="dt">{b > 0 ? Math.round((b / pTot) * 100) + '% de lo que tienes' : b < 0 ? 'en negativo' : 'en cero'}</span></span>
+                    <span className="nm"><span>{a.name}</span><span className="dt">{b > 0 ? (pos.length === 1 ? 'la única en positivo' : Math.round((b / pTot) * 100) + '% de lo que tienes') : b < 0 ? 'en negativo' : 'en cero'}</span></span>
                     <b className="am nums">{M(b, cur)}</b>
                   </div>
                 );
               })}
-              {neg.length > 0 && <p className="tsm2">{neg.length === 1 ? 'Una cuenta está' : neg.length + ' cuentas están'} en negativo y resta{neg.length === 1 ? '' : 'n'} del total.</p>}
             </>;
           })()}
           {accs.length > 0 && <p className="wsum"><span>Disponible <b className="nums">{M(totals.available, cur)}</b></span><span>Reservado <b className="nums">{M(totals.reserved, cur)}</b></span><span>Patrimonio líquido <b className="nums">{M(totals.total, cur)}</b></span></p>}
