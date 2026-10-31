@@ -41,8 +41,7 @@ export default function Personalize() {
             <div className="srow"><span className="sc"><b>Ocultar montos al abrir</b><small>Se muestran tocando el ojo.</small></span><Switch on={look.hide} onChange={(v) => set({ hide: v })} label="Ocultar montos" /></div>
           </G>
           <G t="Arriba del Inicio">
-            <Seg items={[['fecha', 'Fecha'], ['saludo', 'Saludo'], ['nombre', 'Tu nombre'], ['wallet', 'Wallet']]} value={look.greet} onChange={(v) => set({ greet: v })} label="Saludo" />
-            {look.greet === 'nombre' && <label className="wq" style={{ marginTop: 10 }}>Tu nombre<input value={look.name} maxLength={20} onChange={(e) => set({ name: e.target.value.slice(0, 20) })} placeholder="Cómo te llamamos" /></label>}
+            <Seg items={[['fecha', 'Fecha'], ['wallet', 'Wallet']]} value={look.greet === 'wallet' ? 'wallet' : 'fecha'} onChange={(v) => set({ greet: v })} label="Arriba del Inicio" />
           </G>
           <G t="Tus cuentas"><Seg items={[['naipes', 'Naipes'], ['fila', 'Fila con saldo']]} value={look.naip} onChange={(v) => set({ naip: v })} label="Cuentas" /></G>
           <G t="Qué se ve en el Inicio">

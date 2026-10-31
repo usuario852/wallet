@@ -13,7 +13,7 @@ button{-webkit-user-select:none;user-select:none}
 /* ---------- caparazón ---------- */
 .ph{position:fixed;inset:0;margin:0 auto;max-width:560px;overflow:hidden;background:var(--pg);color:var(--tx);font-size:17px;line-height:1.3;font-variant-numeric:tabular-nums;
   --t2:color-mix(in srgb,var(--tx) 66%,transparent);transition:background-color 500ms,color 500ms}
-.ph *{transition-property:background-color,color,border-radius,border-color,box-shadow;transition-duration:450ms}
+/* Sin transición universal: cada pieza anima solo lo suyo (ver bloque Wallet 24). */
 .hdr{position:absolute;left:0;right:0;top:0;padding-top:var(--safe-t);height:calc(58px + var(--safe-t));z-index:20;display:flex;justify-content:space-between;align-items:center;padding-left:20px;padding-right:6px;background:var(--pg)}
 .hdr.plain{justify-content:space-between;padding-left:4px;padding-right:8px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;border:0;background:none;padding:0;cursor:pointer}
@@ -513,110 +513,90 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .seg2.n4 .sk{font-size:13px;white-space:nowrap}
 .invrow{margin-top:12px}
 
+
 /* ==========================================================================
-   Wallet 23 · Sensibilidad
-   Lo que hacía que Marea se sintiera hecha a mano, aplicado a Bóveda sin
-   cambiar su color: etiquetas editoriales, libro contable en vez de cajas,
-   un solo corte asimétrico en las superficies firma, íconos genéricos
-   delineados para que los logos reales destaquen, y detalle (hora, conteos).
+   Wallet 24 · Estuche
+   Wallet es un estuche de naipes bancarios sobre papel de algodón tibio.
+   Los objetos (la Bóveda, los naipes, los logos) tienen color propio, luz
+   cenital, bisel y peso. El papel es tranquilo: las listas respiran sin cajas.
+   Esquinas concéntricas siempre; ninguna mancha ni adorno sin dueño.
    ========================================================================== */
 
-/* 1 · Voz editorial: etiquetas pequeñas en mayúscula espaciada */
-.eyb,.sh>span:first-child,.tk,.strip3 small,.rh>span,.hero .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-.eyb{display:block;color:var(--t2);margin-bottom:8px}
-.tk,.strip3 small,.rh>span{color:var(--t2)}
+/* 1 · Movimiento: solo lo que se toca anima, con resorte sin rebote */
+:root{--spring:cubic-bezier(.22,1,.36,1)}
+.ph{transition:background-color 400ms var(--spring),color 400ms var(--spring)}
+.fc,.fsel,.tabs button,.seg2 .sk,.act,.act2,.liq,.mrow,.debt,.lr,.fr2,button.tile,.qrow,.more,.okb{transition:transform 260ms var(--spring),opacity 200ms ease-out,background-color 200ms ease-out,color 200ms ease-out}
+.fc:active,.fsel:active,.tabs button:active,.seg2 .sk:active,.liq:active,.more:active,.act2:active{transform:scale(.96)}
+.mrow:active,.debt:active,.lr:active,.fr2:active,button.tile:active,.qrow:active{transform:scale(.985)}
+.act:active{transform:scale(.97)}
 
-/* 2 · Títulos con más carácter y tres intensidades: etiqueta, título, apoyo */
-.pht b{font-size:38px;font-weight:700;letter-spacing:-.055em;line-height:1}
-.pht small{margin-top:8px;font-size:14px;font-weight:450;line-height:1.4;max-width:30ch}
+/* 2 · Tipografía: un momento display por pantalla, el resto en tamaño de lectura */
+.pht b{font-size:36px;font-weight:680;letter-spacing:-.045em;line-height:1.02}
+.pht small{margin-top:6px;font-size:15px;font-weight:450;line-height:1.35;color:var(--t2)}
+.eyb{display:block;margin-bottom:4px;font-size:13px;font-weight:550;letter-spacing:-.01em;color:var(--t2)}
 .phd{align-items:flex-start}
-.phd>.tabs{margin-top:2px}
-.odo{font-weight:620;letter-spacing:-.055em}
-.tv{font-size:18px;font-weight:650;letter-spacing:-.035em}
-.nm>span:first-child{font-weight:650}
-.am{font-weight:650}
+.sh{align-items:baseline;padding:0 0 10px}
+.sh>span:first-child,.sh2r>b{font-size:18px;font-weight:640;letter-spacing:-.025em;color:var(--tx)}
+.tk,.strip3 small,.glab,.hero .lbl{font-size:13px;font-weight:550;letter-spacing:-.01em}
+.odo{font-weight:620;letter-spacing:-.05em}
+.big .cu{opacity:.68}
+.odo .dec{opacity:.62}
+.nm>span:first-child{font-weight:620}
+.am{font-weight:640}
 
-/* 3 · Secciones como cabecera de libro: etiqueta + filete, no un título grande */
-.sh{align-items:center;font-size:inherit;padding:0 0 8px;margin-bottom:10px;box-shadow:inset 0 -1px 0 var(--ln)}
-.sh>span:first-child{color:color-mix(in srgb,var(--tx) 78%,transparent)}
-.sh .lnk{padding-top:4px;padding-bottom:4px;min-height:32px}
+/* 3 · La Bóveda: un objeto con luz cenital, bisel especular y sombra de profundidad */
+.hero{border-radius:var(--rd);
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0) 60%),var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--hb);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 2px rgba(14,15,23,.08),0 18px 36px -18px rgba(14,15,23,.38)}
+.hero.total{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0) 60%),var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--tb,var(--sf))}
+.dk .hero{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 36px -18px rgba(0,0,0,.6)}
+
+/* 4 · Naipes: cartas físicas con bisel; la elegida se levanta */
+.rb{border-radius:min(var(--r2),14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 0 0 1px rgba(0,0,0,.08),-5px 0 12px -6px rgba(0,0,0,.45)}
+.rb.on{transform:translateY(-4px);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 0 0 1px rgba(0,0,0,.08),0 14px 24px -10px rgba(0,0,0,.5)}
+.more{border-radius:min(var(--r2),14px)}
+
+/* 5 · Íconos: los de marca llevan su color con un brillo; los genéricos, tono limpio */
+.ic{border-radius:12px;background:color-mix(in srgb,var(--tx) 6%,var(--sf))}
+.ic::after{box-shadow:none}
+.ic.brand-ic::after{box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.empty::before{content:none}
+
+/* 6 · Inicio: los recuadros son una banda tranquila; Registrar es la acción */
+.tiles{background:color-mix(in srgb,var(--tx) 4%,var(--pg));padding:10px 0;margin-top:14px}
+.tiles .tile{padding:4px 14px}
+.tv{font-size:16px;font-weight:640;letter-spacing:-.03em}
+.act{border-radius:999px;min-height:48px;padding:0 18px 0 8px}
+.act .ai{width:32px;height:32px;border-radius:999px}
+.act2{min-height:48px}
 .blk{margin-top:28px}
 
-/* 4 · Movimientos: libro contable abierto en vez de pila de tarjetas */
-.strip3.open{background:transparent;border-radius:0;padding:12px 0;box-shadow:inset 0 1px 0 var(--ln),inset 0 -1px 0 var(--ln)}
-.strip3.open span:first-child{padding-left:0}
-.strip3.open small{margin-bottom:4px}
-.strip3.open b{font-size:17px;font-weight:650;letter-spacing:-.035em}
-.srch{background:color-mix(in srgb,var(--tx) 5%,var(--pg))}
-.fc,.fsel{background:transparent;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tx) 16%,transparent)}
-.fc.on{background:var(--pa);box-shadow:none}
-.rh{display:flex;justify-content:space-between;align-items:center;min-height:36px;margin-top:14px;padding:0 2px 6px;border-bottom:1.5px solid var(--tx)}
+/* 7 · Movimientos: libro contable por día, sin cajas */
+.strip3{background:color-mix(in srgb,var(--tx) 4%,var(--pg));padding:12px 0}
+.strip3 b{font-size:16px;font-weight:640;letter-spacing:-.03em}
+.srch{background:color-mix(in srgb,var(--tx) 5%,var(--pg));border-radius:999px}
+.fc,.fsel{border-radius:999px}
+.rh{display:flex;justify-content:space-between;align-items:center;min-height:36px;margin-top:18px;padding:0 2px 6px;border-bottom:1px solid var(--ln);font-size:13px;color:var(--t2)}
 .rh .lnk{padding-right:0}
-.day{margin-top:20px}
-.dh{align-items:baseline;padding:0 2px 2px}
+.day{margin-top:22px}
 .dhl{display:flex;align-items:baseline;gap:8px}
-.dh b{font-size:15px;font-weight:700;letter-spacing:-.015em}
-.dhl small{font-size:12px;font-weight:520;color:var(--t2)}
+.dh b{font-size:15px;font-weight:640;letter-spacing:-.015em}
+.dhl small{font-size:13px;font-weight:450;color:var(--t2)}
 .ledger .mrow{padding:12px 0;box-shadow:inset 0 -1px 0 var(--ln)}
 .ledger .mrow:last-child{box-shadow:none}
 
-/* 5 · Íconos: lo genérico se delinea, lo real (logos de marca) lleva su color */
-.ic:not(.brand-ic){background:transparent}
-.ic:not(.brand-ic):after{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tx) 16%,transparent)}
-.ic:not(.brand-ic) .ini{color:color-mix(in srgb,var(--tx) 72%,transparent)}
+/* 8 · Planifica: la frase lleva el aviso; la barra con radios concéntricos */
+.bud.over .bl::before{content:none}
+.bfill{border-radius:7px}
 
-/* 6 · Un corte firma: una esquina más cerrada solo en las superficies clave */
-.hero{border-bottom-left-radius:min(7px,var(--rd))}
-.act{border-bottom-right-radius:min(7px,var(--r2))}
-.toast{border-bottom-left-radius:min(7px,var(--r2))}
-.empty{border-bottom-left-radius:min(7px,var(--r2))}
+/* 9 · Análisis: el Gastado es sobrio para que el gráfico mande */
+.hero.total.ahero{background:var(--sf);color:var(--tx);box-shadow:inset 0 0 0 1px var(--ln)}
+.ahero .lbl{color:var(--t2)}
+.ahero .odo{font-size:44px}
+.qrow{width:100%;display:flex;align-items:center;gap:12px;min-height:64px;margin-top:20px;padding:12px 2px;border:0;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);background:none;color:var(--tx);text-align:left;font-size:inherit;cursor:pointer}
+.qrow .sc{flex:1}
 
-/* 7 · Inicio: los recuadros siguen siendo una sola pieza, pero abierta y con filetes */
-.tiles{background:transparent;border-radius:0;padding:12px 0;margin-top:14px;box-shadow:inset 0 1px 0 var(--ln),inset 0 -1px 0 var(--ln)}
-.tiles .tile{padding:4px 12px}
-.tiles .tile:first-child{padding-left:2px}
-.tiles .tk{margin-bottom:4px}
-.blk .empt{background:transparent;padding:0 2px;min-height:44px}
-
-/* 8 · Forma y materia: manchas irregulares, cabecera translúcida y grano fino */
-.ph{--blob:color-mix(in srgb,var(--hb) 7%,var(--pg));--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .1 0 0 0 0 .15 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-image:var(--grain)}
-.ph.sk-wallet:not(.dk){--blob:color-mix(in srgb,#C9B99A 30%,var(--pg))}
-.ph.dk{--blob:color-mix(in srgb,var(--tx) 5%,var(--pg))}
-.ph::before{content:"";position:absolute;z-index:1;pointer-events:none;left:-120px;top:-70px;width:330px;height:290px;border-radius:58% 42% 51% 49%/47% 55% 45% 53%;background:var(--blob);opacity:.6}
-.scr{isolation:isolate}
-.scr>.zz{position:relative}
-.scr>.zz::before{content:"";position:absolute;z-index:-1;pointer-events:none;right:-80px;top:560px;width:220px;height:200px;border-radius:46% 54% 62% 38%/52% 44% 56% 48%;background:var(--blob);opacity:.5}
-.hdr{background:color-mix(in srgb,var(--pg) 45%,transparent);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
-.hero{isolation:isolate;overflow:hidden}
-.hero::after{content:"";position:absolute;z-index:-1;pointer-events:none;left:-60px;bottom:-90px;width:210px;height:170px;border-radius:58% 42% 48% 52%/44% 58% 42% 56%;background:color-mix(in srgb,var(--hi) 7%,transparent)}
-.hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.45;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.srch,.tabs{border-radius:999px}
-.tabs button{border-radius:999px}
-.ic:not(.brand-ic){border-radius:14px 14px 14px 6px}
-@media (prefers-reduced-transparency:reduce){.hdr{background:var(--pg);-webkit-backdrop-filter:none;backdrop-filter:none}}
-
-/* 9 · Coherencia en todas las pantallas */
-.glab,.sh2r>b{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--tx) 78%,transparent)}
-.sh2r{align-items:center;padding:0 2px 8px;margin-bottom:10px;box-shadow:inset 0 -1px 0 var(--ln)}
-.seg2,.seg2 .sk{border-radius:999px}
-.hdr{background:color-mix(in srgb,var(--pg) 78%,transparent)}
-
-/* 10 · El total es papel: el número manda, el color queda como acento */
-.hero.paper{background:var(--tb);color:var(--ti);box-shadow:inset 0 0 0 1px var(--ln),0 18px 36px -24px color-mix(in srgb,var(--tx) 40%,transparent)}
-.hero.paper::before{inset:auto;right:-74px;top:-84px;width:230px;height:230px;opacity:1;background:none;border-radius:50%;border:20px solid color-mix(in srgb,var(--pa) 7%,transparent);box-shadow:0 0 0 46px color-mix(in srgb,var(--pa) 3%,transparent)}
-.hero.paper::after{background:color-mix(in srgb,#C9B99A 14%,transparent)}
-.dk .hero.paper::after{background:color-mix(in srgb,var(--tx) 4%,transparent)}
-.hero.paper .lbl{color:var(--pa)}
-.hero.paper .sub{color:var(--t2)}
-.hero.paper .odo .dec,.hero.paper .big .cu{color:var(--t2);opacity:1}
-.hero.paper .liq.pri{background:var(--pa);color:var(--pi)}
-.hero.paper .band2 i{box-shadow:none}
-.more{background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tx) 18%,transparent);color:var(--t2);font-weight:520;font-size:20px}
-.ahero.paper .cmp i{background:color-mix(in srgb,var(--pa) 12%,transparent);color:var(--pa)}
-
-/* 11 · Barra de vidrio líquido con temperatura de papel
-   Sigue siendo vidrio (desenfoque, canto de luz, lente que se desliza), pero el
-   brillo es tibio, la lente es de tinta y el + comparte el corte de Registrar. */
+/* 10 · Barra de vidrio líquido con temperatura de papel; el + es simétrico */
 .nav{background:color-mix(in srgb,var(--sf) 58%,transparent);
   -webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--sf) 40%,#fff),inset 0 0 0 .5px color-mix(in srgb,var(--tx) 10%,transparent),
@@ -624,20 +604,10 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .nav::before{background:radial-gradient(120% 150% at 18% -55%,color-mix(in srgb,var(--sf) 30%,rgba(255,255,255,.55)),transparent 55%),linear-gradient(180deg,color-mix(in srgb,var(--sf) 50%,rgba(255,255,255,.3)),transparent 55%)}
 .lens i{background:color-mix(in srgb,var(--tx) 7%,transparent);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--sf) 50%,rgba(255,255,255,.6)),inset 0 -1px 1px color-mix(in srgb,var(--tx) 6%,transparent)}
 .tab{color:color-mix(in srgb,var(--tx) 52%,transparent)}
-.tab.on{color:var(--tx);font-weight:650}
-.plus{border-radius:16px 16px 7px 16px;background:var(--pl) linear-gradient(180deg,rgba(255,255,255,.16),transparent 60%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 8px 16px -8px color-mix(in srgb,var(--pl) 70%,transparent)}
-.dk .nav{background:color-mix(in srgb,var(--sf) 62%,transparent);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 0 0 .5px rgba(255,255,255,.12),0 14px 34px -14px rgba(0,0,0,.7)}
+.tab.on{color:var(--tx);font-weight:640}
+.dk .nav{background:color-mix(in srgb,var(--sf) 62%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 0 0 .5px rgba(255,255,255,.12),0 14px 34px -14px rgba(0,0,0,.7)}
 .dk .nav::before{background:radial-gradient(120% 150% at 18% -55%,rgba(255,255,255,.08),transparent 55%)}
 .dk .lens i{background:color-mix(in srgb,var(--tx) 10%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 @media (prefers-reduced-transparency:reduce){.nav,.dk .nav{background:var(--nv);-webkit-backdrop-filter:none;backdrop-filter:none}}
-
-/* 12 · Vacíos con una piedra en vez de dos rectángulos */
-.empty::before{width:46px;height:40px;margin:2px 0 10px;border-radius:58% 42% 51% 49%/47% 55% 45% 53%;box-shadow:none;
-  background:radial-gradient(circle at 63% 40%,color-mix(in srgb,var(--pa) 55%,var(--sf)) 0 4.5px,transparent 5.5px),color-mix(in srgb,var(--pa) 11%,var(--sf))}
-
-/* 13 · Respuesta al toque: las filas ceden un poco, como algo físico */
-.mrow,.debt,.lr,.fr2,button.tile{transition:transform .2s cubic-bezier(.2,.8,.2,1),background-color .2s}
-.mrow:active{transform:translateX(3px)}
-.debt:active,.lr:active,.fr2:active,button.tile:active{transform:scale(.985)}
+@media (prefers-reduced-motion:reduce){.rb.on{transform:none}}
+.empt{background:transparent;padding:0 2px;min-height:44px}

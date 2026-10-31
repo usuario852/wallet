@@ -11,12 +11,9 @@ import { useMarkets, marketItem } from '../net';
 import { setCurrency } from '../App';
 import { Banner } from './parts';
 
+// Arriba manda la fecha (o el nombre de la app); nunca un saludo.
 function greeting(look: any) {
-  const h = new Date().getHours();
-  const hi = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
   if (look.greet === 'wallet') return 'Wallet';
-  if (look.greet === 'saludo') return hi;
-  if (look.greet === 'nombre') return look.name ? hi + ', ' + look.name : hi;
   return C.longDate(C.todayLocal());
 }
 
@@ -59,7 +56,9 @@ export default function Home() {
   const enabled = s.settings.enabledCurrencies;
 
   // Número grande
-  let bigMinor = totals.total, label: React.ReactNode = 'Patrimonio líquido', sub = 'Disponible ' + M(totals.available, cur) + ', reservado ' + M(totals.reserved, cur);
+  let bigMinor = totals.total, label: React.ReactNode = 'Patrimonio líquido', sub = totals.reserved
+    ? 'Disponible ' + M(totals.available, cur) + ', reservado ' + M(totals.reserved, cur)
+    : 'En ' + accounts.length + (accounts.length === 1 ? ' cuenta' : ' cuentas') + ', todo disponible.';
   if (!acc && look.big === 'disp') { bigMinor = totals.available; label = 'Disponible para gastar'; sub = 'Sin contar ' + M(totals.reserved, cur) + ' reservados'; }
   if (!acc && look.big === 'hoy') { bigMinor = D.todaySpent(s, cur); label = 'Gastado hoy'; const pd = D.perDay(s, cur); sub = pd.kind === 'over' ? 'Vas ' + M(pd.minor, cur) + ' sobre tu límite' : 'Puedes gastar ' + M(pd.minor, cur) + ' por día'; }
   const positive = accounts.filter((a: any) => C.balanceOf(s, a) > 0);
@@ -172,14 +171,15 @@ export default function Home() {
     </div>
   ) : null;
 
-  const recent = acc ? C.operationsForAccount(s, acc.id).slice(0, 3) : [];
-  const accRecent = acc ? (
+  // Lo último que pasó: de la cuenta elegida o, sin cuenta, de la moneda activa.
+  const recent = acc ? C.operationsForAccount(s, acc.id).filter((o: any) => !o.voided).slice(0, 4) : C.operationsForCurrency(s, cur).filter((o: any) => !o.voided).slice(0, 4);
+  const accRecent = accounts.length ? (
     <div className="sec blk" key="recent">
-      <div className="sh"><span>Últimos movimientos</span><button className="lnk" onClick={() => go('account', { id: acc.id })}>Ver la cuenta</button></div>
+      <div className="sh"><span>Lo último</span>{acc ? <button className="lnk" onClick={() => go('account', { id: acc.id })}>Ver la cuenta</button> : <button className="lnk" onClick={() => go('movs')}>Ver todo</button>}</div>
       {recent.length ? (
-        <div className="ledger">{recent.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc.id} time />)}</div>
+        <div className="ledger">{recent.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
       ) : (
-        <div className="empt"><span>Sin movimientos todavía.</span><button className="lnk" onClick={() => open('register', { accountId: acc.id })}>Registrar</button></div>
+        <div className="empt"><span>Aún no registras nada{acc ? ' aquí' : ''}.</span><button className="lnk" onClick={() => open('register', { accountId: acc ? acc.id : undefined })}>Registrar</button></div>
       )}
     </div>
   ) : null;
@@ -201,7 +201,7 @@ export default function Home() {
           </div>
           {!accounts.length ? (
             <div className="sec">
-              <div className={'hero total first' + (look.style !== 'one' ? ' paper' : '')}>
+              <div className="hero total first">
                 <span className="lbl">Patrimonio líquido</span>
                 <b className="ft">Agrega tu primera cuenta en {C.currencyMeta(cur).name.toLowerCase()}</b>
                 <span className="sub">Tu banco, Yape o el efectivo que tienes a la mano. Desde ahí, Wallet suma todo por ti.</span>
@@ -209,7 +209,7 @@ export default function Home() {
               </div>
             </div>
           ) : <div className="sec">
-            <div className={'hero' + (!acc ? ' total withband' + (look.style !== 'one' ? ' paper' : '') : ' withpill')}>
+            <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
               <span className="lbl">{mk ? <img className={'hmk ' + markAspect(heroBank)} src={mk} alt={String(label)} /> : label}</span>
               {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
               {acc && <button className="pill" onClick={() => setSel(null)}>Ver todo <span aria-hidden="true">✕</span></button>}
@@ -224,8 +224,8 @@ export default function Home() {
               )}
             </div>
           </div>}
-          {accounts.length > 0 && blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}</React.Fragment>)}
-          {accRecent}
+          {accounts.length > 0 && blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}{b[0] === 'acc' && accRecent}</React.Fragment>)}
+          {!blocks.some((b) => b[0] === 'acc' && b[1]) && accRecent}
           <div className="endpad" />
         </div>
       </div>

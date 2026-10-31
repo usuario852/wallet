@@ -7,11 +7,12 @@ import { useUI } from '../ui/ctx';
 import { useMoney, RowIcon, Seg, CurTabs } from '../ui/bits';
 import { bankOf, palette } from '../design/theme';
 import { PageTitle, Banner } from './parts';
+import { IChevR } from '../ui/icons';
 import { setCurrency } from '../App';
 
 export default function Analysis() {
   const { s } = useWallet();
-  const { open, dark, hide, look } = useUI();
+  const { open, dark, hide } = useUI();
   const M = useMoney();
   const cur = s.settings.activeCurrency;
   const [range, setRange] = useState<'month' | 'week'>('month');
@@ -78,7 +79,7 @@ export default function Analysis() {
         <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Análisis" sub={'Cómo va el mes, al día ' + day + '.'} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
         <div className="sec" style={{ marginTop: 12 }}><Seg items={[['month', 'Este mes'], ['week', 'Últimos 7 días']]} value={range} onChange={setRange} label="Periodo" /></div>
         <div className="sec">
-          <div className={'hero total ahero' + (look.style !== 'one' ? ' paper' : '')}>
+          <div className="hero total ahero">
             <span className="lbl">{range === 'month' ? 'Gastado en ' + C.monthName(now.getMonth()) : 'Gastado en 7 días'}</span>
             {(() => { const mp = C.moneyParts(range === 'month' ? spent : weekTotal, cur); return <div className="big"><span className="cu">{mp.symbol}</span><span className="odo">{hide ? '••••' : mp.whole}<span className="sep dec">{hide || !mp.dec ? '' : '.' + mp.dec}</span></span></div>; })()}
             {range === 'month' ? <>
@@ -176,7 +177,7 @@ export default function Analysis() {
           </> : <p className="tsm2">Cuando registres cómo te sientes, aquí verás si tu ánimo se relaciona con tu gasto.</p>}
         </div></div>
 
-        <div className="sec"><button className="opt" style={{ marginTop: 12 }} onClick={() => open('ask', { prompt: 'Analiza mis gastos de este mes. Busca patrones entre categorías, días y ánimo. Separa hechos de interpretaciones.' })}><b>Profundizar con la IA</b><span>Lee tus datos y te explica qué ve, sin cambiar nada.</span></button></div>
+        <div className="sec"><button className="qrow" onClick={() => open('ask', { prompt: 'Analiza mis gastos de este mes. Busca patrones entre categorías, días y ánimo. Separa hechos de interpretaciones.' })}><span className="sc"><b>¿Qué cambió este mes?</b><small>Patrones entre categorías, días y ánimo. Solo lee tus datos.</small></span><span className="chr"><IChevR /></span></button></div>
         <div className="endpad" />
       </div>
     </div>
