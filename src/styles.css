@@ -2,7 +2,7 @@
 :root{--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);color-scheme:light}
 :root.dark{color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#root{margin:0;height:100%;background:var(--app-bg,#F2F2F0)}
+html,body,#root{margin:0;height:100%;background:var(--app-bg,#F3F0E9)}
 body{font-family:'Familjen Grotesk',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 button,input,select,textarea{font-family:inherit;color:inherit}
 button{-webkit-user-select:none;user-select:none}
