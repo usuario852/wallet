@@ -33,10 +33,31 @@ const WALLET: Record<string, { light: any; dark: any }> = {
 };
 const PAPER = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'nv'];
 
+// Pestaña C · rasgos de la v21. «Una sola tinta»: todo sale de un verde petróleo
+// sobre papel cálido, con el coral solo para acciones. Valores propios, no los de la v21.
+const INK = {
+  light: { pg: '#F4EFE6', sf: '#FBF8F2', s2: '#FBF8F2', ln: 'rgba(18,51,49,.12)', tx: '#123331', t2: '#4B605D', hb: '#123331', hi: '#F4EFE6', pa: '#B5482F', pi: '#FFFFFF', ac: '#A3412A', pl: '#B5482F', pli: '#FFFFFF', pc: 'rgba(244,239,230,.16)', pci: '#F4EFE6', hv: '#2E6B62', hvi: '#FFFFFF', dot: '#E27154', nv: 'rgba(244,239,230,.94)', cb: '#123331', ci: '#F4EFE6' },
+  dark: { pg: '#0F2422', sf: '#16302D', s2: '#16302D', ln: 'rgba(234,240,236,.10)', tx: '#EAF0EC', t2: '#A3B7B2', hb: '#1A3D3A', hi: '#F4EFE6', pa: '#E8805F', pi: '#1A0D07', ac: '#F09A7C', pl: '#E8805F', pli: '#1A0D07', pc: 'rgba(15,36,34,.14)', pci: '#0F2422', hv: '#7FC4B5', hvi: '#0F2422', dot: '#E8805F', nv: '#16302DEE', cb: '#1A3D3A', ci: '#F4EFE6' }
+};
+
+function rasgosSkin(p: any, bank: string, dark: boolean, r: string) {
+  let out = p;
+  if (r.includes('t')) {
+    const w: any = INK[dark ? 'dark' : 'light'];
+    const mono = p.tb === p.sf;
+    if (bank === 'wallet') { out = { ...p, ...w }; if (mono) { out.tb = out.sf; out.ti = out.tx; } else { out.tb = out.hb; out.ti = out.hi; } }
+    else { out = { ...p }; PAPER.forEach((k) => { out[k] = w[k]; }); }
+  }
+  // «Superficies tonales»: la tarjeta es el mismo papel, un tono más profundo.
+  if (r.includes('s')) { const sf = `color-mix(in srgb, ${out.tx} ${dark ? 7 : 5}%, ${out.pg})`; out = { ...out, sf, s2: sf }; }
+  return out;
+}
+
 // Gancho de piel: Original no cambia nada; A, B y C solo en las 3 pantallas.
 export function variantSkin(p: any, bank: string, dark: boolean, view: string) {
-  const v = getLab().variant;
-  if (v === 'orig' || !['home', 'movs', 'ana'].includes(view)) return p;
+  const { variant: v, rasgos } = getLab();
+  if (!['home', 'movs', 'ana'].includes(view)) return p;
+  if (v === 'orig') return rasgos ? rasgosSkin(p, bank, dark, rasgos) : p;
   const w = WALLET[v][dark ? 'dark' : 'light'];
   const mono = p.tb === p.sf;
   if (bank === 'wallet') {

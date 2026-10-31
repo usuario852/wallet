@@ -16,7 +16,17 @@ labHooks.skin = variantSkin;
 
 const BANKS: [string, string][] = [['', 'Total'], ['bcp', 'BCP'], ['bbva', 'BBVA'], ['interbank', 'Interbank'], ['scotiabank', 'Scotiabank'], ['yape', 'Yape']];
 const SCREENS: [string, string][] = [['home', 'Inicio'], ['movs', 'Movimientos'], ['ana', 'Análisis']];
-const URLMAP: [keyof LabState, string][] = [['variant', 'v'], ['font', 'f'], ['saldo', 'saldo'], ['num', 'num'], ['stress', 'esc'], ['motion', 'mov'], ['hud', 'hud'], ['tab', 'tab']];
+const URLMAP: [keyof LabState, string][] = [['variant', 'v'], ['font', 'f'], ['saldo', 'saldo'], ['num', 'num'], ['stress', 'esc'], ['motion', 'mov'], ['hud', 'hud'], ['tab', 'tab'], ['rasgos', 'r']];
+// Pestaña C: cada diferencia con la v21, por separado, sobre el Original.
+const RASGOS: [string, string, string][] = [
+  ['t', 'Una sola tinta', 'Verde petróleo sobre papel cálido; el coral, solo en las acciones.'],
+  ['s', 'Superficies tonales', 'Las tarjetas son el mismo papel un tono más hondo: sin blanco ni sombra.'],
+  ['e', 'Contraste de escala', 'Etiquetas en mayúsculas pequeñas y espaciadas; mandan las cifras.'],
+  ['n', 'El número como una pieza', 'S/ y decimales pequeños y tenues: se lee «35,323».'],
+  ['v', 'Voz propia', 'Títulos y subtítulos que hablan, como en la v21.'],
+  ['i', 'Iconos suaves', 'Comercios en un tinte claro de su color, no en bloque saturado.'],
+  ['f', 'Formas blandas', 'Esquina propia en el saldo, píldoras amplias y un + redondo.']
+];
 let probe: string | null = null;
 
 function Opt<T extends string>({ items, value, onPick, label, wide = false }: { items: [T, string][]; value: T; onPick: (v: T) => void; label: string; wide?: boolean }) {
@@ -89,10 +99,30 @@ export function Lab() {
           <button onClick={() => setLab({ hud: 'hidden' })}>Ocultar</button>
         </span>
       </header>
-      <Opt label="Pestaña" wide items={[['a', 'A · Dirección artística'], ['b', 'B · Tipografía']]} value={lab.tab} onPick={(tab) => setLab({ tab })} />
-      {lab.tab === 'a' ? (
+      <Opt label="Pestaña" wide items={[['a', 'A · Dirección'], ['b', 'B · Tipografía'], ['c', 'C · Rasgos v21']]} value={lab.tab} onPick={(tab) => setLab({ tab })} />
+      {lab.tab === 'c' ? (
         <div className="lab-body">
-          <Opt label="Dirección" items={VARIANTS.map((v) => [v.id, v.name] as [LabState['variant'], string])} value={lab.variant} onPick={(variant) => setLab({ variant })} />
+          <p className="lab-th">Cada interruptor enciende una diferencia con la v21 sobre el Original. Combínalos para ver cuáles te importan.</p>
+          {RASGOS.map(([k, t, d]) => {
+            const on = lab.rasgos.includes(k);
+            return (
+              <button key={k} role="switch" aria-checked={on} className={'lab-font' + (on ? ' on' : '')} onClick={() => setLab({ variant: 'orig', rasgos: on ? lab.rasgos.replace(k, '') : RASGOS.map((x) => x[0]).filter((x) => x === k || lab.rasgos.includes(x)).join('') })}>
+                <b>{on ? '● ' : '○ '}{t}</b><small>{d}</small>
+              </button>
+            );
+          })}
+          <div className="lseg">
+            <button onClick={() => setLab({ variant: 'orig', rasgos: RASGOS.map((x) => x[0]).join('') })}>Todos</button>
+            <button onClick={() => setLab({ rasgos: '' })}>Ninguno</button>
+          </div>
+          <span className="lab-l">Pantalla</span>
+          <Opt label="Pantalla" items={SCREENS} value={view} onPick={(v) => bridge.go?.(v)} />
+          <span className="lab-l">Tema</span>
+          <Opt label="Tema" items={[['light', 'Claro'], ['dark', 'Oscuro']]} value={dark ? 'dark' : 'light'} onPick={(t) => commit((x) => { x.settings.theme = t; }, { silent: true })} />
+        </div>
+      ) : lab.tab === 'a' ? (
+        <div className="lab-body">
+          <Opt label="Dirección" items={VARIANTS.map((v) => [v.id, v.name] as [LabState['variant'], string])} value={lab.variant} onPick={(variant) => setLab({ variant, rasgos: '' })} />
           <p className="lab-th">{VARIANTS.find((v) => v.id === lab.variant)?.thesis}</p>
           <span className="lab-l">Pantalla</span>
           <Opt label="Pantalla" items={SCREENS} value={view} onPick={(v) => bridge.go?.(v)} />
@@ -136,7 +166,7 @@ export function Lab() {
   );
 
   return (
-    <div className="labroot" data-lab-variant={lab.variant} data-lab-font={lab.font} data-lab-saldo={lab.saldo} data-lab-num={lab.num} data-lab-stress={lab.stress} data-lab-motion={lab.motion} data-lab-hud={lab.hud} style={fontVars(sys) as any}>
+    <div className="labroot" data-lab-variant={lab.variant} data-lab-font={lab.font} data-lab-saldo={lab.saldo} data-lab-num={lab.num} data-lab-stress={lab.stress} data-lab-motion={lab.motion} data-lab-hud={lab.hud} data-lab-r={lab.variant === 'orig' ? lab.rasgos : ''} style={fontVars(sys) as any}>
       <App />
       {hud}
     </div>

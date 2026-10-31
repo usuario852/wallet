@@ -62,10 +62,11 @@ export type LabState = {
   stress: 'normal' | 'extreme' | 'empty';
   motion: 'normal' | 'reduced';
   hud: 'open' | 'min' | 'hidden';
-  tab: 'a' | 'b';
+  tab: 'a' | 'b' | 'c';
+  rasgos: string; // rasgos de la v21 encendidos, una letra cada uno (pestaña C)
 };
-const LAB_DEFAULTS: LabState = { variant: 'orig', font: 's1', saldo: 'odo', num: 'tnum', stress: 'normal', motion: 'normal', hud: 'min', tab: 'a' };
-const URL_KEYS: Record<string, keyof LabState> = { v: 'variant', f: 'font', saldo: 'saldo', num: 'num', esc: 'stress', mov: 'motion', hud: 'hud', tab: 'tab' };
+const LAB_DEFAULTS: LabState = { variant: 'orig', font: 's1', saldo: 'odo', num: 'tnum', stress: 'normal', motion: 'normal', hud: 'min', tab: 'a', rasgos: '' };
+const URL_KEYS: Record<string, keyof LabState> = { v: 'variant', f: 'font', saldo: 'saldo', num: 'num', esc: 'stress', mov: 'motion', hud: 'hud', tab: 'tab', r: 'rasgos' };
 
 function fromUrl(): LabState {
   const out: any = { ...LAB_DEFAULTS };

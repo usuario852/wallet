@@ -321,3 +321,41 @@
 [data-lab-variant=c] .v-home .scr .hero.total .liq.pri{background:var(--pa);color:var(--pi)}
 /* En texto corrido y celdas sueltas, numerales proporcionales: algunas familias tienen tabulares muy anchas. Las columnas (.am, .cv) siguen tabulares. */
 .labroot:not([data-lab-font=s1]) .ph :is(.sub,.tv,.fx,.strip3 b,.td,.dt,.bleg,.cmp,.rbal){font-variant-numeric:proportional-nums}
+
+/* ======================================================================
+   Pestaña C · Rasgos de la v21, uno por interruptor, solo sobre el Original.
+   La paleta de «Una sola tinta» y las superficies tonales viven en variants.ts.
+   Los tamaños se traducen a AA: la v21 usaba 8.5–9.5 px y tintas al 44–50 %.
+   ====================================================================== */
+/* s · superficies tonales: sin sombras; la separación es de tono */
+.labroot[data-lab-r*=s] :is(.v-home,.v-movs,.v-ana) :is(.tiles,.card,.dl,.debt,.strip3,.rail,.empt,.srch){box-shadow:none}
+/* e · contraste de escala: etiquetas pequeñas en mayúsculas, detalles a 12 px, cifras que mandan */
+.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) :is(.hero .lbl,.ahero .lbl,.tk,.strip3 small,.ch b){font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .sh{font-size:12px;font-weight:780;letter-spacing:.08em;text-transform:uppercase}
+.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) :is(.td,.dt,.pht small,.hero .sub){font-size:12px}
+.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .nm>span:first-child{font-size:14px}
+.labroot[data-lab-r*=e] :is(.v-home,.v-movs,.v-ana) .tv{font-size:clamp(15px,4.4vw,19px);letter-spacing:-.03em}
+.labroot[data-lab-r*=e] :is(.v-movs,.v-ana) .pht b{font-size:38px;letter-spacing:-.05em}
+/* n · el número como una pieza: símbolo y decimales pequeños y tenues */
+.labroot[data-lab-r*=n] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .big .cu{font-size:15px;opacity:.72;align-self:flex-start;margin-top:.35em;margin-right:5px}
+.labroot[data-lab-r*=n] :is(.v-home,.v-ana) .scr :is(.hero,.ahero) .odo .dec{font-size:.46em;font-weight:500;opacity:.6;margin-left:1px}
+/* v · voz propia (texto de laboratorio por CSS: un lector de pantalla sigue leyendo el título real) */
+.labroot[data-lab-r*=v] :is(.v-movs,.v-ana) .pht small{order:-1;margin-bottom:4px}
+.labroot[data-lab-r*=v] :is(.v-movs,.v-ana) .pht::after{font-size:14px;line-height:1.4;font-weight:450;color:var(--t2);margin-top:8px;max-width:32ch}
+.labroot[data-lab-r*=v] .v-movs .pht::after{content:'Tu historial, ordenado para encontrar y entender cada cambio de dinero.'}
+.labroot[data-lab-r*=v] .v-ana .pht::after{content:'Menos indicadores, más respuestas. Toca cualquier bloque para profundizar.'}
+.labroot[data-lab-r*=v] .v-ana .pht b{font-size:0;line-height:0;letter-spacing:0}
+.labroot[data-lab-r*=v] .v-ana .pht b::before{content:'Tu dinero, explicado.';display:block;font-size:34px;line-height:1.05;letter-spacing:-.045em}
+.labroot[data-lab-r*=v][data-lab-r*=e] .v-ana .pht b::before{font-size:38px;letter-spacing:-.05em}
+/* i · iconos suaves: tinte claro del color del comercio y la sigla en su color mezclado con la tinta (27 %), lo que pasa AA en ambos temas */
+.labroot[data-lab-r*=i] :is(.v-home,.v-movs,.v-ana) .brand-ic:not(:has(img)){background:color-mix(in srgb,var(--bc) 16%,var(--sf))}
+.labroot[data-lab-r*=i] :is(.v-home,.v-movs,.v-ana) .brand-ic:not(:has(img)) .mono{color:color-mix(in srgb,var(--bc) 27%,var(--tx))!important}
+.labroot[data-lab-r*=i] :is(.v-home,.v-movs,.v-ana) .brand-ic:not(:has(img)) svg{fill:color-mix(in srgb,var(--bc) 27%,var(--tx))}
+/* f · formas blandas: una esquina propia en el saldo, píldoras amplias y un + redondo */
+.labroot[data-lab-r*=f] :is(.v-home,.v-ana) .scr :is(.hero,.ahero){border-radius:28px 28px 28px 12px}
+.labroot[data-lab-r*=f] :is(.v-home,.v-movs,.v-ana) :is(.tabs,.seg2,.tabs button,.seg2 .sk,.fc,.fsel,.srch){border-radius:999px}
+.labroot[data-lab-r*=f] :is(.v-home,.v-movs,.v-ana) :is(.tiles,.strip3,.card,.dl){border-radius:24px}
+.labroot[data-lab-r*=f] :is(.v-home,.v-movs,.v-ana) .plus{border-radius:50%}
+/* t en oscuro: los selectores segmentados dejan el gris azulado fijo y toman la tinta */
+.dark .labroot[data-lab-r*=t] :is(.v-home,.v-movs,.v-ana) :is(.tabs,.seg2){background:color-mix(in srgb,var(--tx) 7%,var(--pg))}
+.dark .labroot[data-lab-r*=t] :is(.v-home,.v-movs,.v-ana) :is(.tabs button.on,.seg2 .sk.on){background:color-mix(in srgb,var(--tx) 18%,var(--pg));color:var(--tx)}
