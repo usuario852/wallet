@@ -75,7 +75,7 @@ export default function Analysis() {
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle title="Análisis" sub={C.monthLabel(per) + ', al día ' + day} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
+        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Análisis" sub={'Cómo va el mes, al día ' + day + '.'} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
         <div className="sec" style={{ marginTop: 12 }}><Seg items={[['month', 'Este mes'], ['week', 'Últimos 7 días']]} value={range} onChange={setRange} label="Periodo" /></div>
         <div className="sec">
           <div className="hero total ahero">

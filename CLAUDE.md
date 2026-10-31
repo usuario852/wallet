@@ -32,3 +32,12 @@ Wallet 22 publicada, con estilo **Bóveda** en el modo Wallet (sin banco): gris 
 - Errores visuales de la fase 1 resueltos: estados vacíos de Inicio/Análisis, textos cortados (pasan a 2 líneas), filtros de Movimientos en 2 filas, contraste en oscuro.
 - `npm test`: sin `QA_DIR` (con `seed.json` y `old.json` de la v21) la paridad se salta; con ellos, se corre.
 - Diseño explorado en un lienzo de Claude (3 direcciones: Libreta, Bóveda, Marea); se eligió Bóveda.
+
+## Rama marea-sensibilidad (31 oct 2026, sin publicar)
+Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque `Wallet 23 · Sensibilidad` al final de `styles.css`):
+- Papel, no blanco: Bóveda pasa a neutros tibios (`#F3F0E9` fondo, `#FAF8F3` superficie); en claro, una superficie blanca de cualquier piel toma un poco de su fondo (`skinFor`).
+- Etiquetas editoriales (mayúscula espaciada) sobre títulos, números y secciones; títulos 38px/700.
+- Movimientos e Inicio como libro contable: filetes en vez de cajas; conteos por día; hora en cada fila; separadores ·.
+- Íconos genéricos delineados; los logos de marca conservan su color.
+- Un corte firma (esquina más cerrada) solo en tarjeta principal, Registrar, toasts y vacíos.
+- Forma y materia: manchas irregulares de fondo y dentro de la tarjeta, cabecera translúcida, grano fino.

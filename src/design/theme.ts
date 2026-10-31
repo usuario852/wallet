@@ -6,16 +6,17 @@ export type Palette = Record<string, any>;
 const LIGHT: Record<string, Palette> = (BR as any).light;
 const DARK: Record<string, Palette> = (BR as any).dark;
 
-// Piel Wallet (sin banco), dirección Bóveda: gris frío, índigo profundo y menta.
+// Piel Wallet (sin banco), dirección Bóveda: índigo profundo sobre papel tibio.
+// Nada es blanco puro: el fondo y las superficies tienen temperatura de papel.
 // Las pieles de banco no cambian. hvi = tinta sobre el color de los gráficos.
 Object.assign(LIGHT.wallet, {
-  pg: '#EEF0F4', sf: '#FFFFFF', s2: '#FFFFFF', ln: 'rgba(18,24,38,.09)', tx: '#121826', t2: '#586174',
-  hb: '#1E2B4A', hi: '#FFFFFF', pa: '#2C3E8C', pi: '#FFFFFF', ac: '#2C3E8C', nv: 'rgba(255,255,255,.92)',
+  pg: '#F3F0E9', sf: '#FAF8F3', s2: '#FAF8F3', ln: 'rgba(28,27,40,.10)', tx: '#17182A', t2: '#5F5D66',
+  hb: '#1E2B4A', hi: '#FFFFFF', pa: '#2C3E8C', pi: '#FFFFFF', ac: '#2C3E8C', nv: 'rgba(250,248,243,.92)',
   cb: '#1E2B4A', ci: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', pl: '#2C3E8C', pli: '#FFFFFF',
   dot: '#6F86E8', hv: '#2C3E8C', hvi: '#FFFFFF', wb: '#FCEBD3', wt: '#7A4A0B'
 });
 Object.assign(DARK.wallet, {
-  pg: '#0B0F18', sf: '#161C2A', s2: '#161C2A', ln: 'rgba(237,240,246,.09)', tx: '#EDF0F6', t2: '#A3ABBD',
+  pg: '#0E0F17', sf: '#1A1B26', s2: '#1A1B26', ln: 'rgba(240,238,232,.09)', tx: '#F0EEE8', t2: '#ABA8B4',
   hb: '#22315A', hi: '#FFFFFF', pa: '#9DB0FF', pi: '#0B0F18', ac: '#9DB0FF', nv: '#161C2AEB',
   cb: '#22315A', ci: '#FFFFFF', pc: 'rgba(11,15,24,.14)', pci: '#0B0F18', pl: '#9DB0FF', pli: '#0B0F18',
   dot: '#9DB0FF', hv: '#9DB0FF', hvi: '#0B0F18', wb: '#3A2C12', wt: '#F5CF8A'
@@ -51,6 +52,13 @@ export function bankOf(account: any): string {
 export const BANK_KEYS = Object.keys(LIGHT).filter((k) => k !== 'wallet');
 export function bankName(key: string) { return (LIGHT[key] || {}).n || 'Otra'; }
 
+// Mezcla dos colores hex (t = peso de b).
+function mixHex(a: string, b: string, t: number) {
+  const h = (x: string) => [0, 2, 4].map((i) => parseInt(x.replace('#', '').slice(i, i + 2), 16));
+  const A = h(a), B = h(b);
+  if (A.some(isNaN) || B.some(isNaN)) return a;
+  return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
 export function palette(key: string, dark: boolean): Palette { return (dark ? DARK : LIGHT)[key] || (dark ? DARK : LIGHT).wallet; }
 export function markSrc(key: string) { return LIGHT[key] && LIGHT[key].hasMark ? '/brands/' + key + '.png' : ''; }
 export function tileSrc(key: string) { return LIGHT[key] && LIGHT[key].hasMark ? '/brands/tile_' + key + '.png' : ''; }
@@ -76,6 +84,8 @@ export function skinFor(bank: string, dark: boolean, look: any): Palette {
     const ink = base.tx, paper = dark ? base.pg : base.sf;
     p = Object.assign({}, base, { hm: 'none', hb: ink, hi: paper, pa: ink, pi: paper, ac: ink, pl: ink, pli: paper, pc: dark ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.2)', pci: paper, dot: ink, hv: ink, hvi: paper });
   }
+  // Papel, no blanco: en claro, una superficie blanca toma un poco del fondo de su piel.
+  if (!dark && /^#fff(fff)?$/i.test(String(p.sf)) && /^#[0-9a-f]{6}$/i.test(String(p.pg)) && !/^#fff(fff)?$/i.test(String(p.pg))) p.sf = mixHex(p.pg, '#FFFFFF', 0.55);
   // Tarjeta del total (tb/ti): toma el color de la piel; "Sin color" la deja neutra.
   if (look && look.style === 'mono') { p.tb = p.sf; p.ti = p.tx; }
   else { p.tb = p.hb; p.ti = p.hi; }

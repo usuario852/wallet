@@ -177,7 +177,7 @@ export default function Home() {
     <div className="sec blk" key="recent">
       <div className="sh"><span>Últimos movimientos</span><button className="lnk" onClick={() => go('account', { id: acc.id })}>Ver la cuenta</button></div>
       {recent.length ? (
-        <div className="dl">{recent.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc.id} />)}</div>
+        <div className="ledger">{recent.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc.id} time />)}</div>
       ) : (
         <div className="empt"><span>Sin movimientos todavía.</span><button className="lnk" onClick={() => open('register', { accountId: acc.id })}>Registrar</button></div>
       )}

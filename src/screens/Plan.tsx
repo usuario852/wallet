@@ -33,13 +33,13 @@ export default function Plan() {
   const spentBy: Record<string, number> = {};
   C.spendingOps(s, cur, per).forEach((o: any) => { spentBy[o.category] = (spentBy[o.category] || 0) + Math.abs(o.amountMinor); });
 
-  const subtitle = C.monthLabel(per) + ': ' + (out.count ? (out.late ? out.late + (out.late === 1 ? ' vencido' : ' vencidos') + (out.count - out.late ? ' y ' + (out.count - out.late) + ' más' : '') : out.count + (out.count === 1 ? ' pago por delante' : ' pagos por delante')) : 'nada pendiente');
+  const subtitle = C.cap(out.count ? (out.late ? out.late + (out.late === 1 ? ' vencido' : ' vencidos') + (out.count - out.late ? ' y ' + (out.count - out.late) + ' más' : '') : out.count + (out.count === 1 ? ' pago por delante' : ' pagos por delante')) : 'nada pendiente');
 
   return (
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle title="Planifica" sub={subtitle} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
+        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Planifica" sub={subtitle} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
 
         <div className="sec">
           <div className={'card bud' + (lim && proj > lim ? ' over' : '')}>
