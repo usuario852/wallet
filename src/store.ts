@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import * as C from './domain/core';
+import { LAB, labStorage } from './lab/mode';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -10,7 +11,9 @@ import * as C from './domain/core';
 type Toast = { id: number; text: string; undo?: () => void } | null;
 type Listener = () => void;
 
-const initial = C.loadState(window.localStorage);
+// En ?lab=1 todo vive en memoria: nunca se lee ni se escribe el almacenamiento real.
+const disk: Storage = labStorage || window.localStorage;
+const initial = C.loadState(disk);
 let state: C.State = initial.state;
 let health: C.Health = initial.health;
 let toast: Toast = null;
@@ -41,7 +44,7 @@ export function commit(mutator: (s: C.State) => void, opts: { silent?: boolean }
   const before = JSON.stringify(state);
   const draft = JSON.parse(before);
   mutator(draft);
-  const r = C.saveState(window.localStorage, draft, health);
+  const r = C.saveState(disk, draft, health);
   health = r.health;
   if (!r.ok) {
     if (!opts.silent) notify(r.reason === 'recovery_required' ? 'No guardo nada hasta que resuelvas el aviso de datos.' : 'No pude guardar. Revisa el aviso de almacenamiento.');
@@ -61,15 +64,15 @@ export function replaceState(next: C.State, h?: C.Health) {
 }
 
 export function retryStorage() {
-  const r = C.loadState(window.localStorage);
+  const r = C.loadState(disk);
   if (r.health.mode === 'ok') { state = r.state; health = r.health; emit(); notify('Datos recuperados'); return; }
-  if (health.mode === 'failed') { const w = C.saveState(window.localStorage, state, health); health = w.health; emit(); notify(w.ok ? 'Guardado correctamente' : 'Sigue sin poder guardarse'); return; }
+  if (health.mode === 'failed') { const w = C.saveState(disk, state, health); health = w.health; emit(); notify(w.ok ? 'Guardado correctamente' : 'Sigue sin poder guardarse'); return; }
   notify('El archivo sigue sin poder leerse');
 }
 export function startFresh() {
   health = { mode: 'ok', reason: '', quarantined: false };
   const fresh = C.defaultState();
-  const w = C.saveState(window.localStorage, fresh, health);
+  const w = C.saveState(disk, fresh, health);
   health = w.health; state = fresh; emit();
   notify(w.ok ? 'Wallet empezó de cero. La copia del archivo dañado sigue guardada.' : 'No se pudo escribir el estado nuevo');
 }
@@ -193,6 +196,7 @@ export function pushProfilePayload(s = state) {
 }
 let pushTimer: any = null;
 function pushSyncSoon() {
+  if (LAB) return;
   const n = state.settings.notifications || {};
   if (!n.pushId || !n.pushSecret) return;
   clearTimeout(pushTimer);

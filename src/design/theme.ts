@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BR from './brands.json';
 import { ICONS, ALIASES } from './brandIcons.js';
+import { LAB, labHooks } from '../lab/mode';
 
 export type Palette = Record<string, any>;
 const LIGHT: Record<string, Palette> = (BR as any).light;
@@ -65,7 +66,7 @@ export function cssVars(p: Palette): Record<string, string> {
 }
 
 // Personalización: un color o sin color reemplazan la piel del banco.
-export function skinFor(bank: string, dark: boolean, look: any): Palette {
+export function skinFor(bank: string, dark: boolean, look: any, view = ''): Palette {
   const base = palette('wallet', dark);
   let p: Palette = Object.assign({}, bank === 'wallet' ? base : palette(bank, dark));
   if (look && look.style === 'one') {
@@ -81,6 +82,8 @@ export function skinFor(bank: string, dark: boolean, look: any): Palette {
   else { p.tb = p.hb; p.ti = p.hi; }
   const R: any = { r: ['26px', '16px'], m: ['16px', '10px'], s: ['6px', '4px'] };
   if (look && look.corner && look.corner !== 'bank' && R[look.corner]) { p.rd = R[look.corner][0]; p.r2 = R[look.corner][1]; }
+  // Solo en ?lab=1: la variante visual elegida en el laboratorio.
+  if (LAB && labHooks.skin) p = labHooks.skin(p, bank, dark, view);
   return p;
 }
 

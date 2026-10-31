@@ -16,6 +16,7 @@ import Investments from './screens/Investments';
 import News from './screens/News';
 import Onboarding from './screens/Onboarding';
 import { SheetHost } from './sheets/Host';
+import { LAB, bridge, bumpLab, clearLaunchQuery } from './lab/mode';
 
 function useSystemDark() {
   const q = typeof matchMedia !== 'undefined' ? matchMedia('(prefers-color-scheme: dark)') : null;
@@ -53,7 +54,7 @@ export default function App() {
     if (q.get('checkin') || q.get('action') === 'checkin') open('mood');
     if (q.get('view') === 'plan') setView('plan');
     if (q.get('view') === 'analysis') setView('ana');
-    if (q.toString()) history.replaceState(null, '', location.pathname);
+    clearLaunchQuery();
   }, [open]);
 
   const cur = s.settings.activeCurrency;
@@ -65,8 +66,14 @@ export default function App() {
   if (view === 'account' && params.id) bank = bankOf(C.accountById(s, params.id));
   else if ((view === 'home' || view === 'movs' || view === 'ana') && selAcc) bank = bankOf(selAcc);
   if (look.style !== 'bank' && bank !== 'wallet') bank = 'wallet';
-  const skin = skinFor(look.style === 'bank' ? bank : 'wallet', dark, look);
+  const skin = skinFor(look.style === 'bank' ? bank : 'wallet', dark, look, view);
   const vars = cssVars(skin);
+
+  useEffect(() => {
+    if (!LAB) return;
+    Object.assign(bridge, { view, sel, go, setSel });
+    bumpLab();
+  }, [view, sel, go]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -78,7 +85,7 @@ export default function App() {
   const ctx = useMemo(() => ({ view, params, go, back, open, close, dark, look, hide, toggleHide: () => setHide((h) => !h), sel, setSel }), [view, params, go, back, open, close, dark, look, hide, sel]);
 
   const tabs = ['home', 'movs', 'plan', 'ana'].includes(view);
-  const cls = ['ph', 'sk-' + bank, dark ? 'dk' : '', tabs && s.settings.onboardingComplete ? 'has-nav' : '', 'sz-' + look.size, 'dn-' + look.dens, 'mo-' + look.motion].join(' ');
+  const cls = ['ph', 'v-' + view, 'sk-' + bank, dark ? 'dk' : '', tabs && s.settings.onboardingComplete ? 'has-nav' : '', 'sz-' + look.size, 'dn-' + look.dens, 'mo-' + look.motion].join(' ');
 
   if (!s.settings.onboardingComplete) {
     return <Provider value={ctx}><div className={cls} style={{ ...(cssVars(palette('wallet', dark)) as any) }}><Onboarding /><SheetHost sheet={sheet} /></div></Provider>;

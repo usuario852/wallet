@@ -4,9 +4,15 @@ import * as C from '../domain/core';
 import { brandFor, markSrc, markAspect, bankOf, palette } from '../design/theme';
 import { IX } from './icons';
 import { useUI } from './ctx';
+import { LAB, useLab } from '../lab/mode';
 
 // Contador tipo odómetro: cada dígito rueda hasta su valor.
-export function Odometer({ minor, currency, cents = true, size = '' }: { minor: number; currency: string; cents?: boolean; size?: string }) {
+export function Odometer(props: { minor: number; currency: string; cents?: boolean; size?: string }) {
+  const lab = useLab();
+  return LAB && lab.saldo === 'coh' ? <Cohesive {...props} /> : <Rolling {...props} />;
+}
+
+function Rolling({ minor, currency, cents = true, size = '' }: { minor: number; currency: string; cents?: boolean; size?: string }) {
   const { look } = useUI();
   const p = C.moneyParts(minor, currency);
   const str = p.whole + (cents && p.dec ? '.' + p.dec : '');
@@ -31,6 +37,32 @@ export function Odometer({ minor, currency, cents = true, size = '' }: { minor: 
             </span>
           );
         })}
+      </span>
+    </div>
+  );
+}
+
+// Saldo cohesivo (solo laboratorio): en reposo es texto continuo, con su kerning;
+// al cambiar, el importe anterior sale y el nuevo entra en un solo gesto breve.
+function Cohesive({ minor, currency, cents = true, size = '' }: { minor: number; currency: string; cents?: boolean; size?: string }) {
+  const p = C.moneyParts(minor, currency);
+  const str = p.whole + (cents && p.dec ? '.' + p.dec : '');
+  const [prev, setPrev] = useState<{ s: string; up: boolean } | null>(null);
+  const last = useRef({ s: str, m: minor });
+  useEffect(() => {
+    if (last.current.s === str) return;
+    setPrev({ s: last.current.s, up: minor > last.current.m });
+    last.current = { s: str, m: minor };
+    const t = setTimeout(() => setPrev(null), 520);
+    return () => clearTimeout(t);
+  }, [str, minor]);
+  const parts = (v: string) => { const i = v.indexOf('.'); return i < 0 ? <>{v}</> : <>{v.slice(0, i)}<span className="dec">{v.slice(i)}</span></>; };
+  return (
+    <div className="big coh" role="img" aria-label={(p.sign ? 'menos ' : '') + p.symbol + ' ' + str}>
+      <span className="cu">{p.sign}{p.symbol}</span>
+      <span className={'odo cohn ' + size + (prev ? (prev.up ? ' go-up' : ' go-dn') : '')} aria-hidden="true">
+        <span className="cin" key={str}>{parts(str)}</span>
+        {prev && <span className="cout">{parts(prev.s)}</span>}
       </span>
     </div>
   );

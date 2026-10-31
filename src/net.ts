@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
+import { LAB, LAB_MARKETS } from './lab/mode';
 
 // Datos externos (tipo de cambio, mercados, noticias) con caché local para
 // que la app abra al instante y funcione sin señal.
@@ -8,6 +9,8 @@ function writeCache(key: string, v: any) { try { localStorage.setItem(key, JSON.
 
 const inflight: Record<string, Promise<any> | undefined> = {};
 async function cached(key: string, url: string, maxAgeMs: number, force = false) {
+  // En el laboratorio no hay red: precios de referencia inventados y nada más.
+  if (LAB) { if (url.startsWith('/api/markets')) return LAB_MARKETS; throw new Error('lab'); }
   const c = readCache(key);
   if (!force && c && Date.now() - (c.savedAt || 0) < maxAgeMs) return c.data;
   if (!inflight[url]) {
@@ -46,6 +49,7 @@ export function useNews(force = 0) {
 }
 
 export async function searchSymbols(q: string) {
+  if (LAB) throw new Error('lab');
   const r = await fetch('/api/symbol-search?q=' + encodeURIComponent(q));
   if (!r.ok) throw new Error('search');
   const d = await r.json();
@@ -55,6 +59,7 @@ export async function searchSymbols(q: string) {
 // Tipo de cambio de referencia para mover entre monedas (como la v21).
 export async function referenceRate(from: string, to: string, rates: any) {
   if (from === to) return 1;
+  if (LAB) return { rate: from === 'USD' ? 3.752 : 1 / 3.752, cached: true };
   const key = from + '_' + to;
   const c = rates && rates[key];
   if (c && Date.now() - c.fetchedAt < 6 * 3600 * 1000 && Number(c.rate) > 0) return { rate: Number(c.rate), cached: true };

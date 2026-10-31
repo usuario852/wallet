@@ -32,3 +32,8 @@ Wallet 22 publicada, con estilo **Bóveda** en el modo Wallet (sin banco): gris 
 - Errores visuales de la fase 1 resueltos: estados vacíos de Inicio/Análisis, textos cortados (pasan a 2 líneas), filtros de Movimientos en 2 filas, contraste en oscuro.
 - `npm test`: sin `QA_DIR` (con `seed.json` y `old.json` de la v21) la paridad se salta; con ellos, se corre.
 - Diseño explorado en un lienzo de Claude (3 direcciones: Libreta, Bóveda, Marea); se eligió Bóveda.
+
+## Laboratorio `?lab=1` (rama feat/marea-design-lab)
+- `src/lab/`: `mode.ts` (se importa primero; con `?lab=1` pasa almacenamiento y red a memoria), `Lab.tsx` (HUD), `fixtures.ts` (datos inventados), `variants.ts` + `lab.css` (Original/A/B/C), `fonts.ts` (S1–S8).
+- Fuera de `?lab=1` no cambia nada. `test/lab-isolation.test.ts` lo vigila.
+- Parámetros: `v`, `f`, `saldo`, `num`, `esc`, `mov`, `hud`, `tab`, `tema`, `pant`, `banco`. Notas en `DESIGN_LAB_NOTES.md`.
