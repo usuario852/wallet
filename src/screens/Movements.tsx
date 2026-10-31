@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import * as C from '../domain/core';
 import { useWallet } from '../store';
 import { useUI } from '../ui/ctx';
-import { useMoney, CurTabs } from '../ui/bits';
+import { useMoney, CurTabs, CardFace } from '../ui/bits';
 import { ISearch } from '../ui/icons';
 import { OpRow } from './Home';
 import { PageTitle, Banner } from './parts';
@@ -13,7 +13,7 @@ const FL: [string, string][] = [['all', 'Todo'], ['expense', 'Gastos'], ['income
 
 export default function Movements() {
   const { s } = useWallet();
-  const { sel, setSel, open } = useUI();
+  const { sel, setSel, open, dark } = useUI();
   const M = useMoney();
   const cur = s.settings.activeCurrency;
   const [q, setQ] = useState('');
@@ -48,6 +48,7 @@ export default function Movements() {
       <div className="zz">
         <Banner />
         <PageTitle eyebrow={eyebrow} title={title} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
+        {acc && <div className="sec"><CardFace account={acc} dark={dark} className="rb on mvh"><span className="rbal">{M(C.balanceOf(s, acc), acc.currency)}</span></CardFace></div>}
         <div className="sec"><div className="strip3 open">
           <span><small>Entradas</small><b className="nums">{M(inc, cur)}</b></span>
           <span><small>Salidas</small><b className="nums">{M(out, cur)}</b></span>

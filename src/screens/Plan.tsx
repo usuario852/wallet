@@ -89,7 +89,7 @@ export default function Plan() {
                   );
                 })}
               </div>
-            ) : <div className="empt"><span>Nada pendiente.</span><button className="lnk" onClick={() => open('fixed-new')}>Agregar pago</button></div>}
+            ) : <div className="empt"><span>Nada pendiente.</span></div>}
 
             <div className="sh2r" style={{ marginTop: 22 }}><b>Pagos fijos cada mes</b><button className="lnk" onClick={() => open('fixed-new')}>Agregar</button></div>
             {fixed.length ? (

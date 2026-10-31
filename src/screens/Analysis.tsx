@@ -160,7 +160,7 @@ export default function Analysis() {
             return (
               <div key={a.id} className="wr" style={{ cursor: 'default' }}>
                 <RowIcon bank={bank} text={a.name} />
-                <span className="wn"><span className="wt"><b>{a.name}</b><span className="nums">{M(b, cur)}</span></span><span className="ctrack"><span className="cbar" style={{ width: Math.max(1.5, (Math.abs(b) / amax) * 100) + '%', background: palette(bank, dark).dot }} /></span></span>
+                <span className="wn"><span className="wt"><b>{a.name}</b><span className="nums">{M(b, cur)}</span></span><span className="ctrack"><span className="cbar naipe-bar" style={{ width: Math.max(4, (Math.abs(b) / amax) * 100) + '%', ['--cb' as any]: palette(bank, dark).cb }} /></span></span>
               </div>
             );
           })}

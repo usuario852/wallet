@@ -652,3 +652,14 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .plus{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.12),0 10px 20px -10px color-mix(in srgb,var(--pl) 80%,transparent)}
 .acts{margin-top:16px}
 .blk{margin-top:36px}
+
+/* Ronda 5 · el naipe en las otras pestañas, vacíos sólidos, contraste en oscuro */
+.empt{border:0;background:var(--sf);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 0 0 1px color-mix(in srgb,var(--tx) 6%,transparent)}
+.dk .empt{box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(255,255,255,.06)}
+.dk .act,.dk .liq.soft{background:color-mix(in srgb,var(--tx) 10%,var(--pg));color:var(--tx)}
+.dk .act .ai{background:var(--tx);color:var(--pg)}
+.ctrack:has(.naipe-bar){height:14px;border-radius:5px;overflow:visible;background:color-mix(in srgb,var(--tx) 5%,transparent)}
+.cbar.naipe-bar{border-radius:5px;background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 84%,#fff),var(--cb));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.06),0 4px 8px -4px color-mix(in srgb,var(--cb) 70%,#000)}
+.rb.mvh{width:100%;height:64px;margin:14px 0 0;transform:none;flex-direction:row;align-items:center;justify-content:space-between;padding:0 16px;cursor:default}
+.rb.mvh .rbal{display:block;font-size:17px;font-weight:640}
+.rb.mvh::after{animation:none}
