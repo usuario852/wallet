@@ -6,7 +6,7 @@ import { useWallet } from '../store';
 import { useUI } from '../ui/ctx';
 import { Odometer, CardFace, RowIcon, useMoney, CurTabs } from '../ui/bits';
 import { Mark, INews, IEye, IPlus, IMove, IChat } from '../ui/icons';
-import { bankOf, markSrc, markAspect, palette } from '../design/theme';
+import { bankOf, markSrc, markAspect, palette, tileSrc } from '../design/theme';
 import { useMarkets, marketItem } from '../net';
 import { setCurrency } from '../App';
 import { Banner } from './parts';
@@ -219,7 +219,7 @@ export default function Home() {
                   <button className="band2" onClick={() => setBandOpen(!bandOpen)} aria-expanded={bandOpen} aria-label="Cómo se reparte tu dinero entre tus cuentas">
                     {positive.map((a: any) => <i key={a.id} style={{ width: (C.balanceOf(s, a) / posTotal) * 100 + '%', background: palette(bankOf(a), dark).dot }} />)}
                   </button>
-                  {bandOpen && <span className="bleg">{positive.map((a: any) => <span key={a.id}><i style={{ background: palette(bankOf(a), dark).dot }} />{a.name} <b className="nums">{Math.round((C.balanceOf(s, a) / posTotal) * 100)}%</b></span>)}</span>}
+                  {bandOpen && <span className="bleg">{positive.map((a: any) => <span key={a.id}>{tileSrc(bankOf(a)) ? <img className="blogo" src={tileSrc(bankOf(a))} alt="" /> : <i style={{ background: palette(bankOf(a), dark).dot }} />}{a.name} <b className="nums">{Math.round((C.balanceOf(s, a) / posTotal) * 100)}%</b></span>)}</span>}
                 </>
               )}
             </div>

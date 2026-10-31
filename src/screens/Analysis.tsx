@@ -168,7 +168,7 @@ export default function Analysis() {
         </div></div>
 
         <div className="sec"><div className="card">
-          <div className="ch"><b>Tu ánimo y tu gasto</b><button className="lnk" onClick={() => open('mood')}>Cómo estás</button></div>
+          <div className="ch"><b>Tu ánimo y tu gasto</b><button className="lnk" onClick={() => open('mood')}>Registrar ánimo</button></div>
           {withMood.length >= 3 ? <>
             <p className="mood">Con tensión alta registraste <b>{tense.length}</b> {tense.length === 1 ? 'gasto' : 'gastos'} este mes, de {M(avgT(tense), cur)} en promedio. Con calma, {M(avgT(calm), cur)}.</p>
             <div className="mrw"><span>Tensión alta</span><span className="ctrack"><span className="cbar" style={{ width: C.pct(C.sumMinor(tense.map((x: any) => x.o)), Math.max(1, C.sumMinor(withMood.map((x: any) => x.o)))) + '%' }} /></span><b className="nums">{M(C.sumMinor(tense.map((x: any) => x.o)), cur)}</b></div>

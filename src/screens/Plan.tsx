@@ -101,7 +101,7 @@ export default function Plan() {
                   </button>
                 ))}
               </div>
-            ) : <p className="tsm2">Ninguno todavía.</p>}
+            ) : <div className="empt"><span>Ninguno todavía.</span></div>}
 
             <div className="sh2r" style={{ marginTop: 22 }}><b>Límites por categoría</b><button className="lnk" onClick={() => open('cat-limits')}>{catLims.length ? 'Editar' : 'Poner'}</button></div>
             {catLims.length ? (
@@ -117,7 +117,7 @@ export default function Plan() {
                   );
                 })}
               </div>
-            ) : <p className="tsm2">Ninguna categoría con límite.</p>}
+            ) : <div className="empt"><span>Ninguna categoría con límite.</span></div>}
           </div>
         )}
 
