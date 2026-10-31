@@ -11,7 +11,7 @@ import { setCurrency } from '../App';
 
 export default function Analysis() {
   const { s } = useWallet();
-  const { open, dark, hide } = useUI();
+  const { open, dark, hide, look } = useUI();
   const M = useMoney();
   const cur = s.settings.activeCurrency;
   const [range, setRange] = useState<'month' | 'week'>('month');
@@ -78,7 +78,7 @@ export default function Analysis() {
         <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Análisis" sub={'Cómo va el mes, al día ' + day + '.'} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
         <div className="sec" style={{ marginTop: 12 }}><Seg items={[['month', 'Este mes'], ['week', 'Últimos 7 días']]} value={range} onChange={setRange} label="Periodo" /></div>
         <div className="sec">
-          <div className="hero total ahero">
+          <div className={'hero total ahero' + (look.style !== 'one' ? ' paper' : '')}>
             <span className="lbl">{range === 'month' ? 'Gastado en ' + C.monthName(now.getMonth()) : 'Gastado en 7 días'}</span>
             {(() => { const mp = C.moneyParts(range === 'month' ? spent : weekTotal, cur); return <div className="big"><span className="cu">{mp.symbol}</span><span className="odo">{hide ? '••••' : mp.whole}<span className="sep dec">{hide || !mp.dec ? '' : '.' + mp.dec}</span></span></div>; })()}
             {range === 'month' ? <>

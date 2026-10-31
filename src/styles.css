@@ -600,3 +600,16 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .sh2r{align-items:center;padding:0 2px 8px;margin-bottom:10px;box-shadow:inset 0 -1px 0 var(--ln)}
 .seg2,.seg2 .sk{border-radius:999px}
 .hdr{background:color-mix(in srgb,var(--pg) 78%,transparent)}
+
+/* 10 · El total es papel: el número manda, el color queda como acento */
+.hero.paper{background:var(--tb);color:var(--ti);box-shadow:inset 0 0 0 1px var(--ln),0 18px 36px -24px color-mix(in srgb,var(--tx) 40%,transparent)}
+.hero.paper::before{inset:auto;right:-74px;top:-84px;width:230px;height:230px;opacity:1;background:none;border-radius:50%;border:20px solid color-mix(in srgb,var(--pa) 7%,transparent);box-shadow:0 0 0 46px color-mix(in srgb,var(--pa) 3%,transparent)}
+.hero.paper::after{background:color-mix(in srgb,#C9B99A 14%,transparent)}
+.dk .hero.paper::after{background:color-mix(in srgb,var(--tx) 4%,transparent)}
+.hero.paper .lbl{color:var(--pa)}
+.hero.paper .sub{color:var(--t2)}
+.hero.paper .odo .dec,.hero.paper .big .cu{color:var(--t2);opacity:1}
+.hero.paper .liq.pri{background:var(--pa);color:var(--pi)}
+.hero.paper .band2 i{box-shadow:none}
+.more{background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tx) 18%,transparent);color:var(--t2);font-weight:520;font-size:20px}
+.ahero.paper .cmp i{background:color-mix(in srgb,var(--pa) 12%,transparent);color:var(--pa)}

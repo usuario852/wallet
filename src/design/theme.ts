@@ -86,9 +86,10 @@ export function skinFor(bank: string, dark: boolean, look: any): Palette {
   }
   // Papel, no blanco: en claro, una superficie blanca toma un poco del fondo de su piel.
   if (!dark && /^#fff(fff)?$/i.test(String(p.sf)) && /^#[0-9a-f]{6}$/i.test(String(p.pg)) && !/^#fff(fff)?$/i.test(String(p.pg))) p.sf = mixHex(p.pg, '#FFFFFF', 0.55);
-  // Tarjeta del total (tb/ti): toma el color de la piel; "Sin color" la deja neutra.
-  if (look && look.style === 'mono') { p.tb = p.sf; p.ti = p.tx; }
-  else { p.tb = p.hb; p.ti = p.hi; }
+  // Tarjeta del total (tb/ti).
+  // Por defecto y en "Sin color" la tarjeta del total es papel; con un color propio, un bloque de ese color.
+  if (look && look.style === 'one') { p.tb = p.hb; p.ti = p.hi; }
+  else { p.tb = p.sf; p.ti = p.tx; }
   const R: any = { r: ['26px', '16px'], m: ['16px', '10px'], s: ['6px', '4px'] };
   if (look && look.corner && look.corner !== 'bank' && R[look.corner]) { p.rd = R[look.corner][0]; p.r2 = R[look.corner][1]; }
   return p;

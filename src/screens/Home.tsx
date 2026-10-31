@@ -201,7 +201,7 @@ export default function Home() {
           </div>
           {!accounts.length ? (
             <div className="sec">
-              <div className="hero total first">
+              <div className={'hero total first' + (look.style !== 'one' ? ' paper' : '')}>
                 <span className="lbl">Patrimonio líquido</span>
                 <b className="ft">Agrega tu primera cuenta en {C.currencyMeta(cur).name.toLowerCase()}</b>
                 <span className="sub">Tu banco, Yape o el efectivo que tienes a la mano. Desde ahí, Wallet suma todo por ti.</span>
@@ -209,7 +209,7 @@ export default function Home() {
               </div>
             </div>
           ) : <div className="sec">
-            <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
+            <div className={'hero' + (!acc ? ' total withband' + (look.style !== 'one' ? ' paper' : '') : ' withpill')}>
               <span className="lbl">{mk ? <img className={'hmk ' + markAspect(heroBank)} src={mk} alt={String(label)} /> : label}</span>
               {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
               {acc && <button className="pill" onClick={() => setSel(null)}>Ver todo <span aria-hidden="true">✕</span></button>}

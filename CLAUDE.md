@@ -41,3 +41,4 @@ Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque 
 - Íconos genéricos delineados; los logos de marca conservan su color.
 - Un corte firma (esquina más cerrada) solo en tarjeta principal, Registrar, toasts y vacíos.
 - Forma y materia: manchas irregulares de fondo y dentro de la tarjeta, cabecera translúcida, grano fino.
+- La tarjeta del total (Inicio y Análisis) es papel (`.hero.paper`, tb=sf/ti=tx): número en tinta, etiqueta en índigo, arcos tenues. Con color propio en Personaliza vuelve a ser bloque; al elegir una cuenta sigue la piel del banco.
