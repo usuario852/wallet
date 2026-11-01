@@ -45,7 +45,7 @@ Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque 
 - Barra de vidrio líquido con temperatura de papel: brillo tibio, lente de tinta (no lila), + con el corte de Registrar; se tiñe con la piel del banco.
 - Vacíos con una "piedra" orgánica; filas y recuadros ceden al tocarlos (respeta reducir movimiento).
 
-## Wallet 24 · Papel (rama redisenio-estuche, 31 oct 2026)
+## Wallet 24 · Papel (publicada el 31 oct 2026, rama redisenio-estuche)
 Rediseño con el skill app-designer-pro tras rechazar el Estuche, el cielo y la pila tipo Apple Wallet. Bloque `Wallet 24 · Papel` al final de `styles.css` (los bloques Sensibilidad y Estuche ya no aplican):
 - Fondo papel #F7F5F1 / #0E0E10, tinta #16171A / #F2F1EE, índigo #2C3E8C / #9DB0FF solo para la acción. Fuente Geist.
 - El total (Inicio y Análisis) y la cuenta elegida son tinta sobre papel: nunca un bloque de color (`tb=pg`, `ti=tx` en `skinFor`).
