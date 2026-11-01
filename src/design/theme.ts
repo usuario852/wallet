@@ -6,24 +6,24 @@ export type Palette = Record<string, any>;
 const LIGHT: Record<string, Palette> = (BR as any).light;
 const DARK: Record<string, Palette> = (BR as any).dark;
 
-// Piel Wallet (sin banco), dirección Bóveda: índigo profundo sobre papel tibio.
-// Nada es blanco puro: el fondo y las superficies tienen temperatura de papel.
+// Piel Wallet (sin banco): papel tibio casi blanco, tinta casi negra, índigo solo para la acción.
+// El total no vive en un bloque de color: es tinta sobre el papel.
 // Las pieles de banco no cambian. hvi = tinta sobre el color de los gráficos.
 Object.assign(LIGHT.wallet, {
-  pg: '#F3F0E9', sf: '#FAF8F3', s2: '#FAF8F3', ln: 'rgba(28,27,40,.10)', tx: '#17182A', t2: '#5F5D66',
-  hb: '#1E2B4A', hi: '#FFFFFF', pa: '#2C3E8C', pi: '#FFFFFF', ac: '#2C3E8C', nv: 'rgba(250,248,243,.92)',
+  pg: '#F7F5F1', sf: '#FDFCFA', s2: '#FDFCFA', ln: 'rgba(22,23,26,.10)', tx: '#16171A', t2: '#5E5E63',
+  hb: '#1E2B4A', hi: '#FFFFFF', pa: '#2C3E8C', pi: '#FFFFFF', ac: '#2C3E8C', nv: 'rgba(253,252,250,.92)',
   cb: '#1E2B4A', ci: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', pl: '#2C3E8C', pli: '#FFFFFF',
   dot: '#6F86E8', hv: '#2C3E8C', hvi: '#FFFFFF', wb: '#FCEBD3', wt: '#7A4A0B'
 });
 Object.assign(DARK.wallet, {
-  pg: '#0E0F17', sf: '#1A1B26', s2: '#1A1B26', ln: 'rgba(240,238,232,.09)', tx: '#F0EEE8', t2: '#ABA8B4',
-  hb: '#22315A', hi: '#FFFFFF', pa: '#9DB0FF', pi: '#0B0F18', ac: '#9DB0FF', nv: '#161C2AEB',
+  pg: '#0E0E10', sf: '#19191C', s2: '#19191C', ln: 'rgba(242,241,238,.09)', tx: '#F2F1EE', t2: '#A8A7AD',
+  hb: '#22315A', hi: '#FFFFFF', pa: '#9DB0FF', pi: '#0B0F18', ac: '#9DB0FF', nv: '#19191CEB',
   cb: '#22315A', ci: '#FFFFFF', pc: 'rgba(11,15,24,.14)', pci: '#0B0F18', pl: '#9DB0FF', pli: '#0B0F18',
   dot: '#9DB0FF', hv: '#9DB0FF', hvi: '#0B0F18', wb: '#3A2C12', wt: '#F5CF8A'
 });
 
 // Efectivo: el billete es crema, pero la selección y la acción van en tinta (no ocre).
-Object.assign(LIGHT.cash, { pa: '#17182A', pi: '#F3F0E9', pl: '#17182A', pli: '#F3F0E9', ac: '#17182A' });
+Object.assign(LIGHT.cash, { pa: '#16171A', pi: '#F7F5F1', pl: '#16171A', pli: '#F7F5F1', ac: '#16171A' });
 
 const clean = (s: any) => String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -89,10 +89,8 @@ export function skinFor(bank: string, dark: boolean, look: any): Palette {
   }
   // Papel, no blanco: en claro, una superficie blanca toma un poco del fondo de su piel.
   if (!dark && /^#fff(fff)?$/i.test(String(p.sf)) && /^#[0-9a-f]{6}$/i.test(String(p.pg)) && !/^#fff(fff)?$/i.test(String(p.pg))) p.sf = mixHex(p.pg, '#FFFFFF', 0.55);
-  // Tarjeta del total (tb/ti).
-  // La tarjeta del total es la Bóveda: el color profundo de la piel. Solo "Sin color" la deja en papel.
-  if (look && look.style === 'mono') { p.tb = p.sf; p.ti = p.tx; }
-  else { p.tb = p.hb; p.ti = p.hi; }
+  // El total y la cuenta elegida se escriben en tinta sobre el papel: nunca un bloque de color.
+  p.tb = p.pg; p.ti = p.tx;
   const R: any = { r: ['26px', '16px'], m: ['16px', '10px'], s: ['6px', '4px'] };
   if (look && look.corner && look.corner !== 'bank' && R[look.corner]) { p.rd = R[look.corner][0]; p.r2 = R[look.corner][1]; }
   return p;

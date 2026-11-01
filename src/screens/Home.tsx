@@ -71,7 +71,7 @@ export default function Home() {
     label = acc.name;
     sub = acc.kind === 'reserve' ? (acc.goalMinor ? C.pct(Math.max(0, bigMinor), acc.goalMinor) + '% de tu meta de ' + M(acc.goalMinor, cur) : 'Ahorro reservado') : posTotal > 0 && bigMinor > 0 ? Math.round((bigMinor / posTotal) * 100) + '% de lo que hay en tus cuentas' : '';
   }
-  const mk = acc && look.style === 'bank' ? markSrc(heroBank) : '';
+  const mk = acc && look.style === 'bank' ? tileSrc(heroBank) : '';
 
   // Recuadros
   const today = D.todaySpent(s, cur, sel);
@@ -190,8 +190,7 @@ export default function Home() {
   const inv = !sel && (s.watchlist || []).length ? (
     <div className="sec invrow" key="inv"><button className="debt" onClick={() => go('inv')}><span className="lft"><span className="ic"><span className="ini">↗</span></span><span className="nm"><span>Inversiones</span><span className="dt">{(s.watchlist || []).length} que sigues</span></span></span><span className="lnk">Ver</span></button></div>
   ) : null;
-  const inCase = look.naip !== 'fila' && blocks.some((b) => b[0] === 'naipes' && b[1]);
-  const blockEls: Record<string, React.ReactNode> = { naipes: <>{!inCase && naipes}{inv}</>, hoy: tiles, acc: null, deuda: debts, prox };
+  const blockEls: Record<string, React.ReactNode> = { naipes: <>{naipes}{inv}</>, hoy: tiles, acc: null, deuda: debts, prox };
 
   return (
     <>
@@ -212,10 +211,9 @@ export default function Home() {
                 <button className="liq pri" onClick={() => open('account-new', { currency: cur })}>Agregar cuenta</button>
               </div>
             </div>
-          ) : <div className={'sec' + (inCase ? ' case' : '')}>
-            {inCase && naipes}
+          ) : <div className="sec">
             <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
-              <span className="lbl hrow"><span>{mk ? <img className={'hmk ' + markAspect(heroBank)} src={mk} alt={String(label)} /> : label}</span>{acc && <button className="hback" onClick={() => setSel(null)}>Todas</button>}</span>
+              <span className="lbl hrow"><span className="hname">{mk && <img className="hlogo" src={mk} alt="" />}{label}</span>{acc && <button className="hback" onClick={() => setSel(null)}>Todas</button>}</span>
               {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
               {!hide && sub && <span className="sub nums">{sub}</span>}
               {!acc && positive.length > 1 && (
@@ -248,7 +246,7 @@ function opTime(date: any) {
   const t = String(date || '').slice(11, 16);
   if (!/^\d{2}:\d{2}$/.test(t) || t === '00:00') return '';
   const [h, m] = t.split(':').map(Number);
-  return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + (h < 12 ? ' a. m.' : ' p. m.');
+  return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + (h < 12 ? '\u00a0a.\u00a0m.' : '\u00a0p.\u00a0m.');
 }
 
 export function OpRow({ op, cur, accountId, onOpen, time = false }: { op: any; cur: string; accountId?: string; onOpen?: () => void; time?: boolean }) {

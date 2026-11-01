@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import * as C from '../domain/core';
 import * as D from '../domain/derive';
 import { useWallet, addOperation, updateOperation, notify } from '../store';
 import { useUI } from '../ui/ctx';
-import { SheetFrame, Seg, Keypad, AmountDisplay, useKeypad, CardFace, useMoney } from '../ui/bits';
+import { SheetFrame, Seg, AmountField, useKeypad, CardFace, useMoney } from '../ui/bits';
 import { bankOf, cssVars, skinFor } from '../design/theme';
 import { referenceRate } from '../net';
 
@@ -26,6 +26,14 @@ export default function Register({ props }: { props: any }) {
   const [dayMode, setDayMode] = useState<'hoy' | 'ayer' | 'otro'>(editing ? (C.sameDay(editing.date, C.todayLocal()) ? 'hoy' : 'otro') : 'hoy');
   const [otherDate, setOtherDate] = useState(editing ? String(editing.date).slice(0, 10) : C.todayLocal());
   const [note, setNote] = useState(editing ? editing.note || '' : '');
+  // El monto se escribe con el teclado del teléfono, que ya viene abierto desde el toque en Registrar.
+  const amtRef = useRef<HTMLInputElement>(null);
+  const whatRef = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => {
+    if (!editing && !props.amount) { amtRef.current?.focus({ preventScroll: true }); return; }
+    const a = document.activeElement as HTMLElement | null;
+    if (a && a.classList.contains('kbprime')) a.blur();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mover
   const allAcc = s.accounts.filter((a: any) => !a.archived);
@@ -120,9 +128,9 @@ export default function Register({ props }: { props: any }) {
     <div style={cssVars(skin) as any}>
       <SheetFrame title={editing ? 'Editar movimiento' : 'Registrar'} onClose={close} full>
         {!editing && <Seg items={[['expense', 'Gasto'], ['income', 'Ingreso'], ['move', 'Mover']]} value={tab} onChange={setTab} label="Tipo" className="n3" />}
-        <AmountDisplay value={kp.value} currency={tab === 'move' && fromA ? fromA.currency : cur} />
+        <AmountField ref={amtRef} value={kp.value} onChange={kp.set} onEnter={() => (whatRef.current ? whatRef.current.focus() : amtRef.current?.blur())} currency={tab === 'move' && fromA ? fromA.currency : cur} />
         {tab !== 'move' ? <>
-          <label className="wq">¿Qué fue?<input value={what} onChange={(e) => onWhat(e.target.value)} placeholder={type === 'income' ? 'Ej. sueldo, venta' : 'Ej. uber 18, almuerzo 15'} autoComplete="off" enterKeyHint="done" /></label>
+          <label className="wq">¿Qué fue?<input ref={whatRef} value={what} onChange={(e) => onWhat(e.target.value)} placeholder={type === 'income' ? 'Ej. sueldo, venta' : 'Ej. uber 18, almuerzo 15'} autoComplete="off" enterKeyHint="done" /></label>
           {sugg.length > 0 && what.trim() && !sugg.some((x: any) => C.normalizeText(x.concept) === C.normalizeText(what)) && (
             <div className="fq noscr">{sugg.map((x: any) => <button key={x.concept} className="fqc" onClick={() => choose(x)}>{x.concept} <span className="fqa">{C.money(x.amountMinor, cur)}</span></button>)}</div>
           )}
@@ -170,7 +178,6 @@ export default function Register({ props }: { props: any }) {
           {dayMode === 'otro' ? <input type="date" value={otherDate} max={C.todayLocal()} onChange={(e) => setOtherDate(e.target.value)} aria-label="Fecha" /> : <button className="cc" onClick={() => setDayMode('otro')}>Otro día</button>}
         </div>
         {editing && <label className="wq">Nota<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Opcional" /></label>}
-        <Keypad onKey={kp.key} />
         <div className="okwrap"><button className={'okb' + (disabled ? ' dis' : '')} disabled={disabled} onClick={submit}>{ok}</button></div>
       </SheetFrame>
     </div>

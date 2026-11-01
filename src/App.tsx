@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as C from './domain/core';
 import { useWallet, dismissToast, commit } from './store';
 import { Provider, View, Sheet } from './ui/ctx';
@@ -44,7 +44,13 @@ export default function App() {
   const back = useCallback(() => {
     setStack((st) => { const last = st[st.length - 1]; if (last) { setView(last.v); setParams(last.p); } else { setView('home'); setParams({}); } return st.slice(0, -1); });
   }, []);
-  const open = useCallback((kind: string, props: any = {}) => setSheet({ kind, props }), []);
+  // Teclado del teléfono: iOS solo lo abre si el foco llega dentro del toque.
+  // Registrar enfoca un campo oculto en el mismo toque; la hoja le pasa el foco al monto al montarse.
+  const prime = useRef<HTMLInputElement>(null);
+  const open = useCallback((kind: string, props: any = {}) => {
+    if (kind === 'register' && !props.editId) { try { prime.current?.focus({ preventScroll: true }); } catch { /* sin teclado */ } }
+    setSheet({ kind, props });
+  }, []);
   const close = useCallback(() => setSheet(null), []);
 
   // Avisos que abren la app con una intención (?checkin=1 desde una notificación).
@@ -75,6 +81,20 @@ export default function App() {
     document.documentElement.style.setProperty('--app-bg', skin.pg);
   }, [dark, skin.pg]);
 
+  // Altura del teclado (--kb): la hoja se apoya encima y el botón final queda a la vista.
+  useEffect(() => {
+    const vv = window.visualViewport; if (!vv) return;
+    const root = document.documentElement;
+    const f = () => {
+      const kb = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      const up = kb > 120;
+      root.style.setProperty('--kb', (up ? kb : 0) + 'px');
+      root.classList.toggle('kbup', up);
+    };
+    vv.addEventListener('resize', f); vv.addEventListener('scroll', f); f();
+    return () => { vv.removeEventListener('resize', f); vv.removeEventListener('scroll', f); };
+  }, []);
+
   const ctx = useMemo(() => ({ view, params, go, back, open, close, dark, look, hide, toggleHide: () => setHide((h) => !h), sel, setSel }), [view, params, go, back, open, close, dark, look, hide, sel]);
 
   const tabs = ['home', 'movs', 'plan', 'ana'].includes(view);
@@ -100,16 +120,19 @@ export default function App() {
       <div className={cls} style={vars as any}>
         {screen}
         {tabs && (
-          <nav className="nav" aria-label="Secciones">
-            {/* Lente de vidrio: se desliza a la pestaña activa y se deforma un instante al llegar. */}
-            <span className="lens" aria-hidden="true" style={{ ['--i' as any]: ({ home: 0, movs: 1, plan: 3, ana: 4 } as any)[view] }}><i key={view} /></span>
-            <button className={'tab' + (view === 'home' ? ' on' : '')} aria-current={view === 'home'} onClick={() => go('home')}><IHome />Inicio</button>
-            <button className={'tab' + (view === 'movs' ? ' on' : '')} aria-current={view === 'movs'} onClick={() => go('movs')}><IList />Movimientos</button>
-            <button className="plus" aria-label="Registrar" onClick={() => open('register', { accountId: sel || undefined })}><IPlus /></button>
-            <button className={'tab' + (view === 'plan' ? ' on' : '')} aria-current={view === 'plan'} onClick={() => go('plan')}><ICal />Planifica</button>
-            <button className={'tab' + (view === 'ana' ? ' on' : '')} aria-current={view === 'ana'} onClick={() => go('ana')}><IBars />Análisis</button>
-          </nav>
+          <>
+            <nav className="nav" aria-label="Secciones">
+              {/* Lente de vidrio: se desliza a la pestaña activa. */}
+              <span className="lens" aria-hidden="true" style={{ ['--i' as any]: ({ home: 0, movs: 1, plan: 2, ana: 3 } as any)[view] }}><i key={view} /></span>
+              <button className={'tab' + (view === 'home' ? ' on' : '')} aria-current={view === 'home'} onClick={() => go('home')}><IHome />Inicio</button>
+              <button className={'tab' + (view === 'movs' ? ' on' : '')} aria-current={view === 'movs'} onClick={() => go('movs')}><IList />Movimientos</button>
+              <button className={'tab' + (view === 'plan' ? ' on' : '')} aria-current={view === 'plan'} onClick={() => go('plan')}><ICal />Planifica</button>
+              <button className={'tab' + (view === 'ana' ? ' on' : '')} aria-current={view === 'ana'} onClick={() => go('ana')}><IBars />Análisis</button>
+            </nav>
+            <button className="addb" aria-label="Registrar" onClick={() => open('register', { accountId: sel || undefined })}><IPlus /></button>
+          </>
         )}
+        <input ref={prime} className="kbprime" inputMode="decimal" aria-hidden="true" tabIndex={-1} autoComplete="off" defaultValue="" />
         <SheetHost sheet={sheet} />
         {toast && (
           <div className="toast" role="status" key={toast.id}>

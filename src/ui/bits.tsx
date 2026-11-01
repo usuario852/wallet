@@ -88,8 +88,10 @@ export function SheetFrame({ title, sub, onClose, children, full = false, label 
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', k);
     const prev = document.activeElement as HTMLElement | null;
-    ref.current?.focus();
-    return () => { window.removeEventListener('keydown', k); prev?.focus?.(); };
+    // Si la hoja ya enfocó un campo (el monto de Registrar), no se le quita el foco ni el teclado.
+    if (!ref.current?.contains(document.activeElement)) ref.current?.focus();
+    // Al cerrar, el foco vuelve al botón que la abrió; nunca a un campo, para no reabrir el teclado.
+    return () => { window.removeEventListener('keydown', k); if (prev && prev.tagName !== 'INPUT' && prev.isConnected) prev.focus?.(); };
   }, [onClose]);
   return (
     <>
@@ -146,6 +148,40 @@ export function AmountDisplay({ value, currency }: { value: string; currency: st
     </div>
   );
 }
+// El monto con el teclado del teléfono: un campo invisible sobre la cifra grande.
+// Acepta coma o punto como decimal, dos decimales y nueve cifras, como el teclado propio de antes.
+export function cleanAmount(prev: string, raw: string) {
+  let v = String(raw || '');
+  if (v.includes(',') && v.includes('.')) v = v.replace(/,/g, '');
+  v = v.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+  const i = v.indexOf('.');
+  if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '');
+  let [w, d] = v.split('.');
+  w = (w || '').replace(/^0+(?=\d)/, '');
+  if (d !== undefined) { d = d.slice(0, 2); if (!w) w = '0'; }
+  if ((w + (d || '')).length > 9) return prev;
+  return d !== undefined ? w + '.' + d : w;
+}
+export const AmountField = React.forwardRef<HTMLInputElement, { value: string; currency: string; onChange: (v: string) => void; onEnter?: () => void }>(function AmountField({ value, currency, onChange, onEnter }, ref) {
+  const [focus, setFocus] = useState(false);
+  const has = value.includes('.');
+  const [w, d = ''] = value.split('.');
+  const whole = C.fmtNumber(Number(w || 0), 0);
+  const caret = focus ? <i className="caret" aria-hidden="true" /> : null;
+  return (
+    <label className={'amt amtf' + (!Number(value || 0) ? ' blank' : '') + (focus ? ' focus' : '')}>
+      <span className="cu" aria-hidden="true">{C.currencyMeta(currency).symbol}</span>
+      <b className="nums" aria-hidden="true">{whole}</b>{!has && caret}
+      <em className="nums" aria-hidden="true">.{d && <span className="typed">{d}</span>}{has && caret}<span className="pad">{'0'.repeat(Math.max(0, 2 - d.length))}</span></em>
+      <input ref={ref} className="amti" inputMode="decimal" enterKeyHint="next" autoComplete="off" autoCorrect="off" spellCheck={false}
+        aria-label={'Monto en ' + C.currencyMeta(currency).name.toLowerCase()} value={value}
+        onChange={(e) => onChange(cleanAmount(value, e.target.value))}
+        onFocus={(e) => { setFocus(true); const t = e.currentTarget; requestAnimationFrame(() => { try { t.setSelectionRange(t.value.length, t.value.length); } catch { /* */ } }); }}
+        onBlur={() => setFocus(false)}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onEnter?.(); } }} />
+    </label>
+  );
+});
 export function Keypad({ onKey }: { onKey: (k: string) => void }) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'];
   return (

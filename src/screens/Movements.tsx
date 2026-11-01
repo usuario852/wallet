@@ -3,15 +3,15 @@ import React, { useMemo, useState } from 'react';
 import * as C from '../domain/core';
 import { useWallet } from '../store';
 import { useUI } from '../ui/ctx';
-import { useMoney, CurTabs, CardFace } from '../ui/bits';
+import { useMoney, CurTabs } from '../ui/bits';
+import { bankOf, tileSrc } from '../design/theme';
 import { ISearch } from '../ui/icons';
 import { OpRow } from './Home';
 import { PageTitle, Banner } from './parts';
 import { setCurrency } from '../App';
 
-const WD = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 // "Hoy", "Ayer" o el día de la semana; el número va en el sello.
-function dayHead(key: string) { const l = C.dayLabel(key); return /^(Hoy|Ayer)$/.test(l) ? l : l.split(' ')[0]; }
+function dayHead(key: string) { return C.dayLabel(key); }
 
 const FL: [string, string][] = [['all', 'Todo'], ['expense', 'Gastos'], ['income', 'Ingresos'], ['transfer', 'Transferencias'], ['adjustment', 'Ajustes']];
 
@@ -53,7 +53,7 @@ export default function Movements() {
       <div className="zz">
         <Banner />
         <PageTitle eyebrow={eyebrow} title={title} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
-        {acc && <div className="sec"><CardFace account={acc} dark={dark} className="rb on mvh"><span className="rbal">{M(C.balanceOf(s, acc), acc.currency)}</span></CardFace></div>}
+        {acc && <div className="sec accline">{tileSrc(bankOf(acc)) && <img className="hlogo" src={tileSrc(bankOf(acc))} alt="" />}<span>Saldo de {acc.name}</span><b className="nums">{M(C.balanceOf(s, acc), acc.currency)}</b></div>}
         <div className="sec"><div className="flow" role="group" aria-label="Entradas y salidas">
           <div className="frow"><span>Entró</span><i className="fb"><i className="fin" style={{ width: (inc / maxF) * 100 + '%' }} /></i><b className="nums">{M(inc, cur)}</b></div>
           <div className="frow"><span>Salió</span><i className="fb"><i className="fout" style={{ width: (out / maxF) * 100 + '%' }} /></i><b className="nums">{M(out, cur)}</b></div>
@@ -77,8 +77,7 @@ export default function Movements() {
             const e = C.sumMinor(g.ops.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
             const i = C.sumMinor(g.ops.filter((o: any) => o.type === 'income'));
             return (
-              <div className="day dayx" key={g.key}>
-                <span className={'dstamp' + (g.key === C.todayLocal() ? ' today' : '')} aria-hidden="true"><b className="nums">{C.dateFromLocalIso(g.key).getDate()}</b><small>{WD[C.dateFromLocalIso(g.key).getDay()]}</small></span>
+              <div className="day" key={g.key}>
                 <div className="dbody">
                   <div className="dh"><span className="dhl"><b>{dayHead(g.key)}</b><small className="nums">{g.ops.length === 1 ? '1 movimiento' : g.ops.length + ' movimientos'}</small></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
                   <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>

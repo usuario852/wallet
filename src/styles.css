@@ -2,8 +2,8 @@
 :root{--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);color-scheme:light}
 :root.dark{color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#root{margin:0;height:100%;background:var(--app-bg,#F3F0E9)}
-body{font-family:'Familjen Grotesk',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+html,body,#root{margin:0;height:100%;background:var(--app-bg,#F7F5F1)}
+body{font-family:'Geist',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 button,input,select,textarea{font-family:inherit;color:inherit}
 button{-webkit-user-select:none;user-select:none}
 .nums{font-variant-numeric:tabular-nums}
@@ -276,9 +276,6 @@ button.lr{cursor:pointer}
 .ra2w.dis{opacity:.3;cursor:default}
 .dys{display:flex;gap:6px;align-items:center}
 .dys input[type=date]{min-height:36px;border:0;border-radius:min(var(--r2),18px);background:var(--sf);color:var(--tx);font-size:14px;font-weight:600;padding:0 10px}
-.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:2px;flex:none}
-.kk{min-height:46px;border:0;border-radius:min(var(--r2),12px);background:var(--sf);color:var(--tx);font-size:20px;font-weight:560;cursor:pointer;font-variant-numeric:tabular-nums;transition:transform 260ms cubic-bezier(.22,1.12,.36,1)}
-.kk:active{transform:scale(.92)}
 .okb{min-height:52px;border:0;border-radius:var(--r2);background:var(--pa);color:var(--pi);font-size:15px;font-weight:640;letter-spacing:-.01em;cursor:pointer;flex:none;padding:0 14px}
 .okb.dis{opacity:.45;cursor:default}
 .okb.ghost{background:var(--sf);color:var(--tx)}
@@ -552,9 +549,6 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .dk .hero{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 18px 36px -18px rgba(0,0,0,.6)}
 
 /* 4 · Naipes: cartas físicas con bisel; la elegida se levanta */
-.rb{border-radius:min(var(--r2),14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 0 0 1px rgba(0,0,0,.08),-5px 0 12px -6px rgba(0,0,0,.45)}
-.rb.on{transform:translateY(-4px);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 0 0 1px rgba(0,0,0,.08),0 14px 24px -10px rgba(0,0,0,.5)}
-.more{border-radius:min(var(--r2),14px)}
 
 /* 5 · Íconos: los de marca llevan su color con un brillo; los genéricos, tono limpio */
 .ic{border-radius:12px;background:color-mix(in srgb,var(--tx) 6%,var(--sf))}
@@ -609,15 +603,11 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .dk .nav::before{background:radial-gradient(120% 150% at 18% -55%,rgba(255,255,255,.08),transparent 55%)}
 .dk .lens i{background:color-mix(in srgb,var(--tx) 10%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 @media (prefers-reduced-transparency:reduce){.nav,.dk .nav{background:var(--nv);-webkit-backdrop-filter:none;backdrop-filter:none}}
-@media (prefers-reduced-motion:reduce){.rb.on{transform:none}}
 .empt{background:transparent;padding:0 2px;min-height:44px}
 
 /* Ronda 2 · luz en los objetos, una sola acción fuerte, categorías con glifo */
 .hero{background:radial-gradient(120% 90% at 0% 0%,rgba(255,255,255,.12),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 60%),var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--hb)}
 .hero.total{background:radial-gradient(120% 90% at 0% 0%,rgba(255,255,255,.12),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 60%),var(--hm) no-repeat right -60px top -10px / 460px 290px,var(--tb,var(--sf))}
-.rb{background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 84%,#fff),var(--cb));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.06),-5px 0 12px -6px rgba(0,0,0,.4)}
-.rb.on{transform:translateY(-6px);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.06),0 16px 28px -12px color-mix(in srgb,var(--cb) 75%,#000)}
-.more{background:transparent;border:1.5px dashed color-mix(in srgb,var(--tx) 24%,transparent);color:var(--t2)}
 .act{background:color-mix(in srgb,var(--pa) 12%,var(--pg));color:var(--pa)}
 .act .ai{background:var(--pa);color:var(--pi)}
 .sh>span:first-child,.sh2r>b{font-size:17px;font-weight:650}
@@ -632,24 +622,14 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .tiles .tile:first-child{padding-left:2px}
 .hero{box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.06),0 1px 2px rgba(14,15,23,.08),0 18px 36px -18px rgba(14,15,23,.38)}
 .bleg{font-size:12px;margin-top:8px}
-.rb.on{transform:translateY(-10px) rotate(-1.5deg)}
-.rb::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);transform:translateX(-120%);opacity:0}
-.rb.on::after{animation:naipe-luz 760ms var(--spring) 80ms 1 both}
-@keyframes naipe-luz{0%{transform:translateX(-120%);opacity:1}100%{transform:translateX(120%);opacity:0}}
-.plus{border-radius:50%}
 .liq.soft{background:color-mix(in srgb,var(--pa) 12%,var(--pg));color:var(--pa)}
 .okb.dis{opacity:1;background:color-mix(in srgb,var(--tx) 10%,transparent);color:color-mix(in srgb,var(--tx) 40%,transparent)}
-.kk{min-height:44px}
-.kp{gap:5px}
 .ic.cash-ic{background:#EFE6D2;color:#3A2E10}
-@media (prefers-reduced-motion:reduce){.rb.on{transform:none}.rb.on::after{animation:none}}
 
 /* Ronda 4 · leyenda con el logo real, teclado completo, vacíos como naipe, + de vidrio */
 .bleg .blogo{width:16px;height:16px;border-radius:4px;object-fit:cover;box-shadow:0 0 0 1.5px rgba(255,255,255,.6);flex:none}
 .bleg i{box-shadow:0 0 0 1.5px rgba(255,255,255,.6)}
-.kk{min-height:44px}
 .empt{border:1.5px dashed color-mix(in srgb,var(--tx) 18%,transparent);border-radius:14px;padding:12px 16px;min-height:64px;margin-top:2px}
-.plus{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.12),0 10px 20px -10px color-mix(in srgb,var(--pl) 80%,transparent)}
 .acts{margin-top:16px}
 .blk{margin-top:36px}
 
@@ -660,9 +640,6 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .dk .act .ai{background:var(--tx);color:var(--pg)}
 .ctrack:has(.naipe-bar){height:14px;border-radius:5px;overflow:visible;background:color-mix(in srgb,var(--tx) 5%,transparent)}
 .cbar.naipe-bar{border-radius:5px;background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 84%,#fff),var(--cb));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.06),0 4px 8px -4px color-mix(in srgb,var(--cb) 70%,#000)}
-.rb.mvh{width:100%;height:64px;margin:14px 0 0;transform:none;flex-direction:row;align-items:center;justify-content:space-between;padding:0 16px;cursor:default}
-.rb.mvh .rbal{display:block;font-size:17px;font-weight:640}
-.rb.mvh::after{animation:none}
 
 /* Tras la ronda 5 (sin puntuar): totales de Movimientos sobre el papel como en Inicio; Efectivo visible en su barra */
 .strip3{background:transparent;padding:6px 0}
@@ -675,14 +652,6 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
    elegir uno, sale del estuche. Los datos del día son una frase. En
    Movimientos, cada día tiene su sello y un hilo que une lo que pasó.
    ========================================================================== */
-.case .accs{position:relative;z-index:1;padding:0;margin:0 0 -52px}
-.case .selB{margin:0 -16px;padding:26px 16px 0;align-items:flex-start}
-.case .rb{height:104px;justify-content:flex-start;padding-top:14px}
-.case .rb.on{transform:translateY(-18px) rotate(-1.5deg);width:172px;flex-direction:row;justify-content:space-between;align-items:flex-start;padding:14px 12px}
-.case .rb.on .rbal{display:block}
-.case .more{height:104px;display:flex;align-items:flex-start;justify-content:center;padding-top:14px}
-.case .hero{position:relative;z-index:2;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.06),0 -10px 18px -14px rgba(14,15,23,.45),0 18px 36px -18px rgba(14,15,23,.38)}
 .hchips{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 .hchip{min-height:44px;display:inline-flex;align-items:center;gap:7px;padding:0 16px;border:0;border-radius:999px;background:color-mix(in srgb,currentColor 14%,transparent);color:inherit;font-size:15px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18);transition:transform 260ms var(--spring)}
 .hchip b{font-weight:600}
@@ -705,23 +674,10 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .fnet{margin:8px 0 0;font-size:15px;color:var(--t2)}
 .fnet b{color:var(--tx);font-weight:640}
 
-.dayx{display:grid;grid-template-columns:44px 1fr;column-gap:12px;margin-top:20px;position:relative}
-.dayx::before{content:"";position:absolute;left:21.5px;top:56px;bottom:10px;width:1px;background:color-mix(in srgb,var(--tx) 10%,transparent)}
-.dstamp{position:sticky;top:calc(var(--safe-t) + 10px);align-self:start;z-index:1;display:flex;flex-direction:column;align-items:center;width:44px;padding:6px 0 7px;border-radius:12px;background:var(--sf);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 0 0 1px color-mix(in srgb,var(--tx) 7%,transparent),0 4px 10px -6px color-mix(in srgb,var(--tx) 30%,transparent)}
-.dstamp b{font-size:20px;font-weight:680;letter-spacing:-.03em;line-height:1.05}
-.dstamp small{font-size:11px;font-weight:550;color:var(--t2)}
-.dstamp.today{background:linear-gradient(180deg,color-mix(in srgb,var(--pa) 85%,#fff),var(--pa));color:var(--pi);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 12px -6px color-mix(in srgb,var(--pa) 70%,transparent)}
-.dstamp.today small{color:color-mix(in srgb,var(--pi) 75%,transparent)}
-.dk .dstamp:not(.today){box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(255,255,255,.07)}
-.dbody{min-width:0}
-.dbody .dh{padding:6px 2px 2px}
-.dbody .ledger .mrow:first-child{padding-top:8px}
-@media (prefers-reduced-motion:reduce){.case .rb.on{transform:translateY(-12px)}.fb i{transition:none}}
+@media (prefers-reduced-motion:reduce){.fb i{transition:none}}
 .fact{white-space:normal}
 .fact + .fact::before{content:"·";display:inline-block;margin:0 .45em;text-decoration:none}
 .facts .fact{display:inline}
-.case .accs{margin-bottom:-56px}
 /* Análisis · los saldos como una pila de naipes que se reparte el total */
 .stack{display:flex;gap:4px;height:44px;margin:4px 0 14px}
 .stack i{display:block;min-width:10px;border-radius:10px;background:linear-gradient(160deg,color-mix(in srgb,var(--cb) 84%,#fff),var(--cb));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(0,0,0,.08),0 6px 12px -8px color-mix(in srgb,var(--cb) 70%,#000)}
@@ -735,10 +691,6 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .hero .sub{text-wrap:balance}
 .hrow{display:flex;justify-content:space-between;align-items:center;width:100%}
 .hback{min-height:44px;margin:-10px -8px -10px 0;padding:0 8px;border:0;background:none;color:inherit;font:inherit;font-size:15px;font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);cursor:pointer}
-.case .rb.on .rbal{display:none}
-.case .accs{margin-left:10px;margin-right:10px}
-.case .selB{margin:0 -26px;padding-left:26px;padding-right:26px}
-.case{padding-top:2px}
 .stack{display:flex;gap:6px;height:48px;margin:4px 0 6px;align-items:stretch}
 .szone{display:flex;gap:4px;min-width:24px}
 .stack i{display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--ci)}
@@ -748,14 +700,88 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .stack .zero{flex:none;width:2px;margin:-6px 0;border-radius:1px;background:var(--tx)}
 .slab{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:var(--t2)}
 .slab b{color:var(--tx);font-weight:640}
-.dstamp.mini{position:static;width:40px;padding:4px 0 5px;border-radius:10px}
-.dstamp.mini b{font-size:17px}
-.lr{grid-template-columns:48px 1fr auto}
-.empt.stamped{justify-content:flex-start;gap:14px}
-.empt.stamped .lnk{margin-left:auto}
 /* Tras ronda 7 (sin puntuar): la frase del día solo se parte en los puntos; cada naipe de la pila cabe su logo */
 .facts .fact{white-space:nowrap}
 .stack i{min-width:56px}
 .szone{min-width:56px}
 .facts{display:flex;flex-direction:column;gap:2px;line-height:1.45}
 .fact + .fact::before{content:none}
+
+/* ==========================================================================
+   Wallet 24 · Papel
+   Los naipes vuelven a ser la fila plana de siempre: cada banco con su color
+   y su logo, superpuestos. El total es tinta sobre papel, sin bloque. Cuatro
+   pestañas de vidrio y Registrar aparte, en su propio círculo. El monto se
+   escribe con el teclado del teléfono.
+   ========================================================================== */
+
+/* El total: un número grande en tinta, nada detrás */
+.hero,.hero.total{background:none;color:var(--tx);box-shadow:none;border-radius:0;padding:4px 2px 0;min-height:0}
+.hero.withband,.hero.withpill{min-height:0}
+.hero .lbl,.hero.total .lbl{color:var(--t2);font-size:15px;font-weight:550;letter-spacing:-.01em;margin-bottom:6px}
+.hero .sub{color:var(--t2);font-size:15px;margin-top:8px}
+.hero .odo{font-size:56px;font-weight:600;letter-spacing:-.055em}
+.hero .odo.md{font-size:46px}.hero .odo.sm{font-size:38px}
+.hero .odo .dec{opacity:.45}
+.hero.total .band2{height:6px;margin-top:16px;gap:2px}
+.hero.total .band2 i{box-shadow:none;border-radius:2px}
+.hname{display:inline-flex;align-items:center;gap:8px;color:var(--tx);font-weight:600}
+.hlogo{width:22px;height:22px;border-radius:6px;object-fit:cover;box-shadow:0 0 0 .5px var(--ln)}
+.hchip{background:color-mix(in srgb,var(--tx) 5%,var(--sf));box-shadow:inset 0 0 0 1px var(--ln);color:var(--tx)}
+.hchip svg{color:var(--pa)}
+.hero.first{background:var(--sf);border-radius:var(--rd);padding:20px;box-shadow:inset 0 0 0 1px var(--ln)}
+.hero.total .liq.pri,.hero .liq.pri{background:var(--pa);color:var(--pi)}
+.dk .hero{box-shadow:none}
+
+/* Naipes: la fila plana y superpuesta de siempre; el + es un contorno */
+.accs{margin-top:22px}
+.more{background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tx) 18%,transparent);color:var(--t2);font-weight:520;font-size:20px}
+.cbar.naipe-bar,.stack i{background:var(--cb);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.dk .cbar.naipe-bar,.dk .stack i{box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+
+/* Barra: cuatro pestañas de vidrio; Registrar en su propio círculo de vidrio */
+.nav{right:82px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.lens{width:calc((100% - 8px) / 4)}
+.addb{position:absolute;z-index:20;right:14px;bottom:calc(8px + var(--safe-b));width:58px;height:58px;border:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--pa);isolation:isolate;
+  background:color-mix(in srgb,var(--sf) 58%,transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--sf) 40%,#fff),inset 0 0 0 .5px color-mix(in srgb,var(--tx) 10%,transparent),
+    0 14px 30px -16px color-mix(in srgb,var(--tx) 38%,transparent),0 2px 6px -3px color-mix(in srgb,var(--tx) 14%,transparent);
+  transition:transform 260ms var(--spring)}
+.addb svg{width:26px;height:26px;stroke-width:2.2}
+.addb:active{transform:scale(.92)}
+.dk .addb{background:color-mix(in srgb,var(--sf) 62%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),inset 0 0 0 .5px rgba(255,255,255,.12),0 14px 34px -14px rgba(0,0,0,.7)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.addb{background:var(--nv)}}
+@media (prefers-reduced-transparency:reduce){.addb,.dk .addb{background:var(--nv);-webkit-backdrop-filter:none;backdrop-filter:none}}
+
+/* Monto con el teclado del teléfono: la cifra grande es la vista, el campo va encima sin verse */
+.kbprime{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;font-size:16px;pointer-events:none}
+.amtf{position:relative;cursor:text;border-radius:12px}
+.amtf .amti{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;background:transparent;color:transparent;caret-color:transparent;font-size:16px;cursor:text}
+.amtf .pad{opacity:.38}
+.amtf .typed{opacity:1}
+.amtf.blank .typed{color:var(--tx)}
+.amtf em{opacity:1;color:color-mix(in srgb,var(--tx) 62%,transparent)}
+.amtf.blank em{color:color-mix(in srgb,var(--tx) 32%,transparent)}
+.amtf .caret{display:inline-block;align-self:center;width:2px;height:.9em;margin:0 -1px;border-radius:1px;background:var(--pa);animation:caret 1.05s steps(1) infinite}
+.amtf b+.caret{height:44px}
+.amtf em .caret{height:24px;vertical-align:-3px}
+@keyframes caret{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.amtf .caret{animation:none}}
+
+/* Con el teclado arriba, la hoja se apoya encima: el botón final siempre a la vista */
+.rs{bottom:var(--kb,0px);transition:bottom 260ms var(--spring)}
+.rs:not(.full){max-height:calc(100% - var(--safe-t) - 24px - var(--kb,0px))}
+.kbup .rs{border-radius:var(--rd);padding-bottom:10px}
+.kbup .okwrap{bottom:-10px;margin-bottom:-10px;padding-bottom:10px}
+@media (prefers-reduced-motion:reduce){.rs{transition:none}}
+
+/* Sin sellos de fecha ni hilo: el día es una línea de texto, como en un libro contable */
+.day .dh{padding:6px 2px 2px}
+.ledger .mrow:first-child{padding-top:8px}
+.fin{background:var(--ac)}
+.fout{background:var(--tx)}
+.accline{display:flex;align-items:center;gap:10px;margin-top:12px;min-height:44px;font-size:15px;color:var(--t2)}
+.accline b{margin-left:auto;color:var(--tx);font-size:17px;font-weight:640;letter-spacing:-.02em}
+/* Análisis: el gastado del mes también es tinta sobre papel */
+.hero.total.ahero{background:none;box-shadow:none;padding-left:2px;padding-right:2px}

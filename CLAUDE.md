@@ -45,5 +45,11 @@ Lo que hacía "real" a Marea, aplicado a Bóveda sin cambiar el índigo (bloque 
 - Barra de vidrio líquido con temperatura de papel: brillo tibio, lente de tinta (no lila), + con el corte de Registrar; se tiñe con la piel del banco.
 - Vacíos con una "piedra" orgánica; filas y recuadros ceden al tocarlos (respeta reducir movimiento).
 
-## Wallet 24 · Estuche (rama redisenio-estuche, 31 oct 2026, sin publicar)
-Rediseño con el skill app-designer-pro. Concepto: estuche de naipes bancarios sobre papel tibio. Reemplaza el bloque Sensibilidad por `Wallet 24 · Estuche` al final de `styles.css`: sin manchas, anillos ni corte asimétrico; etiquetas en sentence case; Bóveda índigo con luz y bisel; naipes iluminados que se levantan con un destello; íconos de categoría; "Lo último" siempre en Inicio; naipe de la cuenta como cabecera en Movimientos filtrado; saldos como naipes en Análisis. Personaliza: arriba del Inicio solo Fecha o Wallet.
+## Wallet 24 · Papel (rama redisenio-estuche, 31 oct 2026)
+Rediseño con el skill app-designer-pro tras rechazar el Estuche, el cielo y la pila tipo Apple Wallet. Bloque `Wallet 24 · Papel` al final de `styles.css` (los bloques Sensibilidad y Estuche ya no aplican):
+- Fondo papel #F7F5F1 / #0E0E10, tinta #16171A / #F2F1EE, índigo #2C3E8C / #9DB0FF solo para la acción. Fuente Geist.
+- El total (Inicio y Análisis) y la cuenta elegida son tinta sobre papel: nunca un bloque de color (`tb=pg`, `ti=tx` en `skinFor`).
+- Naipes: la fila plana y superpuesta de siempre (el usuario la quiere así); el + es un contorno.
+- Barra: 4 pestañas de vidrio + Registrar en su propio círculo de vidrio (`.addb`), sin + centrado.
+- Registrar usa el teclado nativo: `open('register')` enfoca un campo oculto (`.kbprime`) dentro del toque y la hoja pasa el foco al monto (`AmountField`, `cleanAmount` en bits.tsx: coma o punto, 2 decimales, 9 cifras). `--kb` (visualViewport) apoya la hoja sobre el teclado. "Siguiente" salta a "¿Qué fue?".
+- Movimientos y Planifica sin sellos de fecha: el día es una línea de texto ("Jueves 29"); cuenta filtrada = línea con logo y saldo.
