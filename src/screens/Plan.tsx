@@ -71,7 +71,7 @@ export default function Plan() {
 
         {tab === 'agenda' && (
           <div className="sec blk" style={{ marginTop: 16 }}>
-            <div className="sh2r"><b>Agenda</b><span className="tsm">Por salir este mes <b className="nums">{M(out.minor, cur)}</b></span></div>
+            <div className="sh2r"><b>Por salir este mes</b><span className="tsm"><b className="nums">{M(out.minor, cur)}</b></span></div>
             {items.length ? (
               <div className="rail">
                 {items.map((u) => {

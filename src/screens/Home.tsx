@@ -119,15 +119,16 @@ export default function Home() {
     </div>
   );
 
+  const lastDay = new Date(Date.now() + 864e5).getDate() === 1;
   // Los datos del día como una sola línea, no como tres recuadros iguales.
   const tiles = (
     <div className="sec facts" key="hoy">
       {today ? <span className="fact"><b className="nums">{M(today, cur)}</b> gastado hoy</span> : <span className="fact">{sel ? 'Hoy no gastaste aquí' : 'Hoy no gastaste nada'}</span>}
       {pd.kind === 'over'
         ? <span className="fact over"><b className="nums">{M(pd.minor, cur)}</b> {pd.note}</span>
-        : pd.minor > 0 ? <span className="fact"><b className="nums">{M(pd.minor, cur)}</b> {sel ? 'por día con este saldo' : <>por día, hasta fin&nbsp;de&nbsp;mes</>}</span> : <span className="fact">sin margen por día hasta fin de mes</span>}
+        : pd.minor > 0 ? <span className="fact"><b className="nums">{M(pd.minor, cur)}</b> {lastDay ? (sel ? 'para hoy con este saldo' : 'para hoy, último día del mes') : sel ? 'por día con este saldo' : <>por día, hasta fin&nbsp;de&nbsp;mes</>}</span> : <span className="fact">sin margen por día hasta fin de mes</span>}
       {sel
-        ? <span className="fact"><b className="nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b> este mes</span>
+        ? <span className="fact"><b className="nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b> gastados este mes</span>
         : <span className="fact"><button className="lnkf" onClick={() => go('plan')}>{out.count ? <><b className="nums">{M(out.minor, cur)}</b> por salir{out.late ? ', ' + out.late + (out.late === 1 ? ' vencido' : ' vencidos') : ''}</> : <><b>Nada</b> por salir este mes</>}</button></span>}
     </div>
   );
@@ -219,9 +220,9 @@ export default function Home() {
               {!acc && positive.length > 1 && (
                 <>
                   <button className="band2" onClick={() => setBandOpen(!bandOpen)} aria-expanded={bandOpen} aria-label="Cómo se reparte tu dinero entre tus cuentas">
-                    {positive.map((a: any) => <i key={a.id} style={{ width: (C.balanceOf(s, a) / posTotal) * 100 + '%', background: palette(bankOf(a), dark).dot }} />)}
+                    {positive.map((a: any) => <i key={a.id} style={{ width: (C.balanceOf(s, a) / posTotal) * 100 + '%', background: palette(bankOf(a), dark).cb }} />)}
                   </button>
-                  {bandOpen && <span className="bleg">{positive.map((a: any) => <span key={a.id}>{tileSrc(bankOf(a)) ? <img className="blogo" src={tileSrc(bankOf(a))} alt="" /> : <i style={{ background: palette(bankOf(a), dark).dot }} />}{a.name} <b className="nums">{Math.round((C.balanceOf(s, a) / posTotal) * 100)}%</b></span>)}</span>}
+                  {bandOpen && <span className="bleg">{positive.map((a: any) => <span key={a.id}>{tileSrc(bankOf(a)) ? <img className="blogo" src={tileSrc(bankOf(a))} alt="" /> : <i style={{ background: palette(bankOf(a), dark).cb }} />}{a.name} <b className="nums">{Math.round((C.balanceOf(s, a) / posTotal) * 100)}%</b></span>)}</span>}
                 </>
               )}
               {chips}

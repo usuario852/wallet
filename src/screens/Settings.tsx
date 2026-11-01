@@ -58,9 +58,9 @@ export default function Settings() {
           <span className="glab">Apariencia</span>
           <div className="card">
             <Seg items={[['system', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']]} value={st.theme === 'dark' || st.theme === 'light' ? st.theme : 'system'} onChange={(v) => set((x) => { x.settings.theme = v; })} label="Tema" className="n3" />
-            <p className="tsm2">{st.theme === 'system' || !['light', 'dark'].includes(st.theme) ? 'Sigue al iPhone. Ahora está en modo ' + (sysDark ? 'oscuro' : 'claro') + '.' : 'No sigue al iPhone.'}</p>
+            <p className="tsm2">{st.theme === 'system' || !['light', 'dark'].includes(st.theme) ? 'Sigue al iPhone. Ahora está en modo ' + (sysDark ? 'oscuro' : 'claro') + '.' : (st.theme === 'dark' ? 'Siempre oscuro, aunque el iPhone esté en claro.' : 'Siempre claro, aunque el iPhone esté en oscuro.')}</p>
             <button className="srow" onClick={() => go('look')}><span className="sc"><b>Personaliza</b><small>Colores, tamaño de letra, qué se ve en el Inicio.</small></span><span className="chr"><IChevR /></span></button>
-            <div className="srow"><span className="sc"><b>Logos de bancos y comercios</b><small>Apagado, ves iniciales.</small></span><Switch on={st.brandLogos !== false} onChange={(v) => set((x) => { x.settings.brandLogos = v; })} label="Logos" /></div>
+            <div className="srow"><span className="sc"><b>Logos de bancos y comercios</b><small>{st.brandLogos !== false ? 'Ves el logo de cada banco y comercio.' : 'Apagado: ves iniciales.'}</small></span><Switch on={st.brandLogos !== false} onChange={(v) => set((x) => { x.settings.brandLogos = v; })} label="Logos" /></div>
           </div>
 
           <span className="glab">Tus cuentas</span>

@@ -83,7 +83,7 @@ export default function Analysis() {
             <span className="lbl">{range === 'month' ? 'Gastado en ' + C.monthName(now.getMonth()) : 'Gastado en 7 días'}</span>
             {(() => { const mp = C.moneyParts(range === 'month' ? spent : weekTotal, cur); return <div className="big"><span className="cu">{mp.symbol}</span><span className="odo">{hide ? '••••' : mp.whole}<span className="sep dec">{hide || !mp.dec ? '' : '.' + mp.dec}</span></span></div>; })()}
             {range === 'month' ? <>
-              <span className="cmp">{arrow(spent, prevAt)}{cmp(spent, prevAt, 'el mes pasado a esta altura')}</span>
+              <span className="cmp">{prevAt === 0 && spent > 0 ? 'El mes pasado aún no tenías gastos a esta altura.' : <>{arrow(spent, prevAt)}{cmp(spent, prevAt, 'el mes pasado a esta altura')}</>}</span>
               {has3 && <span className="cmp">{arrow(spent, avg3)}{cmp(spent, avg3, 'tu promedio de 3 meses')}</span>}
             </> : <span className="cmp">{arrow(weekTotal, prevWeek)}{cmp(weekTotal, prevWeek, 'los 7 días anteriores')}</span>}
           </div>
