@@ -20,8 +20,7 @@ export default function Personalize() {
 
   return (
     <>
-      <BackHeader label="Ajustes" />
-      <div className="scr noscr aj">
+      <div className="scr noscr aj hin"><BackHeader label="Ajustes" />
         <div className="sec phd" style={{ paddingTop: 8 }}><span className="pht"><b>Personaliza</b></span></div>
         <div className="sec">
           <G t="Tema"><Seg items={[['system', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']]} value={(s.settings.theme || 'system') as any} onChange={(v) => commit((x) => { x.settings.theme = v; })} label="Tema" className="n3" /></G>

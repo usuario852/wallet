@@ -1318,3 +1318,158 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .tbars .kbt i{width:70%;max-width:34px}
 .rm .tstage,.rm .ttext,.rm .tpill,.rm .tdrop .nc.dip2{animation:none!important}
 @media (prefers-reduced-motion:reduce){.tstage,.ttext,.tpill,.tdrop .nc.dip2{animation:none!important}}
+
+/* ==========================================================================
+   Wallet 26 · Letra (variantes para elegir: ty-g Geist sola, ty-m Mona Sans normal, ty-s sistema)
+   Una escala corta (13/15/17/22/32/52), tres pesos (450/550/620), montos con el «S/» y los
+   céntimos sobre la misma línea base, sin sombras en el texto.
+   ========================================================================== */
+.w25.ty-g{--dfam:'Geist',-apple-system,system-ui,sans-serif;--dstr:100%;--dw:600;--dls:-.045em}
+.w25.ty-m{--dfam:'Mona Sans','Geist',sans-serif;--dstr:100%;--dw:620;--dls:-.04em}
+.w25.ty-s{--dfam:-apple-system,'SF Pro Display','Geist',system-ui,sans-serif;--dstr:100%;--dw:600;--dls:-.035em}
+.w25[class*=" ty-"]{font-family:'Geist',-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.w25.ty-s{font-family:-apple-system,'SF Pro Text','Geist',system-ui,sans-serif}
+.w25[class*=" ty-"] :is(.odo,.adv .n,.pht b,.shd b,.emb,.big3,.kpi>em,.tk b,.leaf b,.onb h1,.amt b,.hero.first .ft,.hnum .dots){font-family:var(--dfam);font-stretch:var(--dstr);font-weight:var(--dw);text-shadow:none}
+/* el número grande: S/ y céntimos sobre la línea base, mismo color de tinta suavizado */
+.w25[class*=" ty-"] .big{align-items:baseline;margin:4px 0 0}
+.w25[class*=" ty-"] .big .cu{font-family:inherit;font-size:22px;font-weight:550;color:var(--t2);margin:0 6px 0 0;align-self:baseline}
+.w25[class*=" ty-"] .odo,.w25[class*=" ty-"] .hero .odo{font-size:52px;letter-spacing:var(--dls);align-items:flex-end;height:1.04em;line-height:1}
+.w25[class*=" ty-"] .hero .odo.md{font-size:44px}.w25[class*=" ty-"] .hero .odo.sm{font-size:38px}
+.w25[class*=" ty-"] .odo .ct{font-size:.46em;margin:0 0 .08em 1px;color:var(--t2);letter-spacing:-.01em;font-weight:550}
+.w25[class*=" ty-"] .hero .lbl{font-size:15px;font-weight:450;color:var(--t2)}
+.w25[class*=" ty-"] .hero .sub{font-size:15px;font-weight:450}.w25[class*=" ty-"] .hero .sub b{font-weight:600}
+.w25[class*=" ty-"] .hdr .bt b{font-size:17px;font-weight:600;letter-spacing:-.015em}
+.w25[class*=" ty-"] .hdr .bt b span{font-weight:450}
+/* títulos */
+.w25[class*=" ty-"] .pht b{font-size:32px;letter-spacing:-.035em;line-height:1.08}
+.w25[class*=" ty-"] .shd b{font-size:22px;letter-spacing:-.025em}
+.w25[class*=" ty-"] .sh,.w25[class*=" ty-"] .c3h>b{font-size:17px;font-weight:600;letter-spacing:-.015em}
+/* tarjeta del día */
+.w25[class*=" ty-"] .adv .n{font-size:32px;letter-spacing:-.035em;line-height:1.1}
+.w25[class*=" ty-"] .adv .n>span{font-weight:450}
+.w25[class*=" ty-"] .adv small,.w25[class*=" ty-"] .adv .lv{font-weight:450}
+/* naipes: el monto plano, sin relieve */
+.w25[class*=" ty-"] .emb{font-size:15px;letter-spacing:-.02em;gap:2px}
+.w25[class*=" ty-"] .emb small{font-size:11px;font-weight:550;opacity:.75}
+.w25[class*=" ty-"] .emb em{font-size:11px;font-weight:550;margin-left:0}
+/* filas */
+.w25[class*=" ty-"] .mrow .nm>span:first-child,.w25[class*=" ty-"] .srow .nm b{font-weight:550}
+.w25[class*=" ty-"] .am,.w25[class*=" ty-"] .lv b{font-weight:600}
+.w25[class*=" ty-"] .lv{font-weight:450}
+.w25[class*=" ty-"] .gtab{font-weight:550}.w25[class*=" ty-"] .gtab.on{font-weight:650}
+.w25[class*=" ty-"] .amt b{letter-spacing:var(--dls)}
+.w25[class*=" ty-"] .big3{font-size:30px;letter-spacing:-.03em}
+.w25[class*=" ty-"] .onb h1{font-size:34px;letter-spacing:-.035em;line-height:1.08}
+
+/* Wallet 26 · Pantalla completa: la app llega hasta arriba (barra de estado translúcida);
+   la cabecera es parte del contenido y se va con él, sin franja fija. */
+.w25 .scr.hin{padding-top:var(--safe-t)}
+.w25 .hin>.hdr{position:relative;top:auto;left:auto;right:auto;height:56px;padding-top:0;margin-top:2px;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;-webkit-mask-image:none;mask-image:none;z-index:3}
+.w25 .scr.nohdr{padding-top:calc(var(--safe-t) + 10px)}
+.w25 .sub3{position:relative;top:auto;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding:12px 20px 4px}
+
+/* Wallet 26 · Letra del sistema: en iPhone es SF Pro (la de las apps de Apple); fuera del iPhone, Geist.
+   Una sola familia en toda la app, sin anchos forzados. SF ya trae su propio espaciado: casi sin tracking negativo. */
+.w25.ty-s{--disp:-apple-system,BlinkMacSystemFont,'SF Pro Display','Geist',system-ui,sans-serif;--dfam:var(--disp);--dls:-.02em;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Geist',system-ui,sans-serif}
+.w25.ty-s *{font-family:inherit!important;font-stretch:100%!important}
+.w25.ty-s .pht b{letter-spacing:-.02em;font-weight:700;font-size:32px}
+.w25.ty-s .shd b{letter-spacing:-.015em;font-weight:700}
+.w25.ty-s .adv .n{letter-spacing:-.02em;font-weight:700}
+.w25.ty-s .odo,.w25.ty-s .hero .odo{font-weight:700;letter-spacing:-.025em}
+.w25.ty-s .onb h1{letter-spacing:-.02em;font-weight:700}
+.w25.ty-s .big3{letter-spacing:-.02em;font-weight:700}
+.w25.ty-s .sh,.w25.ty-s .c3h>b{letter-spacing:-.01em}
+.w25.ty-s .emb{letter-spacing:-.01em;font-weight:600}
+.w25.ty-s .amt b{font-weight:700;letter-spacing:-.025em}
+
+/* Wallet 26 · Sin falso 3D: vidrio plano (desenfoque real, sin brillos pintados), gota sólida,
+   naipes y tarjeta del día sin degradado. */
+.gshadow path{fill:rgba(0,0,0,.001);filter:drop-shadow(0 10px 24px rgba(30,24,12,.12)) drop-shadow(0 1px 1px rgba(30,24,12,.06))}
+.dk .gshadow path{filter:drop-shadow(0 12px 28px rgba(0,0,0,.55))}
+.glass,.dk .glass{background:color-mix(in srgb,var(--sf) 74%,transparent);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
+.dk .glass{background:color-mix(in srgb,var(--sf) 70%,transparent)}
+.grim path{fill:none;stroke:color-mix(in srgb,var(--tx) 10%,transparent);stroke-width:1;vector-effect:non-scaling-stroke}
+.dk .grim path{stroke:rgba(255,255,255,.09)}
+.glens,.dk .glens{left:0!important;right:auto!important;top:5px;height:48px;border-radius:24px;background:color-mix(in srgb,var(--tx) 7%,transparent);box-shadow:none;will-change:transform;transform-origin:50% 50%}
+.dk .glens{background:color-mix(in srgb,var(--tx) 11%,transparent)}
+.glens.press{background:color-mix(in srgb,var(--tx) 10%,transparent)}
+.glens.drag,.dk .glens.drag{background:color-mix(in srgb,var(--sf) 40%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--tx) 12%,transparent),0 8px 20px -10px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(2px) saturate(160%);backdrop-filter:blur(2px) saturate(160%)}
+.gtab{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.gtab .gic{display:block;line-height:0;will-change:transform}
+.gtab svg,.gtab.mag svg,.gtab:active svg{transform:none;transition:none}
+.gtab.mag{color:var(--tx)}
+.gdrop,.dk .gdrop{background:var(--tx);color:var(--pg);-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:0 10px 22px -10px rgba(0,0,0,.45),0 1px 2px rgba(0,0,0,.12);transition:transform 260ms cubic-bezier(.23,1,.32,1)}
+.dk .gdrop{box-shadow:0 10px 24px -10px rgba(0,0,0,.8)}
+.gdrop:active{transform:scale(.9);transition-duration:100ms}
+.w25 .nc{background-image:none;box-shadow:-6px 0 14px -10px rgba(0,0,0,.5),inset 0 0 0 .5px rgba(0,0,0,.08)}
+.w25 .nc.on{box-shadow:0 18px 30px -18px rgba(0,0,0,.5)}
+.w25 .adv{background:var(--adv1,#24221F);box-shadow:0 18px 36px -26px rgba(0,0,0,.6)}
+.dk.w25 .adv{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.w25 .emb{text-shadow:none}
+@media (prefers-reduced-transparency:reduce){.glens.drag{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--sf)}}
+
+/* Wallet 26 · Ánimos que se distinguen: color, forma y movimiento propios (siempre con su nombre) */
+.w25{--m1:#5A6B8F;--m2:#9285B8;--m3:#C49E58;--m4:#3A9883;--m5:#E2694A}
+.w25.dk{--m1:#93A6D0;--m2:#B9ACDD;--m3:#DDBA78;--m4:#5EC6AF;--m5:#F38E6C}
+.mk1{--mc:var(--m1)}.mk2{--mc:var(--m2)}.mk3{--mc:var(--m3)}.mk4{--mc:var(--m4)}.mk5{--mc:var(--m5)}
+.m5 .mwrap{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;transition:background-color 220ms ease,transform 300ms cubic-bezier(.34,1.56,.64,1)}
+.m5 .mshape,.m5.on .mshape{fill:color-mix(in srgb,var(--mc) 72%,var(--pg));transform:none;transform-origin:50% 50%;transition:fill 220ms ease,opacity 220ms ease}
+.m5.on{background:none;color:var(--tx);font-weight:650}
+.m5.on .mwrap{background:color-mix(in srgb,var(--mc) 18%,transparent);transform:scale(1.08)}
+.m5.on .mshape{fill:var(--mc)}
+.m5.dim .mshape{opacity:.45}.m5.dim{color:var(--t3)}
+.m5:active .mwrap{transform:scale(.88);transition-duration:120ms}
+.mood5.sm .m5 .mwrap{width:38px;height:38px}
+.tmood .m5 .mwrap{width:56px;height:56px}
+/* movimiento propio, solo del elegido */
+.m5.on.mk1 .mshape{animation:mShiver 2.4s ease-in-out infinite}
+.m5.on.mk2 .mshape{animation:mSink 3.6s ease-in-out infinite alternate}
+.m5.on.mk3 .mshape{animation:mBreathe 3.2s ease-in-out infinite alternate}
+.m5.on.mk4 .mshape{animation:mSway 2.8s ease-in-out infinite alternate}
+.m5.on.mk5 .mshape{animation:mSpark 4.8s cubic-bezier(.45,0,.2,1) infinite}
+@keyframes mShiver{0%,62%,100%{transform:none}66%{transform:rotate(-6deg) translateX(-1px)}72%{transform:rotate(5deg) translateX(1px)}78%{transform:rotate(-3deg)}84%{transform:rotate(2deg)}}
+@keyframes mSink{from{transform:none}to{transform:translateY(3px) scale(1.04,.92)}}
+@keyframes mBreathe{from{transform:scale(.96)}to{transform:scale(1.06)}}
+@keyframes mSway{from{transform:rotate(-12deg)}to{transform:rotate(12deg) scale(1.04)}}
+@keyframes mSpark{0%{transform:rotate(0) scale(1)}20%{transform:rotate(45deg) scale(1.16)}40%{transform:rotate(90deg) scale(1)}100%{transform:rotate(90deg) scale(1)}}
+/* donde se muestran como dato: color por ánimo */
+.mlb .mshape,.mlb.on .mshape{fill:var(--mc)}
+.mlb .mlt i{background:color-mix(in srgb,var(--mc) 45%,transparent)}
+.mlb.on .mlt i{background:var(--mc)}
+.mtd .mshape{fill:var(--mc)}
+.w25 .moodmap .dotm{background:var(--mc,var(--tx));transition:left 260ms var(--eo),top 260ms var(--eo),background-color 260ms ease}
+.rm .m5 .mshape,.rm .m5.on .mshape{animation:none!important}
+@media (prefers-reduced-motion:reduce){.m5 .mshape,.m5.on .mshape{animation:none!important}.m5 .mwrap{transition:none}}
+
+/* Wallet 26 · Movimiento: cada pantalla entra por capas (escalonado corto), los naipes llegan desde la derecha,
+   la hoja se arrastra para cerrar. Curvas de salida, nada pasa de 520 ms; reducir movimiento lo deja en fundidos. */
+.shtop{display:flex;flex-direction:column;gap:10px;flex:none;touch-action:none;cursor:grab;margin:-6px -20px 0;padding:6px 20px 0}
+.w25 .scrn .zz>*,.w25 .scrn .scr>.sec,.w25 .scrn .pane>*{animation:riseIn 460ms cubic-bezier(.23,1,.32,1) both}
+.w25 .scrn .zz>*:nth-child(1){animation-delay:0ms}.w25 .scrn .zz>*:nth-child(2){animation-delay:40ms}.w25 .scrn .zz>*:nth-child(3){animation-delay:80ms}
+.w25 .scrn .zz>*:nth-child(4){animation-delay:120ms}.w25 .scrn .zz>*:nth-child(5){animation-delay:160ms}.w25 .scrn .zz>*:nth-child(6){animation-delay:200ms}
+.w25 .scrn .zz>*:nth-child(n+7){animation-delay:230ms}
+.w25 .scrn .pane>*:nth-child(2){animation-delay:40ms}.w25 .scrn .pane>*:nth-child(3){animation-delay:80ms}.w25 .scrn .pane>*:nth-child(n+4){animation-delay:120ms}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}}
+.w25 .pane{animation:none}
+.w25 .scrn{animation:scrFade 260ms ease both}
+@keyframes scrFade{from{opacity:0}}
+.w25 .deck .ncw{animation:cardIn 560ms cubic-bezier(.23,1,.32,1) both;animation-delay:calc(120ms + var(--i,0) * 45ms)}
+@keyframes cardIn{from{opacity:0;transform:translateX(46px) scale(.96)}}
+.w25 .deck .plus{animation:fadeIn 400ms ease 380ms both}
+.w25 .hero .big{animation:numIn 520ms cubic-bezier(.23,1,.32,1) 60ms both}
+@keyframes numIn{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
+.w25 .mrow,.w25 .srow,.w25 .fqc2,.w25 .sug2 button,.w25 .kb,.w25 .card3 .lv{transition:transform 160ms var(--eo),background-color 180ms ease,opacity 200ms ease}
+.w25 .mrow:active,.w25 .srow:active{transform:scale(.985)}
+.rm .scrn .zz>*,.rm .scrn .scr>.sec,.rm .scrn .pane>*,.rm .deck .ncw,.rm .hero .big,.rm .deck .plus{animation:none!important}
+@media (prefers-reduced-motion:reduce){.w25 .scrn .zz>*,.w25 .scrn .scr>.sec,.w25 .scrn .pane>*,.w25 .deck .ncw,.w25 .hero .big{animation:none!important}}
+/* tras arrastrar la hoja (animación en línea = none), el cierre igual debe animarse */
+.w25.sheet-out .rs{animation:down25 260ms var(--ed) both!important}
+.w25.sheet-out.from-drop .rs{animation:dropOut 300ms var(--eio) both!important}
+.w25.rm.sheet-out .rs{animation:fdo 160ms ease both!important}
+/* filas de ánimo: forma y nombre siempre en la misma altura */
+.m5row{align-items:stretch}
+.m5{display:grid;grid-template-rows:44px auto;align-content:start;justify-items:center;row-gap:7px;padding:8px 0 6px;min-height:0}
+.mood5.sm .m5{grid-template-rows:38px auto;min-height:0}
+.tmood .m5{grid-template-rows:56px auto}
+.m5x .dots3{height:44px}

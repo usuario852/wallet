@@ -28,8 +28,8 @@ export default function Investments() {
 
   return (
     <>
-      <BackHeader right={<button className="eb" onClick={() => open('watch-add')}>Agregar</button>} />
-      <div className="scr noscr">
+      <div className="scr noscr hin">
+        <BackHeader right={<button className="eb" onClick={() => open('watch-add')}>Agregar</button>} />
         <div className="sec phd" style={{ paddingTop: 8 }}><span className="pht"><b>Inversiones</b><small>Precios de referencia, cada 15 min.</small></span></div>
         <div className="sec">
           <div className="hero total ihero">

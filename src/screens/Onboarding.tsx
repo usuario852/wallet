@@ -71,7 +71,7 @@ export default function Onboarding() {
           {flown > 0 && <span className="tpill" key={'p' + flown}>−S/ 12.50</span>}
           <button className="gdrop tgd" onClick={() => { feel('success'); setFlown((n) => n + 1); }} aria-label="Registrar un gasto de prueba"><IPlus /></button>
         </div>}
-        {scene === 2 && <div className="m5row tmood">{MOOD5.map((m) => <button key={m.k} className={'m5' + (mood === m.k ? ' on' : '')} aria-pressed={mood === m.k} onClick={() => { feel('tap'); setMood(m.k); }}><MoodShape k={m.k} size={40} /><span>{m.label}</span></button>)}</div>}
+        {scene === 2 && <div className="m5row tmood">{MOOD5.map((m) => <button key={m.k} className={'m5 mk' + m.k + (mood === m.k ? ' on' : '') + (mood && mood !== m.k ? ' dim' : '')} aria-pressed={mood === m.k} onClick={() => { feel('tap'); setMood(m.k); }}><span className="mwrap"><MoodShape k={m.k} size={40} /></span><span>{m.label}</span></button>)}</div>}
         {scene === 3 && <div className="tbars">{bars.map((h, i) => <button key={i} className={'kb' + (bar === i ? ' on' : '')} onClick={() => setBar(i)} aria-label={'Mes ' + (i + 1)}><span className="kbt"><i style={{ height: h + '%', animationDelay: i * 50 + 'ms' }} /></span><small>{['jun', 'jul', 'ago', 'set', 'oct', 'nov'][i]}</small></button>)}</div>}
       </div>
       <div className="ttext" key={'t' + scene}><h1>{SC[scene].t}</h1><p>{SC[scene].p}</p></div>

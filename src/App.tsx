@@ -63,57 +63,84 @@ function barGeometry(W: number) {
   const lefts = [8, 8 + tw, W - 8 - 2 * tw, W - 8 - tw];
   return { path, tw, lefts };
 }
-function GlassBar({ view, go, onAdd, tilt }: { view: View; go: (v: View) => void; onAdd: () => void; tilt: boolean }) {
+function GlassBar({ view, go, onAdd }: { view: View; go: (v: View) => void; onAdd: () => void; tilt?: boolean }) {
   const wrap = useRef<HTMLDivElement>(null);
+  const lens = useRef<HTMLSpanElement>(null);
+  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const [W, setW] = useState(370);
-  const [drag, setDrag] = useState<number | null>(null);
-  const [from, setFrom] = useState(0);
   const g = useRef<any>(null);
   useEffect(() => {
     const el = wrap.current; if (!el) return;
     const ro = new ResizeObserver(() => setW(Math.round(el.getBoundingClientRect().width)));
     ro.observe(el); return () => ro.disconnect();
   }, []);
-  useEffect(() => subscribeTilt((x) => { if (tilt && wrap.current) wrap.current.style.setProperty('--sx', Math.round(30 + x * 28) + '%'); }), [tilt]);
   const geo = useMemo(() => barGeometry(W), [W]);
   const idx = Math.max(0, TABS.findIndex((t) => t[0] === view));
-  const prevIdx = useRef(idx);
-  useEffect(() => { setFrom(prevIdx.current); prevIdx.current = idx; }, [idx]);
   const centers = geo.lefts.map((l) => l + geo.tw / 2);
   const near = (x: number) => centers.reduce((bi, c2, i) => (Math.abs(c2 - x) < Math.abs(centers[bi] - x) ? i : bi), 0);
-  const right = idx >= from;
-  let L = geo.lefts[idx], R = W - geo.lefts[idx] - geo.tw;
-  if (drag != null) { L = Math.max(4, Math.min(W - geo.tw - 4, drag - geo.tw / 2)); R = W - L - geo.tw; }
-  const lensStyle: any = { left: L, right: R, transition: drag != null ? 'left 70ms linear, right 70ms linear, transform 200ms var(--eo)' : `left ${right ? 380 : 220}ms var(--eo), right ${right ? 220 : 380}ms var(--eo), transform 200ms var(--eo)` };
+  // La lente se mueve con transform (sin re-render por cada movimiento del dedo).
+  const place = (x: number, sx = 1, sy = 1, animate = true) => {
+    const el = lens.current; if (!el) return;
+    el.style.transition = animate ? 'transform 440ms cubic-bezier(.32,.72,0,1), background-color 200ms ease, box-shadow 200ms ease' : 'none';
+    el.style.transform = `translate3d(${x.toFixed(1)}px,0,0) scale(${sx.toFixed(3)},${sy.toFixed(3)})`;
+  };
+  const magnify = (cx: number | null) => tabsRef.current.forEach((b, i) => {
+    if (!b) return; const ic = b.firstElementChild as HTMLElement | null;
+    const d = cx == null ? 999 : Math.abs(centers[i] - cx);
+    const k = Math.max(0, 1 - d / geo.tw);
+    if (ic) { ic.style.transition = cx == null ? 'transform 300ms cubic-bezier(.23,1,.32,1)' : 'none'; ic.style.transform = k ? `scale(${(1 + 0.2 * k).toFixed(3)}) translateY(${(-1.5 * k).toFixed(2)}px)` : ''; }
+    b.classList.toggle('mag', cx != null && k > 0.5);
+  });
+  // Al cambiar de pestaña (o de tamaño), la lente va a su lugar.
+  useEffect(() => { if (!g.current || !g.current.moved) place(geo.lefts[idx]); }, [idx, geo]); // eslint-disable-line react-hooks/exhaustive-deps
   const down = (e: React.PointerEvent) => {
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    g.current = { x0: e.clientX, r: (e.currentTarget as HTMLElement).getBoundingClientRect(), moved: false, last: e.clientX, t: performance.now(), v: 0 };
+    if (e.button !== 0) return;
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    g.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, r, moved: false, last: e.clientX, t: performance.now(), v: 0, cur: near(e.clientX - r.left), raf: 0, x: 0 };
+    lens.current?.classList.add('press');
   };
   const move = (e: React.PointerEvent) => {
-    const s = g.current; if (!s) return;
-    if (!s.moved && Math.abs(e.clientX - s.x0) < 6) return;
-    const now = performance.now(); s.v = (e.clientX - s.last) / Math.max(1, now - s.t); s.last = e.clientX; s.t = now; s.moved = true;
-    setDrag(e.clientX - s.r.left);
+    const s = g.current; if (!s || e.pointerId !== s.id) return;
+    const dx = e.clientX - s.x0, dy = e.clientY - s.y0;
+    if (!s.moved) {
+      if (Math.abs(dx) < 7 || Math.abs(dx) < Math.abs(dy)) return;
+      s.moved = true;
+      try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* */ }
+      lens.current?.classList.add('drag');
+    }
+    const now = performance.now();
+    s.v = s.v * 0.6 + ((e.clientX - s.last) / Math.max(1, now - s.t)) * 0.4; s.last = e.clientX; s.t = now;
+    const cx = Math.max(geo.tw / 2 + 4, Math.min(W - geo.tw / 2 - 4, e.clientX - s.r.left));
+    s.x = cx;
+    if (!s.raf) s.raf = requestAnimationFrame(() => {
+      s.raf = 0;
+      const st = Math.min(0.22, Math.abs(s.v) * 0.35);
+      place(s.x - geo.tw / 2, 1.08 + st, 1.12 - st * 0.4, false);
+      magnify(s.x);
+      const n = near(s.x); if (n !== s.cur) { s.cur = n; feel('snap'); }
+    });
   };
-  const up = (e: React.PointerEvent) => {
-    const s = g.current; g.current = null; if (!s) return;
-    const x = e.clientX - s.r.left;
-    const i = near(s.moved ? x + s.v * 140 : x);
-    setDrag(null);
-    if (s.moved) feel('snap');
-    go(TABS[i][0]);
+  const end = (e: React.PointerEvent, cancel = false) => {
+    const s = g.current; if (!s || e.pointerId !== s.id) return;
+    if (s.raf) cancelAnimationFrame(s.raf);
+    lens.current?.classList.remove('drag', 'press');
+    magnify(null);
+    const x = s.moved ? s.x + s.v * 120 : e.clientX - s.r.left;
+    const i = cancel ? idx : near(x);
+    g.current = null;
+    place(geo.lefts[i]);
+    if (i !== idx) { if (!s.moved) feel('tap'); go(TABS[i][0]); }
   };
-  const mag = drag != null ? near(drag) : -1;
   return (
     <div className="gbar" ref={wrap}>
       <svg className="gshadow" viewBox={`0 0 ${W} 80`} aria-hidden="true"><path d={geo.path} /></svg>
       <div className="glass" style={{ clipPath: `path('${geo.path}')`, WebkitClipPath: `path('${geo.path}')` } as any} />
-      <svg className="grim" viewBox={`0 0 ${W} 80`} aria-hidden="true"><defs><linearGradient id="grim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="g0" /><stop offset=".45" className="g1" /><stop offset="1" className="g2" /></linearGradient></defs><path d={geo.path} /></svg>
-      <nav className="gtabs" aria-label="Secciones" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { g.current = null; setDrag(null); }}>
-        <span className={'glens' + (drag != null ? ' drag' : '')} style={lensStyle} aria-hidden="true" />
+      <svg className="grim" viewBox={`0 0 ${W} 80`} aria-hidden="true"><path d={geo.path} /></svg>
+      <nav className="gtabs" aria-label="Secciones" onPointerDown={down} onPointerMove={move} onPointerUp={(e) => end(e)} onPointerCancel={(e) => end(e, true)} onLostPointerCapture={(e) => { if (g.current && g.current.moved) end(e); }}>
+        <span ref={lens} className="glens" style={{ width: geo.tw, transform: `translate3d(${geo.lefts[idx]}px,0,0)` }} aria-hidden="true" />
         {TABS.map(([v, label, Ic], i) => (
-          <button key={v} className={'gtab' + (view === v && drag == null ? ' on' : '') + (mag === i ? ' mag' : '')} style={{ left: geo.lefts[i], width: geo.tw }} aria-current={view === v ? 'page' : undefined} onClick={(e) => { if (e.detail === 0) go(v); }}>
-            <Ic />{label}
+          <button key={v} ref={(el) => { tabsRef.current[i] = el; }} className={'gtab' + (view === v ? ' on' : '')} style={{ left: geo.lefts[i], width: geo.tw }} aria-current={view === v ? 'page' : undefined} onClick={(e) => { if (e.detail === 0) go(v); }}>
+            <span className="gic"><Ic /></span>{label}
           </button>
         ))}
       </nav>
@@ -238,7 +265,7 @@ export default function App() {
   const ctx = useMemo(() => ({ view, params, go, back, open, close, dark, look, hide, toggleHide: () => setHide((h) => !h), sel, setSel }), [view, params, go, back, open, close, dark, look, hide, sel]);
 
   const tabs = ['home', 'movs', 'plan', 'ana'].includes(view);
-  const cls = ['ph', 'w25', 'sk-' + bank, dark ? 'dk' : '', tabs && s.settings.onboardingComplete ? 'has-nav' : '', 'mo-' + look.motion, reduce ? 'rm' : '', look.motion === 'none' ? '' : 'breathe', sheet ? 'has-sheet' : '', closing ? 'sheet-out' : '', sheet && sheet.kind === 'register' && !(sheet.props || {}).editId ? 'from-drop' : ''].join(' ');
+  const cls = ['ph', 'w25', 'ty-s', 'sk-' + bank, dark ? 'dk' : '', tabs && s.settings.onboardingComplete ? 'has-nav' : '', 'mo-' + look.motion, reduce ? 'rm' : '', look.motion === 'none' ? '' : 'breathe', sheet ? 'has-sheet' : '', closing ? 'sheet-out' : '', sheet && sheet.kind === 'register' && !(sheet.props || {}).editId ? 'from-drop' : ''].join(' ');
 
   if (!s.settings.onboardingComplete) {
     return <Provider value={ctx}><div className={cls} style={vars as any}><Pebbles tilt={false} /><Onboarding /><SheetHost sheet={sheet} /></div></Provider>;

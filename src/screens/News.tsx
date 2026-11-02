@@ -54,8 +54,8 @@ export default function News() {
 
   return (
     <>
-      <BackHeader right={<button className="eb" onClick={() => setForce(force + 1)}>Actualizar</button>} />
-      <div className="scr noscr">
+      <div className="scr noscr hin">
+        <BackHeader right={<button className="eb" onClick={() => setForce(force + 1)}>Actualizar</button>} />
         <div className="sec phd" style={{ paddingTop: 8 }}><span className="pht"><b>El día</b><small>{C.longDate(C.todayLocal())}{data && data.at ? ', ' + ago(data.at) : ''}</small></span></div>
         <div className="tick2 noscr">
           {TICK.map(([id, l]) => { const it = marketItem(mk.data, id); if (!it) return null; const ch = String(it.change || ''); const up = ch.startsWith('+'), dn = ch.startsWith('-') || ch.startsWith('−');

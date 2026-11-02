@@ -9,7 +9,7 @@ import { BackHeader, exportJson, exportCsv } from './parts';
 import { hasServerAI } from '../ai';
 import { moodScheduleEvery4h } from '../domain/insights';
 
-export const APP_VERSION = '25.0';
+export const APP_VERSION = '26.0';
 
 export default function Settings() {
   const { s } = useWallet();
@@ -52,8 +52,7 @@ export default function Settings() {
 
   return (
     <>
-      <BackHeader />
-      <div className="scr noscr aj">
+      <div className="scr noscr aj hin"><BackHeader />
         <div className="sec ptl" style={{ paddingTop: 8 }}><div className="pht"><b>Ajustes</b><small>Todo se guarda en este teléfono.</small></div></div>
         <div className="sec">
           <span className="glab">Apariencia</span>

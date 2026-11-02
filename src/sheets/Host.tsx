@@ -350,12 +350,12 @@ function MoodSheet() {
   return (
     <SheetFrame title="¿Cómo estás?" sub={desc} onClose={close} full>
       <div className="m5row big" role="group" aria-label="Rápido">
-        {MOOD5.map((m) => { const on = Math.abs(v - m.v) < 9 && Math.abs(e - m.e) < 9; return <button key={m.k} className={'m5' + (on ? ' on' : '')} aria-pressed={on} onClick={() => { feel('tap'); setV(m.v); setE(m.e); setT(m.t); }}><MoodShape k={m.k} size={34} /><span>{m.label}</span></button>; })}
+        {MOOD5.map((m) => { const on = Math.abs(v - m.v) < 9 && Math.abs(e - m.e) < 9; return <button key={m.k} className={'m5 mk' + m.k + (on ? ' on' : '')} aria-pressed={on} onClick={() => { feel('tap'); setV(m.v); setE(m.e); setT(m.t); }}><span className="mwrap"><MoodShape k={m.k} size={34} /></span><span>{m.label}</span></button>; })}
       </div>
       <div ref={ref} className="moodmap" onPointerDown={(ev) => { (ev.target as HTMLElement).setPointerCapture?.(ev.pointerId); onPt(ev); }} onPointerMove={(ev) => { if (ev.buttons) onPt(ev); }} role="slider" aria-label="Ánimo y energía" aria-valuetext={desc} tabIndex={0}
         onKeyDown={(ev) => { if (ev.key === 'ArrowLeft') setV(Math.max(0, v - 5)); if (ev.key === 'ArrowRight') setV(Math.min(100, v + 5)); if (ev.key === 'ArrowUp') setE(Math.min(100, e + 5)); if (ev.key === 'ArrowDown') setE(Math.max(0, e - 5)); }}>
         <span className="ax" style={{ left: 10, bottom: 8 }}>Mal</span><span className="ax" style={{ right: 10, bottom: 8 }}>Bien</span><span className="ax" style={{ left: '50%', top: 8, transform: 'translateX(-50%)' }}>Con energía</span><span className="ax" style={{ left: '50%', bottom: 8, transform: 'translateX(-50%)' }}>Sin energía</span>
-        <i className="dotm" style={{ left: v + '%', top: 100 - e + '%' }} />
+        <i className={'dotm mk' + (v < 25 ? 1 : v < 45 ? 2 : v < 64 ? 3 : v < 80 ? 4 : 5)} style={{ left: v + '%', top: 100 - e + '%' }} />
       </div>
       <label className="range">Tensión: {t < 30 ? 'baja' : t < 65 ? 'media' : 'alta'}<input type="range" min={0} max={100} value={t} onChange={(ev) => setT(Number(ev.target.value))} /></label>
       <div className="tags">{TAGS.map((g) => <button key={g} className={'cc' + (tags.includes(g) ? ' on' : '')} onClick={() => setTags(tags.includes(g) ? tags.filter((x) => x !== g) : tags.concat([g]).slice(0, 5))}>{g}</button>)}</div>

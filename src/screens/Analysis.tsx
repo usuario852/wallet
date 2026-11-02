@@ -329,7 +329,7 @@ function Animo({ m, cur }: { m: (n: number) => string; cur: string }) {
     <Card title="Gasto según tu ánimo" right={<span>{ms.n} gastos, 90 días</span>}>
       {ms.n < 3 ? <div className="nwask"><p className="tsm2">Registra cómo estás y lo verás junto a tu gasto.</p><button className="act ink" onClick={() => open('mood')}>Registrar ánimo</button></div> : <>
         <div className="mlv">{ms.levels.map((l, i) => (
-          <button key={l.k} className={'mlb' + (lsel === i ? ' on' : '') + (!l.n ? ' zero' : '')} onClick={() => setLsel(lsel === i ? null : i)} aria-label={MOODL[i] + ': ' + l.n + ' gastos, promedio ' + m(l.avg)}>
+          <button key={l.k} className={'mlb mk' + l.k + ' ' + (lsel === i ? ' on' : '') + (!l.n ? ' zero' : '')} onClick={() => setLsel(lsel === i ? null : i)} aria-label={MOODL[i] + ': ' + l.n + ' gastos, promedio ' + m(l.avg)}>
             <span className="mlt"><i style={{ height: Math.max(3, (l.avg / amax) * 100) + '%' }} /></span>
             <MoodShape k={l.k} size={22} /><small>{MOODL[i]}</small>
           </button>
@@ -344,7 +344,7 @@ function Animo({ m, cur }: { m: (n: number) => string; cur: string }) {
     </Card>}
     <Card title="Tus últimos 14 días" right={<button className="lnk" onClick={() => open('mood')}>Registrar</button>}>
       {!tl.length ? <p className="tsm2">Sin registros todavía.</p> : <div className="mtl" role="img" aria-label={'Ánimo en los últimos 14 días: ' + tl.length + ' registros'}>
-        {(() => { const t0 = Date.now() - 14 * 864e5; return tl.slice(-40).map((c: any, i: number) => <span key={i} className="mtd" style={{ left: Math.min(100, Math.max(0, ((+C.dateFromLocalIso(c.timestamp) - t0) / (14 * 864e5)) * 100)) + '%', top: (100 - c.valence) * 0.84 + 8 + '%' }} title={C.longDate(c.timestamp)}><MoodShape k={I.moodLevelOf(c)} size={16} /></span>); })()}
+        {(() => { const t0 = Date.now() - 14 * 864e5; return tl.slice(-40).map((c: any, i: number) => <span key={i} className={'mtd mk' + I.moodLevelOf(c)} style={{ left: Math.min(100, Math.max(0, ((+C.dateFromLocalIso(c.timestamp) - t0) / (14 * 864e5)) * 100)) + '%', top: (100 - c.valence) * 0.84 + 8 + '%' }} title={C.longDate(c.timestamp)}><MoodShape k={I.moodLevelOf(c)} size={16} /></span>); })()}
         <em className="mtl0">Bien</em><em className="mtl1">Mal</em>
       </div>}
     </Card>

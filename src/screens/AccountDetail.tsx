@@ -14,7 +14,7 @@ export default function AccountDetail({ id }: { id: string }) {
   const { open, go, look, hide } = useUI();
   const M = useMoney();
   const a = C.accountById(s, id);
-  if (!a) return <><BackHeader /><div className="scr"><div className="sec"><div className="empty"><b>Esta cuenta ya no existe.</b></div></div></div></>;
+  if (!a) return <><div className="scr hin"><BackHeader /><div className="sec"><div className="empty"><b>Esta cuenta ya no existe.</b></div></div></div></>;
   const bal = C.balanceOf(s, a);
   const bank = bankOf(a);
   const mk = look.style === 'bank' ? markSrc(bank) : '';
@@ -30,8 +30,8 @@ export default function AccountDetail({ id }: { id: string }) {
 
   return (
     <>
-      <BackHeader right={<button className="eb" onClick={() => open('account-edit', { id: a.id })}>Editar</button>} />
-      <div className="scr noscr">
+      <div className="scr noscr hin">
+        <BackHeader right={<button className="eb" onClick={() => open('account-edit', { id: a.id })}>Editar</button>} />
         <div className="zz">
           <div className="sec dph phd" style={{ paddingTop: 4 }}>
             <span className="pht"><b>{a.name}</b><small>{C.monthLabel(per)}: entraron {M(inM, a.currency)}, salieron {M(outM, a.currency)}</small></span>

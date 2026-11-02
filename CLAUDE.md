@@ -67,3 +67,12 @@ Diseño hecho en un lienzo de Claude (prototipos interactivos) y llevado a la ap
 - Onboarding: tour de 4 escenas que se tocan; todos tienen cuenta Efectivo en soles (`ensureCash`, también usuarios existentes).
 - Personaliza simplificado: tema, número grande, céntimos, ocultar, arriba del Inicio, naipes/fila, bloques, sonidos, inclinación, movimiento.
 - Avisos cada 15 min con GitHub Actions (`.github/workflows/cron.yml`, secreto `CRON_SECRET` del repo igual al de Vercel).
+
+## Wallet 26 · Pulido (publicada el 2 nov 2026, rama wallet-26)
+Ajustes tras probar la 25 en el iPhone. Bloques `Wallet 26 · …` al final de `styles.css`:
+- Pantalla completa: `apple-mobile-web-app-status-bar-style` = `black-translucent` (en iPhone la hora y la batería quedan blancas; Apple no deja cambiarlo). La cabecera va dentro del scroll (`.scr.hin`), sin franja fija.
+- Letra del sistema (SF Pro en iPhone, Geist fuera): clase `ty-s` en `.ph`; `.w25.ty-s *` hereda la familia y anula `font-stretch`. Mona Sans ya no se carga. S/ y céntimos sobre la misma línea base.
+- Sin falso 3D: vidrio plano con desenfoque real, gota sólida, naipes y tarjeta del día sin degradados.
+- Barra reescrita: la lente se mueve con `transform` en rAF (sin re-render por movimiento), se estira según la velocidad, lupa continua en los íconos, toque háptico al cruzar pestañas, captura del puntero solo tras 7px horizontales.
+- Ánimos: clases `mk1..mk5` (no `k1`, choca con leyendas viejas) con color (`--m1..--m5`), forma (picos, cojín desinflado, cuadro suave, flor, destello) y movimiento propio del elegido.
+- Movimiento: secciones entran escalonadas, naipes desde la derecha, número con desenfoque corto; las hojas se cierran arrastrando la cabecera (`SheetFrame` → `.shtop`).

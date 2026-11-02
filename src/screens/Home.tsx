@@ -52,14 +52,18 @@ export const MOOD5: { k: number; label: string; v: number; e: number; t: number 
   { k: 1, label: 'Mal', v: 15, e: 30, t: 75 }, { k: 2, label: 'Bajo', v: 35, e: 40, t: 55 }, { k: 3, label: 'Normal', v: 55, e: 55, t: 35 },
   { k: 4, label: 'Bien', v: 72, e: 62, t: 25 }, { k: 5, label: 'Muy bien', v: 88, e: 72, t: 15 }
 ];
+// Cada ánimo con forma, color y movimiento propios (la etiqueta siempre va al lado):
+// Mal = piedra con picos que tiembla; Bajo = gota que se derrite y se hunde; Normal = cuadro suave que respira;
+// Bien = flor que se mece; Muy bien = destello que gira.
 const MOOD_PATHS = [
-  'M20 4 L27 9 L35 8 L34 17 L39 24 L32 29 L31 37 L22 34 L14 39 L11 31 L3 27 L8 20 L5 11 L13 10 Z',
-  'M21 5 C28 5 31 9 35 13 C38 18 36 24 37 29 C35 35 28 37 21 36 C14 37 8 34 6 28 C3 22 6 16 8 11 C12 6 16 5 21 5 Z',
-  'M20 5 C29 4 36 10 36 19 C37 28 31 35 21 36 C12 36 5 30 5 21 C4 12 11 5 20 5 Z',
-  'M20 4 C30 3 37 11 37 20 C37 30 30 37 20 37 C10 37 3 30 4 20 C4 11 10 4 20 4 Z',
-  'M20 3 C31 3 38 10 38 20 C38 31 31 38 20 38 C9 38 2 31 2 20 C2 9 9 3 20 3 Z'
+  'M20 3 L24 12 L33 8 L29.5 17 L38 21 L29 24.5 L32 35 L23 30 L18 38 L15.5 28 L5 31 L10.5 22 L2 16 L12 14 L9 5 L17 10.5 Z',
+  'M4 31 C4 23 8 15.5 14 15.5 C17.2 15.5 18.6 18.4 20 18.4 C21.4 18.4 22.6 13 28 13 C33.5 13 36 22 36 31 C36 33.4 34.6 34.5 32.4 34.5 L7.6 34.5 C5.4 34.5 4 33.4 4 31 Z',
+  'M20 6 C31 6 34 9 34 20 C34 31 31 34 20 34 C9 34 6 31 6 20 C6 9 9 6 20 6 Z',
+  'M20 8.5 Q30 2.7 30 14.2 Q40 20 30 25.8 Q30 37.3 20 31.5 Q10 37.3 10 25.8 Q0 20 10 14.2 Q10 2.7 20 8.5 Z',
+  'M20 1.5 C21.4 12.5 27.5 18.6 38.5 20 C27.5 21.4 21.4 27.5 20 38.5 C18.6 27.5 12.5 21.4 1.5 20 C12.5 18.6 18.6 12.5 20 1.5 Z'
 ];
 export function MoodShape({ k, size = 34 }: { k: number; size?: number }) {
+  if (!k) return null;
   return <svg className={'mshape s' + k} width={size} height={size} viewBox="0 0 40 40" aria-hidden="true"><path d={MOOD_PATHS[k - 1]} /></svg>;
 }
 export function moodLevel(m: any) { if (!m) return 0; const v = Number(m.valence ?? 55); return v < 25 ? 1 : v < 45 ? 2 : v < 64 ? 3 : v < 80 ? 4 : 5; }
@@ -84,7 +88,7 @@ export function MoodQuick({ compact = false, onPick }: { compact?: boolean; onPi
     <div className={'mood5' + (compact ? ' sm' : '')}>
       {!compact && <div className="sh"><span>¿Cómo estás?</span>{last ? <span className="mago">{ago(last.timestamp)}</span> : null}</div>}
       <div className="m5row" role="group" aria-label="¿Cómo estás?">
-        {MOOD5.map((m) => <button key={m.k} className={'m5' + (on === m.k ? ' on' : '')} aria-pressed={on === m.k} onClick={() => pick(m)}><MoodShape k={m.k} size={compact ? 28 : 34} /><span>{m.label}</span></button>)}
+        {MOOD5.map((m) => <button key={m.k} className={'m5 mk' + m.k + (on === m.k ? ' on' : '') + (on && on !== m.k ? ' dim' : '')} aria-pressed={on === m.k} onClick={() => pick(m)}><span className="mwrap"><MoodShape k={m.k} size={compact ? 28 : 34} /></span><span>{m.label}</span></button>)}
         {!compact && <button className="m5 m5x" onClick={() => open('mood')} aria-label="Más detalle de tu ánimo"><span className="dots3" aria-hidden="true"><i /><i /><i /></span><span>Más</span></button>}
       </div>
     </div>
@@ -145,7 +149,7 @@ export default function Home() {
           {accounts.map((a: any, i: number) => {
             const on = sel === a.id; const after = !!sel && accounts.findIndex((x: any) => x.id === sel) < i;
             return (
-              <button key={a.id} className="ncw" aria-label={a.name + ', ' + M(C.balanceOf(s, a), cur)} aria-pressed={on} onClick={() => { feel('tap'); setSel(on ? null : a.id); }}>
+              <button key={a.id} className="ncw" style={{ ['--i' as any]: i }} aria-label={a.name + ', ' + M(C.balanceOf(s, a), cur)} aria-pressed={on} onClick={() => { feel('tap'); setSel(on ? null : a.id); }}>
                 <CardFace account={a} dark={dark} balance={C.balanceOf(s, a)} full={on} className={'nc' + (on ? ' on' : '') + (after ? ' after' : '')} />
               </button>
             );
@@ -235,8 +239,7 @@ export default function Home() {
 
   return (
     <>
-      <Header />
-      <div className="scr noscr">
+      <div className="scr noscr hin"><Header />
         <div className="zz">
           <Banner />
           {!accounts.length ? (

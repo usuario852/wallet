@@ -79,6 +79,7 @@ export function CardFace({ account, dark, className = 'rb', children, style, bal
 
 export function SheetFrame({ title, sub, onClose, children, full = false, label }: { title: React.ReactNode; sub?: string; onClose: () => void; children: React.ReactNode; full?: boolean; label?: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const drag = useRef<any>(null);
   useEffect(() => {
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', k);
@@ -88,12 +89,43 @@ export function SheetFrame({ title, sub, onClose, children, full = false, label 
     // Al cerrar, el foco vuelve al botón que la abrió; nunca a un campo, para no reabrir el teclado.
     return () => { window.removeEventListener('keydown', k); if (prev && prev.tagName !== 'INPUT' && prev.isConnected) prev.focus?.(); };
   }, [onClose]);
+  // Arrastrar la hoja hacia abajo desde su cabecera la cierra (con resistencia hacia arriba).
+  const down = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest('button,input,textarea,select')) return;
+    drag.current = { y0: e.clientY, t: performance.now(), last: e.clientY, v: 0, dy: 0, on: false, id: e.pointerId };
+  };
+  const move = (e: React.PointerEvent) => {
+    const d = drag.current; const el = ref.current; if (!d || !el || e.pointerId !== d.id) return;
+    let dy = e.clientY - d.y0;
+    if (!d.on) { if (Math.abs(dy) < 6) return; d.on = true; try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* */ } el.style.transition = 'none'; el.style.animation = 'none'; }
+    const now = performance.now(); d.v = (e.clientY - d.last) / Math.max(1, now - d.t); d.last = e.clientY; d.t = now;
+    if (dy < 0) dy = -Math.pow(-dy, 0.6);
+    d.dy = dy;
+    el.style.transform = `translate(-50%, ${dy.toFixed(1)}px)`;
+    const scrim = el.previousElementSibling as HTMLElement | null; if (scrim) scrim.style.opacity = String(Math.max(0.2, 1 - Math.max(0, dy) / 500));
+  };
+  const up = (e: React.PointerEvent) => {
+    const d = drag.current; const el = ref.current; drag.current = null; if (!d || !el || !d.on || e.pointerId !== d.id) return;
+    const scrim = el.previousElementSibling as HTMLElement | null;
+    if (d.dy > 120 || d.v > 0.7) {
+      el.style.transition = 'transform 260ms cubic-bezier(.32,.72,0,1)';
+      el.style.transform = 'translate(-50%, 105%)';
+      if (scrim) { scrim.style.transition = 'opacity 260ms ease'; scrim.style.opacity = '0'; }
+      setTimeout(onClose, 200);
+    } else {
+      el.style.transition = 'transform 420ms cubic-bezier(.32,.72,0,1)';
+      el.style.transform = 'translate(-50%, 0)';
+      if (scrim) { scrim.style.transition = 'opacity 300ms ease'; scrim.style.opacity = ''; }
+    }
+  };
   return (
     <>
       <div className="scrim" onClick={onClose} />
       <div className={'rs' + (full ? ' full' : '')} role="dialog" aria-modal="true" aria-label={label || (typeof title === 'string' ? title : '')} ref={ref} tabIndex={-1}>
-        <span className="grab" />
-        <div className="shd"><span><b>{title}</b>{sub && <span className="dsub">{sub}</span>}</span><button className="x" onClick={onClose} aria-label="Cerrar"><IX /></button></div>
+        <div className="shtop" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+          <span className="grab" />
+          <div className="shd"><span><b>{title}</b>{sub && <span className="dsub">{sub}</span>}</span><button className="x" onClick={onClose} aria-label="Cerrar"><IX /></button></div>
+        </div>
         {children}
       </div>
     </>
