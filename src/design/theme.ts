@@ -6,24 +6,23 @@ export type Palette = Record<string, any>;
 const LIGHT: Record<string, Palette> = (BR as any).light;
 const DARK: Record<string, Palette> = (BR as any).dark;
 
-// Piel Wallet (sin banco): papel tibio casi blanco, tinta casi negra, índigo solo para la acción.
-// El total no vive en un bloque de color: es tinta sobre el papel.
-// Las pieles de banco no cambian. hvi = tinta sobre el color de los gráficos.
+// Wallet 25 · La mesa. La mesa se calla: papel tibio, tinta, nada de acento propio.
+// El color vive en los naipes de cada banco (bk) y en la tarjeta del día (palFor).
 Object.assign(LIGHT.wallet, {
-  pg: '#F7F5F1', sf: '#FDFCFA', s2: '#FDFCFA', ln: 'rgba(22,23,26,.10)', tx: '#16171A', t2: '#5E5E63',
-  hb: '#1E2B4A', hi: '#FFFFFF', pa: '#2C3E8C', pi: '#FFFFFF', ac: '#2C3E8C', nv: 'rgba(253,252,250,.92)',
-  cb: '#1E2B4A', ci: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', pl: '#2C3E8C', pli: '#FFFFFF',
-  dot: '#6F86E8', hv: '#2C3E8C', hvi: '#FFFFFF', wb: '#FCEBD3', wt: '#7A4A0B'
+  pg: '#F7F5F0', sf: '#FFFFFF', s2: '#FFFFFF', ln: 'rgba(23,23,26,.08)', tx: '#17171A', t2: '#64625D',
+  hb: '#17171A', hi: '#FFFFFF', pa: '#17171A', pi: '#FFFFFF', ac: '#17171A', nv: '#FFFFFF',
+  cb: '#2A2824', ci: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', pl: '#17171A', pli: '#FFFFFF',
+  dot: '#17171A', hv: '#17171A', hvi: '#FFFFFF', wb: '#FCEBD3', wt: '#7A4A0B', inc: '#15724A'
 });
 Object.assign(DARK.wallet, {
-  pg: '#0E0E10', sf: '#19191C', s2: '#19191C', ln: 'rgba(242,241,238,.09)', tx: '#F2F1EE', t2: '#A8A7AD',
-  hb: '#22315A', hi: '#FFFFFF', pa: '#9DB0FF', pi: '#0B0F18', ac: '#9DB0FF', nv: '#19191CEB',
-  cb: '#22315A', ci: '#FFFFFF', pc: 'rgba(11,15,24,.14)', pci: '#0B0F18', pl: '#9DB0FF', pli: '#0B0F18',
-  dot: '#9DB0FF', hv: '#9DB0FF', hvi: '#0B0F18', wb: '#3A2C12', wt: '#F5CF8A'
+  pg: '#0E0E0D', sf: '#1A1918', s2: '#1A1918', ln: 'rgba(243,241,236,.08)', tx: '#F3F1EC', t2: '#A8A49C',
+  hb: '#F3F1EC', hi: '#0E0E0D', pa: '#F3F1EC', pi: '#0E0E0D', ac: '#F3F1EC', nv: '#1A1918',
+  cb: '#2A2824', ci: '#FFFFFF', pc: 'rgba(0,0,0,.12)', pci: '#0E0E0D', pl: '#F3F1EC', pli: '#0E0E0D',
+  dot: '#F3F1EC', hv: '#F3F1EC', hvi: '#0E0E0D', wb: '#3A2C12', wt: '#F5CF8A', inc: '#5FD19A'
 });
 
 // Efectivo: el billete es crema, pero la selección y la acción van en tinta (no ocre).
-Object.assign(LIGHT.cash, { pa: '#16171A', pi: '#F7F5F1', pl: '#16171A', pli: '#F7F5F1', ac: '#16171A' });
+
 
 const clean = (s: any) => String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -68,31 +67,41 @@ export function tileSrc(key: string) { return LIGHT[key] && LIGHT[key].hasMark ?
 export function markAspect(key: string) { return (LIGHT[key] || {}).ma || 's'; }
 export function cardColors(key: string, dark: boolean) { const p = palette(key, dark); return { cb: p.cb, ci: p.ci }; }
 
-const VARS = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'hb', 'hi', 'hm', 'pa', 'pi', 'ac', 'rd', 'r2', 'nv', 'dot', 'pc', 'pci', 'pl', 'pli', 'hv', 'hvi', 'tb', 'ti', 'wb', 'wt', 'dg'];
+const VARS = ['pg', 'sf', 's2', 'ln', 'tx', 't2', 'hb', 'hi', 'hm', 'pa', 'pi', 'ac', 'rd', 'r2', 'nv', 'dot', 'pc', 'pci', 'pl', 'pli', 'hv', 'hvi', 'tb', 'ti', 'wb', 'wt', 'dg', 'inc', 'bk', 'peb1', 'peb2', 'peb3', 'adv1', 'adv2', 'advt'];
 export function cssVars(p: Palette): Record<string, string> {
   const out: Record<string, string> = {};
   VARS.forEach((k) => { if (p[k] != null) out['--' + k] = String(p[k]); });
   return out;
 }
 
-// Personalización: un color o sin color reemplazan la piel del banco.
-export function skinFor(bank: string, dark: boolean, look: any): Palette {
+export function mixHexPub(a: string, b: string, t: number) { return mixHex(a, b, t); }
+function lumHex(h: string) { const c = h.replace('#', '').match(/../g)!.map((x) => parseInt(x, 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4))); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+export function contrastHex(a: string, b: string) { const x = lumHex(a), y = lumHex(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+
+// Tarjeta del día: una paleta para cualquier color de banco. Fondo hondo, texto que pase 4.5:1, medidor neutro.
+export function palFor(c: string | null, dark: boolean) {
+  if (!c || !/^#[0-9a-f]{6}$/i.test(c)) return dark ? { b1: '#252320', b2: '#1C1B19', t: '#F3F1EC' } : { b1: '#24221F', b2: '#191816', t: '#F5F1E9' };
+  let b1 = dark ? mixHex(c, '#0E0E0D', 0.38) : c, b2 = dark ? mixHex(c, '#0E0E0D', 0.6) : mixHex(c, '#000000', 0.22);
+  if (!dark && lumHex(c) > 0.42) { b1 = mixHex(c, '#FFFFFF', 0.08); b2 = mixHex(c, '#000000', 0.08); }
+  const t = contrastHex('#FFFFFF', b1) >= contrastHex('#15140F', b1) ? '#FFFFFF' : '#15140F';
+  if (contrastHex(t, b1) < 4.5 || contrastHex(t, b2) < 4.5) { const k = t === '#FFFFFF' ? '#000000' : '#FFFFFF'; b1 = mixHex(b1, k, 0.3); b2 = mixHex(b2, k, 0.3); }
+  return { b1, b2, t };
+}
+
+// La piel: siempre la mesa de Wallet. Un banco elegido solo tiñe un poco la mesa, las formas del fondo y la tarjeta del día.
+export function skinFor(bank: string, dark: boolean, _look?: any): Palette {
   const base = palette('wallet', dark);
-  let p: Palette = Object.assign({}, bank === 'wallet' ? base : palette(bank, dark));
-  if (look && look.style === 'one') {
-    const a = look.accent || '#1D4ED8';
-    p = Object.assign({}, base, { hb: a, hi: '#FFFFFF', pa: a, pi: '#FFFFFF', pl: a, pli: '#FFFFFF', pc: 'rgba(255,255,255,.2)', pci: '#FFFFFF', dot: a, hv: a, ac: dark ? base.ac : a, hm: 'none' });
-  } else if (look && look.style === 'mono') {
-    // Sin color: la base Bóveda sin su índigo; tinta y superficie neutras.
-    const ink = base.tx, paper = dark ? base.pg : base.sf;
-    p = Object.assign({}, base, { hm: 'none', hb: ink, hi: paper, pa: ink, pi: paper, ac: ink, pl: ink, pli: paper, pc: dark ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.2)', pci: paper, dot: ink, hv: ink, hvi: paper });
-  }
-  // Papel, no blanco: en claro, una superficie blanca toma un poco del fondo de su piel.
-  if (!dark && /^#fff(fff)?$/i.test(String(p.sf)) && /^#[0-9a-f]{6}$/i.test(String(p.pg)) && !/^#fff(fff)?$/i.test(String(p.pg))) p.sf = mixHex(p.pg, '#FFFFFF', 0.55);
-  // El total y la cuenta elegida se escriben en tinta sobre el papel: nunca un bloque de color.
-  p.tb = p.pg; p.ti = p.tx;
-  const R: any = { r: ['26px', '16px'], m: ['16px', '10px'], s: ['6px', '4px'] };
-  if (look && look.corner && look.corner !== 'bank' && R[look.corner]) { p.rd = R[look.corner][0]; p.r2 = R[look.corner][1]; }
+  const p: Palette = Object.assign({}, base);
+  const bp = bank !== 'wallet' ? palette(bank, dark) : null;
+  const tint = bp && /^#[0-9a-f]{6}$/i.test(String(bp.cb)) ? String(bp.cb) : null;
+  const pebs = dark ? ['#1B1A17', '#17181B', '#1D1A16'] : ['#ECE5D7', '#E5E8EC', '#EFE3D5'];
+  p.peb1 = tint ? mixHex(pebs[0], tint, dark ? 0.18 : 0.09) : pebs[0];
+  p.peb2 = pebs[1];
+  p.peb3 = tint ? mixHex(pebs[2], tint, dark ? 0.18 : 0.09) : pebs[2];
+  if (tint && !dark) p.pg = mixHex(base.pg, tint, 0.035);
+  p.bk = tint || (dark ? '#2A2824' : '#2A2824');
+  const a = palFor(tint, dark); p.adv1 = a.b1; p.adv2 = a.b2; p.advt = a.t;
+  p.tb = p.pg; p.ti = p.tx; p.rd = '26px'; p.r2 = '16px';
   return p;
 }
 
@@ -135,5 +144,12 @@ export function brandFor(text: string): Brand | null {
   return found;
 }
 
-export const LOOK_DEFAULTS = { style: 'bank', accent: '#1D4ED8', corner: 'bank', size: 'm', dens: 'n', big: 'liq', cents: true, hide: false, motion: 'full', greet: 'fecha', name: '', naip: 'naipes', sound: false, blocks: [['naipes', true], ['hoy', true], ['acc', true], ['deuda', true], ['prox', true]] };
-export function lookOf(settings: any) { return Object.assign({}, LOOK_DEFAULTS, settings.look || {}); }
+export const LOOK_DEFAULTS = { style: 'bank', accent: '#1D4ED8', corner: 'bank', size: 'm', dens: 'n', big: 'liq', cents: true, hide: false, motion: 'full', greet: 'fecha', name: '', naip: 'naipes', sound: false, tilt: true, blocks: [['naipes', true], ['hoy', true], ['animo', true], ['acc', true], ['deuda', false], ['prox', false]] };
+export function lookOf(settings: any) {
+  const l = Object.assign({}, LOOK_DEFAULTS, settings.look || {});
+  // Wallet 25 simplificó Personaliza: estilo, esquinas, tamaño y densidad quedan fijos (lo guardado no se borra).
+  l.style = 'bank'; l.corner = 'bank'; l.size = 'm'; l.dens = 'n';
+  // El bloque de ánimo es nuevo: a quien ya ordenó sus bloques se le suma, visible, antes de «Lo último».
+  if (Array.isArray(l.blocks) && !l.blocks.some((b: any) => b[0] === 'animo')) { const i = l.blocks.findIndex((b: any) => b[0] === 'acc'); l.blocks = l.blocks.slice(); l.blocks.splice(i < 0 ? l.blocks.length : i, 0, ['animo', true]); }
+  return l;
+}

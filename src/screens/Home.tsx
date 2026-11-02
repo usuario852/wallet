@@ -1,29 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
+import { feel } from '../ui/feel';
 import * as C from '../domain/core';
 import * as D from '../domain/derive';
-import { useWallet } from '../store';
+import { useWallet, addMoodCheckin } from '../store';
 import { useUI } from '../ui/ctx';
 import { Odometer, CardFace, RowIcon, useMoney, CurTabs } from '../ui/bits';
-import { Mark, INews, IEye, IMove, IChat } from '../ui/icons';
+import { Mark, INews, IEye, IChat } from '../ui/icons';
 import { bankOf, markSrc, markAspect, palette, tileSrc } from '../design/theme';
 import { useMarkets, marketItem } from '../net';
 import { setCurrency } from '../App';
 import { Banner } from './parts';
 
 // Arriba manda la fecha (o el nombre de la app); nunca un saludo.
-function greeting(look: any) {
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'set', 'oct', 'nov', 'dic'];
+const DIA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+function greeting(look: any): React.ReactNode {
   if (look.greet === 'wallet') return 'Wallet';
-  return C.longDate(C.todayLocal());
+  const d = new Date();
+  return <>{DIA[d.getDay()]} {d.getDate()} <span>{MES[d.getMonth()]}</span></>;
 }
 
 export function Header() {
-  const { look, hide, toggleHide, go } = useUI();
+  const { look, hide, toggleHide, go, open } = useUI();
   return (
     <div className="hdr">
       <button className="brand" onClick={() => go('settings')} aria-label="Ajustes"><Mark /><span className="bt"><b>{greeting(look)}</b></span></button>
       <span className="tools">
         <button className="ib" aria-label="El día: noticias" onClick={() => go('news')}><INews /></button>
+        <button className="ib" aria-label="Preguntar a la IA" onClick={() => open('ask')}><IChat /></button>
         <button className="ib" aria-label={hide ? 'Mostrar montos' : 'Ocultar montos'} aria-pressed={hide} onClick={toggleHide}><IEye off={hide} /></button>
       </span>
     </div>
@@ -42,49 +47,84 @@ export function FxStrip() {
   );
 }
 
+// Ánimo de un toque: cinco formas, de piedra tensa a piedra suave. La etiqueta siempre acompaña a la forma.
+export const MOOD5: { k: number; label: string; v: number; e: number; t: number }[] = [
+  { k: 1, label: 'Mal', v: 15, e: 30, t: 75 }, { k: 2, label: 'Bajo', v: 35, e: 40, t: 55 }, { k: 3, label: 'Normal', v: 55, e: 55, t: 35 },
+  { k: 4, label: 'Bien', v: 72, e: 62, t: 25 }, { k: 5, label: 'Muy bien', v: 88, e: 72, t: 15 }
+];
+const MOOD_PATHS = [
+  'M20 4 L27 9 L35 8 L34 17 L39 24 L32 29 L31 37 L22 34 L14 39 L11 31 L3 27 L8 20 L5 11 L13 10 Z',
+  'M21 5 C28 5 31 9 35 13 C38 18 36 24 37 29 C35 35 28 37 21 36 C14 37 8 34 6 28 C3 22 6 16 8 11 C12 6 16 5 21 5 Z',
+  'M20 5 C29 4 36 10 36 19 C37 28 31 35 21 36 C12 36 5 30 5 21 C4 12 11 5 20 5 Z',
+  'M20 4 C30 3 37 11 37 20 C37 30 30 37 20 37 C10 37 3 30 4 20 C4 11 10 4 20 4 Z',
+  'M20 3 C31 3 38 10 38 20 C38 31 31 38 20 38 C9 38 2 31 2 20 C2 9 9 3 20 3 Z'
+];
+export function MoodShape({ k, size = 34 }: { k: number; size?: number }) {
+  return <svg className={'mshape s' + k} width={size} height={size} viewBox="0 0 40 40" aria-hidden="true"><path d={MOOD_PATHS[k - 1]} /></svg>;
+}
+export function moodLevel(m: any) { if (!m) return 0; const v = Number(m.valence ?? 55); return v < 25 ? 1 : v < 45 ? 2 : v < 64 ? 3 : v < 80 ? 4 : 5; }
+function ago(iso: string) {
+  const min = Math.round((Date.now() - C.dateFromLocalIso(iso).getTime()) / 6e4);
+  if (min < 2) return 'ahora'; if (min < 60) return 'hace ' + min + ' min'; const h = Math.round(min / 60); if (h < 24) return 'hace ' + h + ' h'; return 'hace ' + Math.round(h / 24) + ' d';
+}
+export function MoodQuick({ compact = false, onPick }: { compact?: boolean; onPick?: (m: any) => void }) {
+  const { s } = useWallet();
+  const { open } = useUI();
+  const last = C.latestMoodCheckin(s);
+  const lvl = last && C.moodIsFresh(s) ? moodLevel(last) : 0;
+  const [picked, setPicked] = useState(0);
+  const pick = (m: typeof MOOD5[0]) => {
+    feel('tap');
+    if (onPick) { setPicked(picked === m.k ? 0 : m.k); onPick(m); return; }
+    setPicked(m.k);
+    addMoodCheckin({ valence: m.v, energy: m.e, tension: m.t, source: 'quick' });
+  };
+  const on = onPick ? picked : picked || lvl;
+  return (
+    <div className={'mood5' + (compact ? ' sm' : '')}>
+      {!compact && <div className="sh"><span>¿Cómo estás?</span>{last ? <span className="mago">{ago(last.timestamp)}</span> : null}</div>}
+      <div className="m5row" role="group" aria-label="¿Cómo estás?">
+        {MOOD5.map((m) => <button key={m.k} className={'m5' + (on === m.k ? ' on' : '')} aria-pressed={on === m.k} onClick={() => pick(m)}><MoodShape k={m.k} size={compact ? 28 : 34} /><span>{m.label}</span></button>)}
+        {!compact && <button className="m5 m5x" onClick={() => open('mood')} aria-label="Más detalle de tu ánimo"><span className="dots3" aria-hidden="true"><i /><i /><i /></span><span>Más</span></button>}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { s } = useWallet();
   const ui = useUI();
   const { look, dark, sel, setSel, open, go, hide } = ui;
   const M = useMoney();
   const cur = s.settings.activeCurrency;
-  const [more, setMore] = useState(false);
-  const [bandOpen, setBandOpen] = useState(true);
   const accounts = D.accountsForHome(s, cur);
   const acc = sel ? C.accountById(s, sel) : null;
   const totals = C.currencyTotals(s, cur);
   const enabled = s.settings.enabledCurrencies;
 
-  // Número grande
+  // El número grande y una línea de etiqueta y valor, sin frases explicativas.
+  let bigMinor = totals.total, label: React.ReactNode = 'Patrimonio líquido';
+  let subL = totals.reserved ? 'Disponible' : '', subV = totals.reserved ? M(totals.available, cur) : '';
+  if (!acc && look.big === 'disp') { bigMinor = totals.available; label = 'Disponible para gastar'; subL = totals.reserved ? 'Reservado' : ''; subV = totals.reserved ? M(totals.reserved, cur) : ''; }
+  if (!acc && look.big === 'hoy') { bigMinor = D.todaySpent(s, cur); label = 'Gastado hoy'; subL = 'Patrimonio'; subV = M(totals.total, cur); }
   const positive = accounts.filter((a: any) => C.balanceOf(s, a) > 0);
-  let bigMinor = totals.total, label: React.ReactNode = 'Patrimonio líquido', sub = totals.reserved
-    ? 'Disponible ' + M(totals.available, cur) + ', reservado ' + M(totals.reserved, cur)
-    : totals.total < 0
-      ? 'Tus cuentas suman menos que cero. ' + (positive.length ? 'Solo ' + positive.length + (positive.length === 1 ? ' está' : ' están') + ' en positivo.' : 'Ninguna está en positivo.')
-      : 'En ' + accounts.length + (accounts.length === 1 ? ' cuenta' : ' cuentas') + ', todo disponible.';
-  if (!acc && look.big === 'disp') { bigMinor = totals.available; label = 'Disponible para gastar'; sub = 'Sin contar ' + M(totals.reserved, cur) + ' reservados'; }
-  if (!acc && look.big === 'hoy') { bigMinor = D.todaySpent(s, cur); label = 'Gastado hoy'; const pd = D.perDay(s, cur); sub = pd.kind === 'over' ? 'Vas ' + M(pd.minor, cur) + ' sobre tu límite' : 'Puedes gastar ' + M(pd.minor, cur) + ' por día'; }
   const posTotal = positive.reduce((n: number, a: any) => n + C.balanceOf(s, a), 0);
-  let heroBank = 'wallet';
   if (acc) {
-    bigMinor = C.balanceOf(s, acc); heroBank = bankOf(acc);
-    label = acc.name;
-    sub = acc.kind === 'reserve' ? (acc.goalMinor ? C.pct(Math.max(0, bigMinor), acc.goalMinor) + '% de tu meta de ' + M(acc.goalMinor, cur) : 'Ahorro reservado') : posTotal > 0 && bigMinor > 0 ? Math.round((bigMinor / posTotal) * 100) + '% de lo que hay en tus cuentas' : '';
+    bigMinor = C.balanceOf(s, acc); label = acc.name;
+    if (acc.kind === 'reserve' && acc.goalMinor) { subL = 'Meta ' + M(acc.goalMinor, cur) + ' ·'; subV = C.pct(Math.max(0, bigMinor), acc.goalMinor) + '%'; }
+    else if (posTotal > 0 && bigMinor > 0) { subL = 'Del total'; subV = Math.round((bigMinor / posTotal) * 100) + '%'; }
+    else { subL = ''; subV = ''; }
   }
-  const mk = acc && look.style === 'bank' ? tileSrc(heroBank) : '';
+  const mk = acc ? tileSrc(bankOf(acc)) : '';
 
-  // Recuadros
   const today = D.todaySpent(s, cur, sel);
   const pd = D.perDay(s, cur, sel);
   const out = D.outThisMonth(s, cur);
-
-  // Próximo
   const upcoming = C.upcomingItems(s, cur, 8);
   const payable = C.debtsForCurrency(s, cur).filter((d: any) => d.direction === 'payable' && C.debtRemainingMinor(d) > 0);
-
   const blocks: [string, boolean][] = look.blocks;
+  const big = (n: number) => (Math.abs(C.fromMinor(n, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(n, cur)) >= 1e6 ? 'md' : '');
 
-  const cards = more ? accounts : accounts.slice(0, 4);
   const naipes = (
     <div className="sec accs" key="naipes">
       {look.naip === 'fila' ? (
@@ -101,58 +141,57 @@ export default function Home() {
           <button className="fr2" onClick={() => open('account-new', { currency: cur })}><b>+ Agregar cuenta</b></button>
         </div>
       ) : (
-        <div className="selB noscr">
-          {cards.map((a: any) => (
-            <button key={a.id} className="rbw" style={{ all: 'unset', display: 'contents' }} aria-label={a.name + ', ' + M(C.balanceOf(s, a), cur)} aria-pressed={sel === a.id} onClick={() => setSel(sel === a.id ? null : a.id)}>
-              <CardFace account={a} dark={dark} className={'rb' + (sel === a.id ? ' on' : '') + (sel && sel !== a.id ? ' off' : '')}>
-                <span className="rbal">{M(C.balanceOf(s, a), cur)}</span>
-              </CardFace>
-            </button>
-          ))}
-          {!more && accounts.length > 4 ? (
-            <button className="more" onClick={() => setMore(true)} aria-label={'Ver ' + (accounts.length - 4) + ' cuentas más'}>+{accounts.length - 4}</button>
-          ) : (
-            <button className="more" onClick={() => open('account-new', { currency: cur })} aria-label="Agregar cuenta">+</button>
-          )}
+        <div className="deck noscr">
+          {accounts.map((a: any, i: number) => {
+            const on = sel === a.id; const after = !!sel && accounts.findIndex((x: any) => x.id === sel) < i;
+            return (
+              <button key={a.id} className="ncw" aria-label={a.name + ', ' + M(C.balanceOf(s, a), cur)} aria-pressed={on} onClick={() => { feel('tap'); setSel(on ? null : a.id); }}>
+                <CardFace account={a} dark={dark} balance={C.balanceOf(s, a)} full={on} className={'nc' + (on ? ' on' : '') + (after ? ' after' : '')} />
+              </button>
+            );
+          })}
+          <button className="plus" onClick={() => open('account-new', { currency: cur })} aria-label="Agregar cuenta">+</button>
         </div>
       )}
     </div>
   );
 
+  // Tarjeta del día: el margen por día y un medidor neutro (hoy contra lo que te toca).
   const lastDay = new Date(Date.now() + 864e5).getDate() === 1;
-  // Los datos del día como una sola línea, no como tres recuadros iguales.
-  const tiles = (
-    <div className="sec facts" key="hoy">
-      {today ? <span className="fact"><b className="nums">{M(today, cur)}</b> gastado hoy</span> : <span className="fact">{sel ? 'Hoy no gastaste aquí' : 'Hoy no gastaste nada'}</span>}
-      {pd.kind === 'over'
-        ? <span className="fact over"><b className="nums">{M(pd.minor, cur)}</b> {pd.note}</span>
-        : pd.minor > 0 ? <span className="fact"><b className="nums">{M(pd.minor, cur)}</b> {lastDay ? (sel ? 'para hoy con este saldo' : 'para hoy, último día del mes') : sel ? 'por día con este saldo' : <>por día, hasta fin&nbsp;de&nbsp;mes</>}</span> : <span className="fact">sin margen por día hasta fin de mes</span>}
-      {sel
-        ? <span className="fact"><b className="nums">{M(C.sumMinor(C.spendingOps(s, cur, C.currentPeriod()).filter((o: any) => o.accountId === sel)), cur)}</b> gastados este mes</span>
-        : <span className="fact"><button className="lnkf" onClick={() => go('plan')}>{out.count ? <><b className="nums">{M(out.minor, cur)}</b> por salir{out.late ? ', ' + out.late + (out.late === 1 ? ' vencido' : ' vencidos') : ''}</> : <><b>Nada</b> por salir este mes</>}</button></span>}
+  const daysLeft = D.daysInMonth(new Date()) - new Date().getDate() + 1;
+  const allow = pd.kind === 'over' ? 0 : pd.minor;
+  const fillPct = allow > 0 ? Math.min(100, Math.round((today / allow) * 100)) : today > 0 ? 100 : 0;
+  const overPct = allow > 0 && today > allow ? Math.min(100, Math.round((allow / today) * 100)) : null;
+  const adv = (
+    <div className="sec" key="hoy">
+      <button className="adv" onClick={() => go('ana')}>
+        <small>{acc ? 'Con este saldo, ' + (lastDay ? 'hoy' : 'hasta fin de mes') : pd.kind === 'over' ? 'Este mes' : lastDay ? 'Para hoy, último día' : 'Hasta fin de mes'}</small>
+        <span className="n nums">{pd.kind === 'over' ? M(pd.minor, cur) : M(pd.minor, cur)}<span>{pd.kind === 'over' ? 'sobre tu límite' : 'por día'}</span></span>
+        <span className="meter" aria-hidden="true">
+          {overPct != null ? <><i style={{ width: overPct + '%' }} /><s style={{ left: overPct + '%' }} /><em style={{ left: overPct + '%' }} /></> : <i style={{ width: fillPct + '%' }} />}
+        </span>
+        <span className="lv"><span>{acc ? 'Hoy aquí' : 'Hoy llevas'} <b className="nums">{M(today, cur)}</b></span><span>{daysLeft === 1 ? 'Último día' : daysLeft + ' días'}</span></span>
+        {!acc && out.count > 0 && <span className="lv"><span>Por salir este mes{out.late ? ', ' + out.late + (out.late === 1 ? ' vencido' : ' vencidos') : ''}</span><b className="nums">{M(out.minor, cur)}</b></span>}
+      </button>
     </div>
   );
 
-  const showActs = blocks.some((b) => b[0] === 'acc' && b[1]);
-  const chips = showActs ? (
-    <span className="hchips">
-      <button className="hchip" onClick={() => open('register', { tab: 'move', fromId: sel || undefined })}><IMove size={18} /><b>Mover</b></button>
-      <button className="hchip" onClick={() => open('ask')}><IChat size={18} /><b>Preguntar</b></button>
-    </span>
-  ) : null;
+  const mood = <div className="sec blk" key="animo"><MoodQuick /></div>;
 
   const debts = !sel && payable.length ? (
     <div className="sec blk" key="deuda">
       <div className="sh"><span>Lo que debes</span><button className="lnk" onClick={() => go('plan', { tab: 'deudas' })}>Ver todo</button></div>
-      {payable.slice(0, 3).map((d: any) => {
-        const nx = C.nextPendingInstallment(d);
-        return (
-          <button key={d.id} className="debt" onClick={() => open('debt', { id: d.id })}>
-            <span className="lft"><RowIcon text={d.name} /><span className="nm"><span>{d.name}</span><span className="dt">{nx ? (nx.dueDate < C.todayLocal() ? 'Cuota vencida el ' : 'Próxima cuota el ') + C.shortDate(nx.dueDate) : 'Sin cuotas pendientes'}</span></span></span>
-            <b className="am">{M(C.debtRemainingMinor(d), cur)}</b>
-          </button>
-        );
-      })}
+      <div className="list">
+        {payable.slice(0, 3).map((d: any) => {
+          const nx = C.nextPendingInstallment(d);
+          return (
+            <button key={d.id} className="mrow" onClick={() => open('debt', { id: d.id })}>
+              <span className="lft"><RowIcon text={d.name} /><span className="nm"><span>{d.name}</span><span className="dt">{nx ? (nx.dueDate < C.todayLocal() ? 'Cuota vencida el ' : 'Próxima cuota el ') + C.shortDate(nx.dueDate) : 'Sin cuotas pendientes'}</span></span></span>
+              <b className="am">{M(C.debtRemainingMinor(d), cur)}</b>
+            </button>
+          );
+        })}
+      </div>
     </div>
   ) : null;
 
@@ -160,14 +199,16 @@ export default function Home() {
     <div className="sec blk" key="prox">
       <div className="sh"><span>Próximo</span><button className="lnk" onClick={() => go('plan')}>Agenda</button></div>
       {upcoming.length ? (
-        <div className="rail">
-          {upcoming.map((u) => (
-            <button key={u.type + u.id + (u.installmentId || '')} className={'lr' + (u.status === 'overdue' ? ' late' : '')} onClick={() => open('settle', { item: u })}>
-              <i className="rdot" /><span className="rd8">{C.shortDate(u.date)}</span>
-              <span className="lft"><RowIcon text={u.label} /><span className="nm"><span>{u.label}</span><span className="dt">{u.status === 'overdue' && <i className="wi" aria-hidden="true">!</i>}{u.status === 'overdue' ? overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : 'Por pagar'}</span></span></span>
-              <span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span>
-            </button>
-          ))}
+        <div className="list">
+          {upcoming.map((u) => {
+            const d = C.dateFromLocalIso(u.date);
+            return (
+              <button key={u.type + u.id + (u.installmentId || '')} className="mrow" onClick={() => open('settle', { item: u })}>
+                <span className="lft"><span className={'leaf' + (u.status === 'overdue' ? ' late' : '')}><b>{d.getDate()}</b><span>{C.shortDate(u.date).split(' ')[1]}</span></span><span className="nm"><span>{u.label}</span><span className={'dt' + (u.status === 'overdue' ? ' late' : '')}>{u.status === 'overdue' ? overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : 'Por pagar'}</span></span></span>
+                <span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span>
+              </button>
+            );
+          })}
         </div>
       ) : (
         <div className="empt"><span>Sin pagos programados.</span><button className="lnk" onClick={() => open('fixed-new')}>Agregar pago</button></div>
@@ -175,11 +216,10 @@ export default function Home() {
     </div>
   ) : null;
 
-  // Lo último que pasó: de la cuenta elegida o, sin cuenta, de la moneda activa.
   const recent = acc ? C.operationsForAccount(s, acc.id).filter((o: any) => !o.voided).slice(0, 4) : C.operationsForCurrency(s, cur).filter((o: any) => !o.voided).slice(0, 4);
   const accRecent = accounts.length ? (
     <div className="sec blk" key="recent">
-      <div className="sh"><span>Lo último</span>{acc ? <button className="lnk" onClick={() => go('account', { id: acc.id })}>Ver la cuenta</button> : <button className="lnk" onClick={() => go('movs')}>Ver todo</button>}</div>
+      <div className="sh"><span>{acc ? 'Lo último en ' + acc.name : 'Lo último'}</span>{acc ? <button className="lnk" onClick={() => go('account', { id: acc.id })}>Ver la cuenta</button> : <button className="lnk" onClick={() => go('movs')}>Ver todo</button>}</div>
       {recent.length ? (
         <div className="ledger">{recent.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
       ) : (
@@ -189,9 +229,9 @@ export default function Home() {
   ) : null;
 
   const inv = !sel && (s.watchlist || []).length ? (
-    <div className="sec invrow" key="inv"><button className="debt" onClick={() => go('inv')}><span className="lft"><span className="ic"><span className="ini">↗</span></span><span className="nm"><span>Inversiones</span><span className="dt">{(s.watchlist || []).length} que sigues</span></span></span><span className="lnk">Ver</span></button></div>
+    <div className="sec invrow" key="inv"><button className="mrow" onClick={() => go('inv')}><span className="lft"><span className="ic"><span className="ini">↗</span></span><span className="nm"><span>Inversiones</span><span className="dt">{(s.watchlist || []).length} que sigues</span></span></span><span className="lnk">Ver</span></button></div>
   ) : null;
-  const blockEls: Record<string, React.ReactNode> = { naipes: <>{naipes}{inv}</>, hoy: tiles, acc: null, deuda: debts, prox };
+  const blockEls: Record<string, React.ReactNode> = { naipes: <>{naipes}{inv}</>, hoy: adv, animo: mood, acc: accRecent, deuda: debts, prox };
 
   return (
     <>
@@ -199,36 +239,27 @@ export default function Home() {
       <div className="scr noscr">
         <div className="zz">
           <Banner />
-          <div className="sec row">
-            <CurTabs value={cur} list={enabled} onChange={(c) => { setSel(null); setCurrency(c); }} />
-            {cur === 'PEN' ? <FxStrip /> : <span />}
-          </div>
           {!accounts.length ? (
             <div className="sec">
               <div className="hero total first">
                 <span className="lbl">Patrimonio líquido</span>
                 <b className="ft">Agrega tu primera cuenta en {C.currencyMeta(cur).name.toLowerCase()}</b>
-                <span className="sub">Tu banco, Yape o el efectivo que tienes a la mano. Desde ahí, Wallet suma todo por ti.</span>
                 <button className="liq pri" onClick={() => open('account-new', { currency: cur })}>Agregar cuenta</button>
               </div>
             </div>
           ) : <div className="sec">
-            <div className={'hero' + (!acc ? ' total withband' : ' withpill')}>
-              <span className="lbl hrow"><span className="hname">{mk && <img className="hlogo" src={mk} alt="" />}{label}</span>{acc && <button className="hback" onClick={() => setSel(null)}>Todas</button>}</span>
-              {hide ? <div className="hidn">••••</div> : <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={Math.abs(C.fromMinor(bigMinor, cur)) >= 1e7 ? 'sm' : Math.abs(C.fromMinor(bigMinor, cur)) >= 1e6 ? 'md' : ''} />}
-              {!hide && sub && <span className="sub nums">{sub}</span>}
-              {!acc && positive.length > 1 && (
-                <>
-                  <button className="band2" onClick={() => setBandOpen(!bandOpen)} aria-expanded={bandOpen} aria-label="Cómo se reparte tu dinero entre tus cuentas">
-                    {positive.map((a: any) => <i key={a.id} style={{ width: (C.balanceOf(s, a) / posTotal) * 100 + '%', background: palette(bankOf(a), dark).cb }} />)}
-                  </button>
-                  {bandOpen && <span className="bleg">{positive.map((a: any) => <span key={a.id}>{tileSrc(bankOf(a)) ? <img className="blogo" src={tileSrc(bankOf(a))} alt="" /> : <i style={{ background: palette(bankOf(a), dark).cb }} />}{a.name} <b className="nums">{Math.round((C.balanceOf(s, a) / posTotal) * 100)}%</b></span>)}</span>}
-                </>
-              )}
-              {chips}
+            <div className="hero total">
+              <span className="lbl hrow"><span className="hname">{mk && <img className="hlogo" src={mk} alt="" />}{label}</span>
+                {acc ? <button className="hback" onClick={() => setSel(null)}>Todas</button> : <CurTabs value={cur} list={enabled} onChange={(c) => { setSel(null); setCurrency(c); }} />}</span>
+              <div className={'hnum' + (hide ? ' hid' : '')}>
+                <Odometer minor={bigMinor} currency={cur} cents={look.cents} size={big(bigMinor)} />
+                <span className="dots" aria-hidden="true">{C.currencyMeta(cur).symbol} ••••</span>
+              </div>
+              {subL && <span className="sub nums">{subL} {!hide && <b>{subV}</b>}</span>}
+              {cur === 'PEN' && !acc && <FxStrip />}
             </div>
           </div>}
-          {accounts.length > 0 && blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}{b[0] === 'acc' && accRecent}</React.Fragment>)}
+          {accounts.length > 0 && blocks.filter((b) => b[1]).map((b) => <React.Fragment key={b[0]}>{blockEls[b[0]]}</React.Fragment>)}
           {!blocks.some((b) => b[0] === 'acc' && b[1]) && accRecent}
           <div className="endpad" />
         </div>

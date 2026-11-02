@@ -176,9 +176,19 @@ export function settleFixed(fixedId: string, accountId: string) {
   return op;
 }
 
-export function addMoodCheckin(data: any) {
+// Wallet 25: todos tienen una cuenta Efectivo en soles (también quienes ya usaban la app).
+export function ensureCash() {
+  const s = state;
+  if (health.mode !== 'ok') return;
+  if (s.accounts.some((a: any) => a.brand === 'cash' || (a.currency === 'PEN' && C.normalizeText(a.name) === 'efectivo'))) return;
+  commit((x) => { x.accounts.push({ id: C.uid('acc'), name: 'Efectivo', institution: 'Efectivo', brand: 'cash', currency: 'PEN', kind: 'regular', openingMinor: 0, archived: false }); if (!x.settings.enabledCurrencies.includes('PEN')) x.settings.enabledCurrencies.unshift('PEN'); }, { silent: true });
+}
+
+export function addMoodCheckin(data: any, opts: { silent?: boolean } = {}) {
   const c = { id: C.uid('mood'), timestamp: data.timestamp || C.nowIsoLocal(), valence: C.clamp(Number(data.valence ?? 55), 0, 100), energy: C.clamp(Number(data.energy ?? 55), 0, 100), tension: C.clamp(Number(data.tension ?? 35), 0, 100), tags: Array.isArray(data.tags) ? data.tags.slice(0, 5) : [], note: String(data.note || ''), confirmedSame: !!data.confirmedSame, source: data.source || 'manual' };
-  if (commit((s) => { s.moodCheckins.push(c); s.lastMood = c; })) notify('Ánimo guardado');
+  const ok = commit((s) => { s.moodCheckins.push(c); s.lastMood = c; }, opts.silent ? { silent: true } : undefined);
+  if (ok && !opts.silent) notify('Ánimo guardado');
+  return ok ? c : null;
 }
 
 // ---------------------------------------------------------------------------

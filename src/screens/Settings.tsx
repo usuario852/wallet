@@ -7,8 +7,9 @@ import { useMoney, Seg, Switch, CardFace } from '../ui/bits';
 import { IChevR } from '../ui/icons';
 import { BackHeader, exportJson, exportCsv } from './parts';
 import { hasServerAI } from '../ai';
+import { moodScheduleEvery4h } from '../domain/insights';
 
-export const APP_VERSION = '22.0';
+export const APP_VERSION = '25.0';
 
 export default function Settings() {
   const { s } = useWallet();
@@ -59,7 +60,7 @@ export default function Settings() {
           <div className="card">
             <Seg items={[['system', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']]} value={st.theme === 'dark' || st.theme === 'light' ? st.theme : 'system'} onChange={(v) => set((x) => { x.settings.theme = v; })} label="Tema" className="n3" />
             <p className="tsm2">{st.theme === 'system' || !['light', 'dark'].includes(st.theme) ? 'Sigue al iPhone. Ahora está en modo ' + (sysDark ? 'oscuro' : 'claro') + '.' : (st.theme === 'dark' ? 'Siempre oscuro, aunque el iPhone esté en claro.' : 'Siempre claro, aunque el iPhone esté en oscuro.')}</p>
-            <button className="srow" onClick={() => go('look')}><span className="sc"><b>Personaliza</b><small>Colores, tamaño de letra, qué se ve en el Inicio.</small></span><span className="chr"><IChevR /></span></button>
+            <button className="srow" onClick={() => go('look')}><span className="sc"><b>Personaliza</b><small>El número grande, el Inicio, sonidos e inclinación.</small></span><span className="chr"><IChevR /></span></button>
             <div className="srow"><span className="sc"><b>Logos de bancos y comercios</b><small>{st.brandLogos !== false ? 'Ves el logo de cada banco y comercio.' : 'Apagado: ves iniciales.'}</small></span><Switch on={st.brandLogos !== false} onChange={(v) => set((x) => { x.settings.brandLogos = v; })} label="Logos" /></div>
           </div>
 
@@ -99,7 +100,12 @@ export default function Settings() {
           <div className="card">
             <div className="srow"><span className="sc"><b>Avisos en este teléfono</b><small>{n.enabled ? 'Activados.' : 'En iPhone, primero agrega Wallet a la pantalla de inicio.'}</small></span><Switch on={!!n.enabled} onChange={(v) => (v ? enablePush() : disablePush())} label="Avisos" /></div>
             <div className="srow"><span className="sc"><b>Pagos y cobros</b><small>Un día antes y el mismo día.</small></span><Switch on={n.debtEnabled !== false} onChange={(v) => set((x) => { x.settings.notifications.debtEnabled = v; })} label="Pagos y cobros" /></div>
-            <div className="srow"><span className="sc"><b>Cómo te sientes</b><small>Hasta 4 preguntas cortas al día.</small></span><Switch on={st.mood.enabled !== false} onChange={(v) => set((x) => { x.settings.mood.enabled = v; })} label="Ánimo" /></div>
+            <div className="srow"><span className="sc"><b>¿Cómo estás?</b><small>{st.mood.enabled !== false ? (st.mood.times || []).join(' · ') : 'Apagado'}</small></span><Switch on={st.mood.enabled !== false} onChange={(v) => set((x) => { x.settings.mood.enabled = v; })} label="Ánimo" /></div>
+            {st.mood.enabled !== false && <div className="mtimes">
+              <label className="wq tm">Te levantas<input type="time" value={st.mood.wake || '08:00'} onChange={(e) => set((x) => { x.settings.mood.wake = e.target.value; })} /></label>
+              <label className="wq tm">Duermes<input type="time" value={st.mood.sleep || '23:30'} onChange={(e) => set((x) => { x.settings.mood.sleep = e.target.value; })} /></label>
+              <button className="act ink" onClick={() => { set((x) => { x.settings.mood.times = moodScheduleEvery4h(x.settings.mood.wake || '08:00', x.settings.mood.sleep || '23:30'); x.settings.mood.skipRecentMinutes = 90; }); notify('Te preguntaré cada 4 horas'); }}>Cada 4 horas</button>
+            </div>}
             <div className="srow"><span className="sc"><b>Resumen semanal</b><small>Los domingos.</small></span><Switch on={n.weeklyReview !== false} onChange={(v) => set((x) => { x.settings.notifications.weeklyReview = v; })} label="Resumen semanal" /></div>
           </div>
 

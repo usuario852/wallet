@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { useUI } from '../ui/ctx';
+import { useWallet } from '../store';
+import { IChevD } from '../ui/icons';
 import { Seg } from '../ui/bits';
 import { BackHeader } from './parts';
 import { useNews, useMarkets, marketItem } from '../net';
@@ -14,8 +16,18 @@ function ago(ts: any) {
   return m < 60 ? 'hace ' + m + ' min' : m < 1440 ? 'hace ' + Math.round(m / 60) + ' h' : 'hace ' + Math.round(m / 1440) + ' d';
 }
 
+function Spark({ h }: { h: number[] }) {
+  if (!h || h.length < 3) return null;
+  const mn = Math.min(...h), mx = Math.max(...h), r = mx - mn || 1;
+  const d = h.map((v, i) => (i ? 'L' : 'M') + ((i / (h.length - 1)) * 100).toFixed(1) + ' ' + (22 - ((v - mn) / r) * 20).toFixed(1)).join(' ');
+  return <svg className="spk" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d={d} /></svg>;
+}
+const TICK: [string, string][] = [['usdpen', 'Dólar'], ['eurpen', 'Euro'], ['inflacion', 'Inflación 12 m'], ['tasa', 'Tasa BCRP'], ['petroleo', 'Petróleo'], ['oro', 'Oro'], ['cobre', 'Cobre'], ['btc', 'Bitcoin']];
+
 export default function News() {
-  const { open } = useUI();
+  const { open, hide } = useUI();
+  const { s } = useWallet();
+  const [exp, setExp] = useState<string | null>(null);
   const [force, setForce] = useState(0);
   const { data, err } = useNews(force);
   const mk = useMarkets();
@@ -45,35 +57,49 @@ export default function News() {
       <BackHeader right={<button className="eb" onClick={() => setForce(force + 1)}>Actualizar</button>} />
       <div className="scr noscr">
         <div className="sec phd" style={{ paddingTop: 8 }}><span className="pht"><b>El día</b><small>{C.longDate(C.todayLocal())}{data && data.at ? ', ' + ago(data.at) : ''}</small></span></div>
-        <div className="sec" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
-          {(usd || infl || tasa) && <div className="card" style={{ marginTop: 0 }}>
-            <div className="ch"><b>En números</b></div>
-            {usd && <p className="mood" style={{ margin: '0 0 4px' }}>El dólar está en <b>S/ {Number(usd.raw).toFixed(3)}</b>.</p>}
-            {infl && <p className="mood" style={{ margin: '0 0 4px' }}>La inflación de los últimos 12 meses va en <b>{infl.value}</b>.</p>}
-            {tasa && <p className="mood" style={{ margin: 0 }}>La tasa del BCRP está en <b>{tasa.value}</b>.</p>}
-          </div>}
-          <div className="sumb">
-            <span className="sl">En corto</span>
-            {sum.text ? <><ul>{sum.text.split('\n').map((l) => l.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).slice(0, 4).map((l, i) => <li key={i}>{l}</li>)}</ul><span className="sw2">Resumen hecho con IA. Puede equivocarse: lee las fuentes.</span></>
-              : sum.loading ? <span className="tsm">Leyendo los titulares…</span>
-                : <><span className="tsm">{sum.err || 'Lo que más toca tus gastos hoy, en pocas líneas.'}</span><button className="liq" style={{ alignSelf: 'flex-start' }} onClick={summarize} disabled={!list.length}>Resumir el día</button></>}
+        <div className="tick2 noscr">
+          {TICK.map(([id, l]) => { const it = marketItem(mk.data, id); if (!it) return null; const ch = String(it.change || ''); const up = ch.startsWith('+'), dn = ch.startsWith('-') || ch.startsWith('−');
+            return <div key={id} className="tk"><small>{l}</small><b className="nums">{id === 'usdpen' || id === 'eurpen' ? 'S/ ' + Number(it.raw).toFixed(3) : it.value}</b>{ch && <span className={'chg' + (up ? ' up' : dn ? ' dn' : '')}>{up ? '↑ ' : dn ? '↓ ' : ''}{ch.replace(/^[+-]/, '')}</span>}<Spark h={it.history} /></div>; })}
+        </div>
+        {(() => {
+          const usdA = C.accountsByCurrency(s, 'USD').filter((a: any) => !a.archived);
+          const usdT = usdA.reduce((n: number, a: any) => n + C.balanceOf(s, a), 0);
+          const rows: [string, string][] = [];
+          if (usd && usdT) rows.push(['Tus dólares en soles', hide ? 'S/ ••••' : C.money(Math.round(C.fromMinor(usdT, 'USD') * Number(usd.raw) * 100), 'PEN')]);
+          if (usd && usdT && String(usd.change || '')) { const c = Number(String(usd.change).replace(',', '.')); if (Number.isFinite(c) && c) rows.push(['Hoy por el tipo de cambio', (c > 0 ? '+' : '−') + (hide ? 'S/ ••••' : C.money(Math.abs(Math.round(C.fromMinor(usdT, 'USD') * c * 100)), 'PEN'))]); }
+          if (infl) { const pen = C.currencyTotals(s, 'PEN').total; const r = Number(String(infl.raw ?? '').replace(',', '.')); if (pen > 0 && Number.isFinite(r) && r > 0) rows.push(['Lo que la inflación le quita a tus soles en un año', hide ? 'S/ ••••' : '−' + C.money(Math.round((pen * r) / 100), 'PEN')]); }
+          if (!rows.length) return null;
+          return <div className="sec"><div className="card3 flat"><div className="c3h"><b>En tu bolsillo</b></div>{rows.map(([k, v]) => <p key={k} className="lv"><span>{k}</span><b className="nums">{v}</b></p>)}</div></div>;
+        })()}
+        <div className="sec" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 }}>
+          <div className="card3 flat">
+            <div className="c3h"><b>En corto</b>{sum.text && <span>Hecho con IA</span>}</div>
+            {sum.text ? <ul className="sumu">{sum.text.split('\n').map((l) => l.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).slice(0, 4).map((l, i) => <li key={i}>{l}</li>)}</ul>
+              : sum.loading ? <div className="bub m typing" style={{ marginTop: 6 }}><i /><i /><i /></div>
+                : <><p className="tsm2">{sum.err || 'Tres líneas con lo que toca tu bolsillo.'}</p><button className="act ink" style={{ marginTop: 10 }} onClick={summarize} disabled={!list.length}>Resumir el día</button></>}
           </div>
           <Seg items={[['pe', 'Perú'], ['mundo', 'Mundo']]} value={region} onChange={(v) => { setRegion(v); setTopic('todo'); }} label="Región" />
           <div className="flt noscr" style={{ marginTop: 0 }}>
             {[['todo', 'Todo'], ['economia', region === 'pe' ? 'Economía' : 'Mercados'], ['otro', region === 'pe' ? 'País' : 'Mundo']].map(([k, t]) => <button key={k} className={'fc' + (topic === k ? ' on' : '')} aria-pressed={topic === k} onClick={() => setTopic(k)}>{t}</button>)}
           </div>
-          {err && !list.length && <div className="empty"><b>{err}</b><span>Revisa tu conexión e inténtalo otra vez.</span><button className="liq" onClick={() => setForce(force + 1)}>Reintentar</button></div>}
-          {!data && !err && <div className="empty"><b>Trayendo titulares…</b></div>}
-          {list.map((n) => (
-            <a key={n.link} className={'nrow' + (read.includes(n.link) ? ' rd' : '')} href={n.link} target="_blank" rel="noopener noreferrer" onClick={() => markRead(n.link)}>
-              {n.image && <img className="nimg" src={n.image} alt="" loading="lazy" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />}
-              <span className="ntag">{TL[n.topic] || n.topic}, {ago(n.publishedAt)}</span>
-              <b>{n.title}</b>
-              <span className="nsrc">{n.source} ›</span>
-            </a>
-          ))}
+          {err && !list.length && <div className="empty"><b>{err}</b><button className="liq" onClick={() => setForce(force + 1)}>Reintentar</button></div>}
+          {!data && !err && <div className="nwl"><span className="sk" /><span className="sk" /><span className="sk" /></div>}
+          <div className="nwl">
+            {list.map((n) => { const on = exp === n.link; return (
+              <div key={n.link} className={'nw2' + (on ? ' on' : '') + (read.includes(n.link) ? ' rd' : '')}>
+                <button className="nwh" aria-expanded={on} onClick={() => setExp(on ? null : n.link)}>
+                  <span className="nwt"><small>{TL[n.topic] || n.topic} · {n.source} · {ago(n.publishedAt)}</small><b>{n.title}</b></span>
+                  <span className="xchev" aria-hidden="true"><IChevD /></span>
+                </button>
+                <div className="nwb"><div>
+                  {n.image && <img className="nimg2" src={n.image} alt="" loading="lazy" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />}
+                  {(n.tags || []).length > 0 && <p className="tsm2">{(n.tags || []).slice(0, 4).join(' · ')}</p>}
+                  <span className="acts3"><a className="act ink" href={n.link} target="_blank" rel="noopener noreferrer" onClick={() => markRead(n.link)}>Leer en {n.source}</a><button className="act" onClick={() => open('ask', { prompt: '¿Cómo me afecta esta noticia, mirando mis cuentas y gastos? «' + n.title + '» (' + n.source + ')' })}>¿Cómo me afecta?</button></span>
+                </div></div>
+              </div>
+            ); })}
+          </div>
           <p className="tsm2">Medios del Perú y del mundo. Lo que lees no se guarda.</p>
-          <button className="opt" onClick={() => open('ask', { prompt: '¿Cómo me afectan las noticias económicas de hoy, mirando mis gastos?' })}><b>¿Cómo me afecta?</b><span>Titulares que tocan lo que gastas.</span></button>
         </div>
         <div className="endpad" />
       </div>

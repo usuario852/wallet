@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as C from './domain/core';
-import { useWallet, dismissToast, commit } from './store';
+import { useWallet, dismissToast, commit, ensureCash } from './store';
 import { Provider, View, Sheet } from './ui/ctx';
-import { bankOf, skinFor, cssVars, lookOf, palette } from './design/theme';
+import { bankOf, skinFor, cssVars, lookOf } from './design/theme';
 import { IHome, IList, ICal, IBars, IPlus } from './ui/icons';
+import { setFeel, feel, askTiltOnce, subscribeTilt } from './ui/feel';
 import Home from './screens/Home';
 import Movements from './screens/Movements';
 import Plan from './screens/Plan';
@@ -23,21 +24,129 @@ function useSystemDark() {
   useEffect(() => { if (!q) return; const f = () => setD(q.matches); q.addEventListener('change', f); return () => q.removeEventListener('change', f); }, []);
   return d;
 }
+const systemReduce = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------------------------------------------------------------------------
+// Formas de la mesa: piedras de borde nítido que respiran; la inclinación las desplaza.
+// Se mueven escribiendo transform directo en cada una (sin re-render ni variables heredadas).
+// ---------------------------------------------------------------------------
+function Pebbles({ tilt }: { tilt: boolean }) {
+  const refs = [useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null)];
+  useEffect(() => {
+    if (!tilt) { refs.forEach((r) => { if (r.current) r.current.style.transform = ''; }); return; }
+    const depth = [22, 14, 30];
+    let raf = 0, nx = 0, ny = 0;
+    const off = subscribeTilt((x, y) => {
+      nx = x; ny = y;
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; refs.forEach((r, i) => { if (r.current) r.current.style.transform = `translate3d(${Math.round(nx * depth[i])}px,${Math.round(ny * depth[i] * 0.8)}px,0)`; }); });
+    });
+    return () => { off(); cancelAnimationFrame(raf); };
+  }, [tilt]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="pebs" aria-hidden="true">
+      <span ref={refs[0]} className="peb p1"><i /></span>
+      <span ref={refs[1]} className="peb p2"><i /></span>
+      <span ref={refs[2]} className="peb p3"><i /></span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Barra de vidrio líquido con la gota + al centro. La lente sigue al dedo y agranda el ícono de abajo.
+// ---------------------------------------------------------------------------
+const TABS: [View, string, (p: any) => any][] = [['home', 'Inicio', IHome], ['movs', 'Movimientos', IList], ['plan', 'Planifica', ICal], ['ana', 'Análisis', IBars]];
+function barGeometry(W: number) {
+  const c = W / 2, f = (n: number) => n.toFixed(2);
+  const path = `M32 16 L${f(c - 28.64)} 16 A12 12 0 0 0 ${f(c - 21.17)} 13.39 A34 34 0 0 1 ${f(c + 21.17)} 13.39 A12 12 0 0 0 ${f(c + 28.64)} 16 L${f(W - 32)} 16 A32 32 0 0 1 ${f(W - 32)} 80 L32 80 A32 32 0 0 1 32 16 Z`;
+  const tw = Math.max(52, (c - 57) / 2);
+  const lefts = [8, 8 + tw, W - 8 - 2 * tw, W - 8 - tw];
+  return { path, tw, lefts };
+}
+function GlassBar({ view, go, onAdd, tilt }: { view: View; go: (v: View) => void; onAdd: () => void; tilt: boolean }) {
+  const wrap = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(370);
+  const [drag, setDrag] = useState<number | null>(null);
+  const [from, setFrom] = useState(0);
+  const g = useRef<any>(null);
+  useEffect(() => {
+    const el = wrap.current; if (!el) return;
+    const ro = new ResizeObserver(() => setW(Math.round(el.getBoundingClientRect().width)));
+    ro.observe(el); return () => ro.disconnect();
+  }, []);
+  useEffect(() => subscribeTilt((x) => { if (tilt && wrap.current) wrap.current.style.setProperty('--sx', Math.round(30 + x * 28) + '%'); }), [tilt]);
+  const geo = useMemo(() => barGeometry(W), [W]);
+  const idx = Math.max(0, TABS.findIndex((t) => t[0] === view));
+  const prevIdx = useRef(idx);
+  useEffect(() => { setFrom(prevIdx.current); prevIdx.current = idx; }, [idx]);
+  const centers = geo.lefts.map((l) => l + geo.tw / 2);
+  const near = (x: number) => centers.reduce((bi, c2, i) => (Math.abs(c2 - x) < Math.abs(centers[bi] - x) ? i : bi), 0);
+  const right = idx >= from;
+  let L = geo.lefts[idx], R = W - geo.lefts[idx] - geo.tw;
+  if (drag != null) { L = Math.max(4, Math.min(W - geo.tw - 4, drag - geo.tw / 2)); R = W - L - geo.tw; }
+  const lensStyle: any = { left: L, right: R, transition: drag != null ? 'left 70ms linear, right 70ms linear, transform 200ms var(--eo)' : `left ${right ? 380 : 220}ms var(--eo), right ${right ? 220 : 380}ms var(--eo), transform 200ms var(--eo)` };
+  const down = (e: React.PointerEvent) => {
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    g.current = { x0: e.clientX, r: (e.currentTarget as HTMLElement).getBoundingClientRect(), moved: false, last: e.clientX, t: performance.now(), v: 0 };
+  };
+  const move = (e: React.PointerEvent) => {
+    const s = g.current; if (!s) return;
+    if (!s.moved && Math.abs(e.clientX - s.x0) < 6) return;
+    const now = performance.now(); s.v = (e.clientX - s.last) / Math.max(1, now - s.t); s.last = e.clientX; s.t = now; s.moved = true;
+    setDrag(e.clientX - s.r.left);
+  };
+  const up = (e: React.PointerEvent) => {
+    const s = g.current; g.current = null; if (!s) return;
+    const x = e.clientX - s.r.left;
+    const i = near(s.moved ? x + s.v * 140 : x);
+    setDrag(null);
+    if (s.moved) feel('snap');
+    go(TABS[i][0]);
+  };
+  const mag = drag != null ? near(drag) : -1;
+  return (
+    <div className="gbar" ref={wrap}>
+      <svg className="gshadow" viewBox={`0 0 ${W} 80`} aria-hidden="true"><path d={geo.path} /></svg>
+      <div className="glass" style={{ clipPath: `path('${geo.path}')`, WebkitClipPath: `path('${geo.path}')` } as any} />
+      <svg className="grim" viewBox={`0 0 ${W} 80`} aria-hidden="true"><defs><linearGradient id="grim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="g0" /><stop offset=".45" className="g1" /><stop offset="1" className="g2" /></linearGradient></defs><path d={geo.path} /></svg>
+      <nav className="gtabs" aria-label="Secciones" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { g.current = null; setDrag(null); }}>
+        <span className={'glens' + (drag != null ? ' drag' : '')} style={lensStyle} aria-hidden="true" />
+        {TABS.map(([v, label, Ic], i) => (
+          <button key={v} className={'gtab' + (view === v && drag == null ? ' on' : '') + (mag === i ? ' mag' : '')} style={{ left: geo.lefts[i], width: geo.tw }} aria-current={view === v ? 'page' : undefined} onClick={(e) => { if (e.detail === 0) go(v); }}>
+            <Ic />{label}
+          </button>
+        ))}
+      </nav>
+      <button className="gdrop" style={{ left: W / 2 - 28 }} aria-label="Registrar" onClick={onAdd}><IPlus /></button>
+    </div>
+  );
+}
 
 export default function App() {
   const { s, toast } = useWallet();
   const sysDark = useSystemDark();
   const dark = s.settings.theme === 'dark' || (s.settings.theme !== 'light' && sysDark);
   const look = lookOf(s.settings);
+  const reduce = look.motion === 'none' || systemReduce();
   const [view, setView] = useState<View>('home');
   const [params, setParams] = useState<any>({});
   const [stack, setStack] = useState<{ v: View; p: any }[]>([]);
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [closing, setClosing] = useState(false);
   const [hide, setHide] = useState<boolean>(!!look.hide);
   const [sel, setSel] = useState<string | null>(null);
+  const [dx, setDx] = useState(0);
+  const phRef = useRef<HTMLDivElement>(null);
+  const flyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setFeel({ sound: !!look.sound, reduce }); }, [look.sound, reduce]);
+  useEffect(() => { if (s.settings.onboardingComplete) ensureCash(); }, [s.settings.onboardingComplete]);
 
   const go = useCallback((v: View, p: any = {}) => {
-    setStack((st) => (['home', 'movs', 'plan', 'ana'].includes(v) ? [] : st.concat([{ v: view, p: params }])));
+    const order = ['home', 'movs', 'plan', 'ana'];
+    const a = order.indexOf(view), b = order.indexOf(v);
+    setDx(a >= 0 && b >= 0 && a !== b ? (b > a ? 12 : -12) : 0);
+    setStack((st) => (order.includes(v) ? [] : st.concat([{ v: view, p: params }])));
     setView(v); setParams(p); setSheet(null);
     requestAnimationFrame(() => document.querySelector('.scr')?.scrollTo({ top: 0 }));
   }, [view, params]);
@@ -45,15 +154,18 @@ export default function App() {
     setStack((st) => { const last = st[st.length - 1]; if (last) { setView(last.v); setParams(last.p); } else { setView('home'); setParams({}); } return st.slice(0, -1); });
   }, []);
   // Teclado del teléfono: iOS solo lo abre si el foco llega dentro del toque.
-  // Registrar enfoca un campo oculto en el mismo toque; la hoja le pasa el foco al monto al montarse.
   const prime = useRef<HTMLInputElement>(null);
   const open = useCallback((kind: string, props: any = {}) => {
     if (kind === 'register' && !props.editId) { try { prime.current?.focus({ preventScroll: true }); } catch { /* sin teclado */ } }
-    setSheet({ kind, props });
+    setClosing(false);
+    setSheet({ kind, props: Object.assign({ _drop: kind === 'register' && props._drop }, props) });
   }, []);
-  const close = useCallback(() => setSheet(null), []);
+  // La hoja sale por donde entró; luego se desmonta.
+  const close = useCallback(() => {
+    setClosing(true);
+    setTimeout(() => { setSheet(null); setClosing(false); }, reduce ? 160 : 260);
+  }, [reduce]);
 
-  // Avisos que abren la app con una intención (?checkin=1 desde una notificación).
   useEffect(() => {
     const q = new URLSearchParams(location.search);
     if (q.get('checkin') || q.get('action') === 'checkin') open('mood');
@@ -62,26 +174,30 @@ export default function App() {
     if (q.toString()) history.replaceState(null, '', location.pathname);
   }, [open]);
 
+  // Permiso de inclinación en el primer toque (iOS lo exige dentro de un gesto).
+  useEffect(() => {
+    if (!look.tilt || reduce) return;
+    const f = () => { askTiltOnce(); window.removeEventListener('pointerdown', f); };
+    window.addEventListener('pointerdown', f, { once: true });
+    return () => window.removeEventListener('pointerdown', f);
+  }, [look.tilt, reduce]);
+
   const cur = s.settings.activeCurrency;
   const selAcc = sel ? C.accountById(s, sel) : null;
   useEffect(() => { if (sel && (!selAcc || selAcc.archived || selAcc.currency !== cur)) setSel(null); }, [sel, selAcc, cur]);
 
-  // Piel: el banco de la cuenta elegida (Inicio, Movimientos) o de la cuenta abierta.
   let bank = 'wallet';
   if (view === 'account' && params.id) bank = bankOf(C.accountById(s, params.id));
   else if ((view === 'home' || view === 'movs' || view === 'ana') && selAcc) bank = bankOf(selAcc);
-  if (look.style !== 'bank' && bank !== 'wallet') bank = 'wallet';
-  const skin = skinFor(look.style === 'bank' ? bank : 'wallet', dark, look);
+  const skin = skinFor(bank, dark, look);
   const vars = cssVars(skin);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', skin.pg);
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.setAttribute('content', skin.pg); m.removeAttribute('media'); });
     document.documentElement.style.setProperty('--app-bg', skin.pg);
   }, [dark, skin.pg]);
 
-  // Altura del teclado (--kb): la hoja se apoya encima y el botón final queda a la vista.
   useEffect(() => {
     const vv = window.visualViewport; if (!vv) return;
     const root = document.documentElement;
@@ -95,13 +211,37 @@ export default function App() {
     return () => { vv.removeEventListener('resize', f); vv.removeEventListener('scroll', f); };
   }, []);
 
+  // El gasto cae en su naipe: al registrar, el monto vuela desde la gota hasta la cuenta.
+  useEffect(() => {
+    const onLand = (e: any) => {
+      const { accountId, text } = e.detail || {};
+      feel('success');
+      const ph = phRef.current, pill = flyRef.current;
+      const card = ph && accountId ? ph.querySelector('[data-acc="' + accountId + '"]') as HTMLElement | null : null;
+      if (!ph || !pill || !card || reduce || view !== 'home') return;
+      const pr = ph.getBoundingClientRect(), cr = card.getBoundingClientRect(), drop = ph.querySelector('.gdrop') as HTMLElement | null;
+      const dr = drop ? drop.getBoundingClientRect() : { left: pr.left + pr.width / 2 - 28, top: pr.bottom - 80, width: 56, height: 56 } as any;
+      if (cr.top < pr.top || cr.bottom > pr.bottom - 90) return;
+      pill.textContent = text || '';
+      const x0 = dr.left - pr.left + dr.width / 2 - 50, y0 = dr.top - pr.top + dr.height / 2 - 17;
+      const x1 = Math.min(cr.left - pr.left + 4, pr.width - 110), y1 = cr.top - pr.top + 22;
+      const ox = pill.parentElement!;
+      pill.style.opacity = '1';
+      const ax = ox.animate([{ transform: `translateX(${x0}px)` }, { transform: `translateX(${x1}px)` }], { duration: 440, easing: 'cubic-bezier(.77,0,.175,1)', fill: 'forwards' });
+      pill.animate([{ transform: `translateY(${y0}px) scale(1)`, opacity: 1 }, { transform: `translateY(${y1}px) scale(.92)`, opacity: 1, offset: 0.85 }, { transform: `translateY(${y1}px) scale(.6)`, opacity: 0 }], { duration: 520, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'forwards' });
+      ax.onfinish = () => { card.classList.add('dip'); setTimeout(() => card.classList.remove('dip'), 160); };
+    };
+    window.addEventListener('wallet:landed', onLand);
+    return () => window.removeEventListener('wallet:landed', onLand);
+  }, [reduce, view]);
+
   const ctx = useMemo(() => ({ view, params, go, back, open, close, dark, look, hide, toggleHide: () => setHide((h) => !h), sel, setSel }), [view, params, go, back, open, close, dark, look, hide, sel]);
 
   const tabs = ['home', 'movs', 'plan', 'ana'].includes(view);
-  const cls = ['ph', 'sk-' + bank, dark ? 'dk' : '', tabs && s.settings.onboardingComplete ? 'has-nav' : '', 'sz-' + look.size, 'dn-' + look.dens, 'mo-' + look.motion].join(' ');
+  const cls = ['ph', 'w25', 'sk-' + bank, dark ? 'dk' : '', tabs && s.settings.onboardingComplete ? 'has-nav' : '', 'mo-' + look.motion, reduce ? 'rm' : '', look.motion === 'none' ? '' : 'breathe', sheet ? 'has-sheet' : '', closing ? 'sheet-out' : '', sheet && sheet.kind === 'register' && !(sheet.props || {}).editId ? 'from-drop' : ''].join(' ');
 
   if (!s.settings.onboardingComplete) {
-    return <Provider value={ctx}><div className={cls} style={{ ...(cssVars(palette('wallet', dark)) as any) }}><Onboarding /><SheetHost sheet={sheet} /></div></Provider>;
+    return <Provider value={ctx}><div className={cls} style={vars as any}><Pebbles tilt={false} /><Onboarding /><SheetHost sheet={sheet} /></div></Provider>;
   }
 
   let screen: React.ReactNode = null;
@@ -117,29 +257,19 @@ export default function App() {
 
   return (
     <Provider value={ctx}>
-      <div className={cls} style={vars as any}>
-        {screen}
-        {tabs && (
-          <>
-            <nav className="nav" aria-label="Secciones">
-              {/* Lente de vidrio: se desliza a la pestaña activa. */}
-              <span className="lens" aria-hidden="true" style={{ ['--i' as any]: ({ home: 0, movs: 1, plan: 2, ana: 3 } as any)[view] }}><i key={view} /></span>
-              <button className={'tab' + (view === 'home' ? ' on' : '')} aria-current={view === 'home'} onClick={() => go('home')}><IHome />Inicio</button>
-              <button className={'tab' + (view === 'movs' ? ' on' : '')} aria-current={view === 'movs'} onClick={() => go('movs')}><IList />Movimientos</button>
-              <button className={'tab' + (view === 'plan' ? ' on' : '')} aria-current={view === 'plan'} onClick={() => go('plan')}><ICal />Planifica</button>
-              <button className={'tab' + (view === 'ana' ? ' on' : '')} aria-current={view === 'ana'} onClick={() => go('ana')}><IBars />Análisis</button>
-            </nav>
-            <button className="addb" aria-label="Registrar" onClick={() => open('register', { accountId: sel || undefined })}><IPlus /></button>
-          </>
-        )}
+      <div className={cls} style={vars as any} ref={phRef}>
+        <Pebbles tilt={!!look.tilt && !reduce} />
+        <div className="scrn" key={view} style={{ ['--dx' as any]: dx + 'px' }}>{screen}</div>
+        {tabs && <GlassBar view={view} go={go} tilt={!!look.tilt && !reduce} onAdd={() => { feel('tap'); open('register', { accountId: sel || undefined, _drop: true }); }} />}
         <input ref={prime} className="kbprime" inputMode="decimal" aria-hidden="true" tabIndex={-1} autoComplete="off" defaultValue="" />
         <SheetHost sheet={sheet} />
-        {toast && (
-          <div className="toast" role="status" key={toast.id}>
+        <div className="flyx" aria-hidden="true"><div className="flyp" ref={flyRef} /></div>
+        <div className={'toast' + (toast ? ' on' : '')} role="status" aria-live="polite">
+          {toast && <>
             <span>{toast.text}</span>
-            {toast.undo ? <button className="undo" onClick={() => { const u = toast.undo; dismissToast(); u && u(); }}>Deshacer</button> : <button className="undo" onClick={dismissToast} aria-label="Cerrar aviso" style={{ textDecoration: 'none' }}>✕</button>}
-          </div>
-        )}
+            {toast.undo ? <button className="undo" onClick={() => { const u = toast.undo; dismissToast(); feel('undo'); u && u(); }}>Deshacer</button> : <button className="undo" onClick={dismissToast} aria-label="Cerrar aviso" style={{ textDecoration: 'none' }}>✕</button>}
+          </>}
+        </div>
       </div>
     </Provider>
   );

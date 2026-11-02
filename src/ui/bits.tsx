@@ -5,33 +5,23 @@ import { brandFor, markSrc, markAspect, bankOf, palette } from '../design/theme'
 import { IX, catGlyph } from './icons';
 import { useUI } from './ctx';
 
-// Contador tipo odómetro: cada dígito rueda hasta su valor.
+// Contador tipo odómetro (Wallet 25): al abrir no rueda; cuando el número cambia, solo ruedan
+// los dígitos que cambiaron, 280 ms. Las columnas se alinean por la derecha para que no salten.
 export function Odometer({ minor, currency, cents = true, size = '' }: { minor: number; currency: string; cents?: boolean; size?: string }) {
-  const { look } = useUI();
   const p = C.moneyParts(minor, currency);
-  const str = p.whole + (cents && p.dec ? '.' + p.dec : '');
-  const [shown, setShown] = useState(look.motion === 'none' ? str : str.replace(/\d/g, '0'));
-  useEffect(() => { const t = setTimeout(() => setShown(str), 30); return () => clearTimeout(t); }, [str]);
-  const chars = shown.length === str.length ? shown : str;
-  const dot = str.indexOf('.');
-  const label = (p.sign ? 'menos ' : '') + p.symbol + ' ' + str;
+  const whole = p.whole, dec = cents && p.dec ? p.dec : '';
+  const label = (p.sign ? 'menos ' : '') + p.symbol + ' ' + whole + (dec ? '.' + dec : '');
+  const col = (ch: string, k: string) => (/\d/.test(ch)
+    ? <span key={k} className="col"><span className="strip" style={{ transform: `translateY(${-Number(ch)}em)` }}>{'0123456789'.split('').map((d) => <span key={d}>{d}</span>)}</span></span>
+    : <span key={k} className="sep">{ch}</span>);
+  const wch = whole.split('');
   return (
     <div className="big" role="img" aria-label={label}>
       <span className="cu">{p.symbol}</span>
       <span className={'odo ' + size} aria-hidden="true">
         {p.sign && <span className="sep neg">−</span>}
-        {chars.split('').map((ch, i) => {
-          const dec = dot >= 0 && i >= dot ? ' dec' : '';
-          if (!/\d/.test(ch)) return <span key={i} className={'sep' + dec}>{ch}</span>;
-          const target = /\d/.test(str[i]) ? Number(chars[i]) : 0;
-          return (
-            <span key={i} className={'col' + dec}>
-              <span className="strip" style={{ transform: `translateY(${-target}em)`, transitionDelay: (str.length - 1 - i) * 30 + 'ms' }}>
-                {'0123456789'.split('').map((d) => <span key={d}>{d}</span>)}
-              </span>
-            </span>
-          );
-        })}
+        {wch.map((ch, i) => col(ch, 'w' + (wch.length - i)))}
+        {dec && <span className="ct"><span className="sep">.</span>{dec.split('').map((ch, i) => col(ch, 'd' + i))}</span>}
       </span>
     </div>
   );
@@ -69,14 +59,19 @@ function lum(hex: string) {
 }
 export function contrastOn(hex: string) { return lum(hex) > 0.42 ? '#141414' : '#FFFFFF'; }
 
-// Tarjeta de cuenta (naipe) con su color de banco.
-export function CardFace({ account, dark, className = 'rb', children, style }: { account: any; dark: boolean; className?: string; children?: React.ReactNode; style?: any }) {
+// Tarjeta de cuenta (naipe) con su color de banco. Wallet 25: el monto va grabado abajo, el «S/» pequeño.
+export function CardFace({ account, dark, className = 'rb', children, style, balance, full }: { account: any; dark: boolean; className?: string; children?: React.ReactNode; style?: any; balance?: number | null; full?: boolean }) {
+  const { hide } = useUI();
   const bank = bankOf(account);
   const p = palette(bank, dark);
   const src = markSrc(bank);
+  const goal = account.kind === 'reserve' && bank === 'wallet';
+  const pct = goal && account.goalMinor ? Math.max(0, Math.min(100, Math.round(((balance || 0) / account.goalMinor) * 100))) : 0;
+  const mp = balance != null ? C.moneyParts(balance, account.currency) : null;
   return (
-    <span className={className} style={Object.assign({ ['--cb' as any]: account.kind === 'reserve' && bank === 'wallet' ? 'color-mix(in srgb, var(--tx) 70%, var(--pg))' : p.cb, ['--ci' as any]: account.kind === 'reserve' && bank === 'wallet' ? 'var(--pg)' : p.ci }, style || {})}>
-      <span className="mkw">{src ? <img className={'mk ' + markAspect(bank)} src={src} alt="" /> : <b className="nmB">{account.name}</b>}</span>
+    <span className={className + (goal ? ' goal' : '') + (bank === 'cash' ? ' cash' : '')} data-acc={account.id} style={Object.assign({ ['--cb' as any]: goal ? '#2A2824' : p.cb, ['--ci' as any]: goal ? '#FFFFFF' : p.ci, ['--pct' as any]: pct + '%' }, style || {})}>
+      <span className="mkw">{src ? <img className={'mk ' + markAspect(bank)} src={src} alt="" /> : <b className="nmB">{goal ? account.name : account.name}</b>}</span>
+      {mp && <span className="emb"><small>{mp.symbol}</small>{hide ? '••••' : (mp.sign ? '−' : '') + mp.whole}{full && !hide && mp.dec ? <em>.{mp.dec}</em> : null}</span>}
       {children}
     </span>
   );

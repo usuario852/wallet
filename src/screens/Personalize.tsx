@@ -6,8 +6,8 @@ import { Seg, Switch } from '../ui/bits';
 import { lookOf, LOOK_DEFAULTS } from '../design/theme';
 import { BackHeader } from './parts';
 
-const SW8: [string, string][] = [['#1D4ED8', 'Azul'], ['#047857', 'Verde'], ['#0F766E', 'Petróleo'], ['#B91C1C', 'Rojo'], ['#C2410C', 'Naranja'], ['#A16207', 'Mostaza'], ['#86198F', 'Ciruela'], ['#374151', 'Grafito']];
-const BL: Record<string, string> = { naipes: 'Tus cuentas', hoy: 'Resumen del día', acc: 'Acciones', deuda: 'Lo que debes', prox: 'Próximo' };
+import { feel } from '../ui/feel';
+const BL: Record<string, string> = { naipes: 'Tus cuentas', hoy: 'Hasta fin de mes', animo: '¿Cómo estás?', acc: 'Lo último', deuda: 'Lo que debes', prox: 'Próximo' };
 
 function G({ t, children }: { t: string; children: React.ReactNode }) { return <><span className="glab">{t}</span><div className="card">{children}</div></>; }
 
@@ -22,19 +22,9 @@ export default function Personalize() {
     <>
       <BackHeader label="Ajustes" />
       <div className="scr noscr aj">
-        <div className="sec phd" style={{ paddingTop: 8 }}><span className="pht"><b>Personaliza</b><small>Cada cambio se ve al instante.</small></span></div>
+        <div className="sec phd" style={{ paddingTop: 8 }}><span className="pht"><b>Personaliza</b></span></div>
         <div className="sec">
-          <G t="Tema">
-            <button className="lrow" onClick={back} aria-label="Volver a Ajustes para cambiar el tema"><span className="sc"><b>{s.settings.theme === 'dark' ? 'Oscuro' : s.settings.theme === 'light' ? 'Claro' : 'Automático'}</b><small>Se cambia en Ajustes, Apariencia.</small></span><span className="lnk">Cambiar en Ajustes ›</span></button>
-          </G>
-          <G t="Color">
-            <Seg items={[['bank', 'Cada banco'], ['one', 'Un color'], ['mono', 'Sin color']]} value={look.style} onChange={(v) => set({ style: v })} label="Color" className="n3" />
-            <p className="tsm2">{look.style === 'bank' ? 'Cada cuenta con los colores de su banco.' : look.style === 'one' ? 'Todo con el color que elijas.' : 'Blanco y negro, como una libreta.'}</p>
-            {look.style === 'one' && <div className="sw8">{SW8.map(([c, t]) => <button key={c} className={'swc' + (look.accent === c ? ' on' : '')} style={{ ['--c' as any]: c }} onClick={() => set({ accent: c })} aria-label={t} aria-pressed={look.accent === c}><i /><small>{t}</small></button>)}</div>}
-          </G>
-          <G t="Esquinas"><Seg items={[['bank', 'Del banco'], ['r', 'Redondas'], ['m', 'Medias'], ['s', 'Rectas']]} value={look.corner} onChange={(v) => set({ corner: v })} label="Esquinas" /></G>
-          <G t="Letra"><Seg items={[['s', 'Chica'], ['m', 'Normal'], ['l', 'Grande']]} value={look.size} onChange={(v) => set({ size: v })} label="Tamaño de letra" className="n3" /><p className="tsm2">También respeta el tamaño de letra del iPhone.</p></G>
-          <G t="Espacio"><Seg items={[['n', 'Cómoda'], ['c', 'Compacta']]} value={look.dens} onChange={(v) => set({ dens: v })} label="Espacio" /></G>
+          <G t="Tema"><Seg items={[['system', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']]} value={(s.settings.theme || 'system') as any} onChange={(v) => commit((x) => { x.settings.theme = v; })} label="Tema" className="n3" /></G>
           <G t="El número grande">
             <Seg items={[['liq', 'Patrimonio'], ['disp', 'Disponible'], ['hoy', 'Lo de hoy']]} value={look.big} onChange={(v) => set({ big: v })} label="Número grande" className="n3" />
             <div className="srow"><span className="sc"><b>Céntimos</b><small>Mostrar los decimales en el número grande.</small></span><Switch on={look.cents} onChange={(v) => set({ cents: v })} label="Céntimos" /></div>
@@ -53,9 +43,13 @@ export default function Personalize() {
               </div>
             ))}
           </G>
+          <G t="Sensaciones">
+            <div className="srow"><span className="sc"><b>Sonidos</b><small>Un clic suave al registrar y deshacer.</small></span><Switch on={!!look.sound} onChange={(v) => { set({ sound: v }); if (v) setTimeout(() => feel('success'), 50); }} label="Sonidos" /></div>
+            <div className="srow"><span className="sc"><b>Inclinación</b><small>Las formas y el vidrio siguen al teléfono.</small></span><Switch on={look.tilt !== false} onChange={(v) => set({ tilt: v })} label="Inclinación" /></div>
+          </G>
           <G t="Movimiento"><Seg items={[['full', 'Completo'], ['less', 'Suave'], ['none', 'Sin movimiento']]} value={look.motion} onChange={(v) => set({ motion: v })} label="Movimiento" className="n3" /></G>
           <span className="glab">Restablecer</span>
-          <div className="card"><button className="srow" onClick={() => open('confirm', { title: 'Volver al diseño original', text: 'Se restablecen colores, letra, espacio y bloques del Inicio. Tus datos no cambian.', ok: 'Restablecer', onOk: () => set(Object.assign({}, LOOK_DEFAULTS, { defaultAccount: look.defaultAccount })) })}><span className="sc"><b>Volver al diseño original</b></span></button></div>
+          <div className="card"><button className="srow" onClick={() => open('confirm', { title: 'Volver al diseño original', text: 'Se restablecen el número grande, los bloques del Inicio y las sensaciones. Tus datos no cambian.', ok: 'Restablecer', onOk: () => set(Object.assign({}, LOOK_DEFAULTS, { defaultAccount: look.defaultAccount })) })}><span className="sc"><b>Volver al diseño original</b></span></button></div>
         </div>
         <div className="endpad" />
       </div>

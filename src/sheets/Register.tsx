@@ -2,10 +2,12 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import * as C from '../domain/core';
 import * as D from '../domain/derive';
-import { useWallet, addOperation, updateOperation, notify } from '../store';
+import { useWallet, addOperation, updateOperation, notify, addMoodCheckin } from '../store';
 import { useUI } from '../ui/ctx';
-import { SheetFrame, Seg, AmountField, useKeypad, CardFace, useMoney } from '../ui/bits';
-import { bankOf, cssVars, skinFor } from '../design/theme';
+import { SheetFrame, Seg, AmountField, useKeypad, CardFace, useMoney, RowIcon } from '../ui/bits';
+import { MoodQuick } from '../screens/Home';
+import { feel } from '../ui/feel';
+import { bankOf, cssVars, skinFor, palette } from '../design/theme';
 import { referenceRate } from '../net';
 
 type Tab = 'expense' | 'income' | 'move';
@@ -26,6 +28,8 @@ export default function Register({ props }: { props: any }) {
   const [dayMode, setDayMode] = useState<'hoy' | 'ayer' | 'otro'>(editing ? (C.sameDay(editing.date, C.todayLocal()) ? 'hoy' : 'otro') : 'hoy');
   const [otherDate, setOtherDate] = useState(editing ? String(editing.date).slice(0, 10) : C.todayLocal());
   const [note, setNote] = useState(editing ? editing.note || '' : '');
+  const [mood, setMood] = useState<any>(null);
+  const [flash, setFlash] = useState(0);
   // El monto se escribe con el teclado del teléfono, que ya viene abierto desde el toque en Registrar.
   const amtRef = useRef<HTMLInputElement>(null);
   const whatRef = useRef<HTMLInputElement>(null);
@@ -61,7 +65,7 @@ export default function Register({ props }: { props: any }) {
   const cats = (s.categories[type] || []).filter((c: any) => !c.archived).map((c: any) => c.name);
   const chosenCat = cat || auto || (type === 'income' ? 'Otros ingresos' : 'Otros');
   const orderedCats = useMemo(() => [chosenCat].concat(cats.filter((c: string) => c !== chosenCat)).filter((c: string) => cats.includes(c) || c === chosenCat), [chosenCat, cats.join('|')]);
-  const freq = useMemo(() => C.catalogSuggestions(s, cur, type, '').slice(0, 8), [s, cur, type]);
+  const freq = useMemo(() => C.catalogSuggestions(s, cur, type, '').slice(0, 10), [s, cur, type]);
   const sugg = useMemo(() => (what.trim().length >= 2 ? C.catalogSuggestions(s, cur, type, what.trim()).slice(0, 6) : []), [s, cur, type, what]);
 
   const onWhat = (v: string) => {
@@ -70,7 +74,7 @@ export default function Register({ props }: { props: any }) {
     if (p.amount && !kp.value) kp.set(p.amount);
     setAuto(p.category || '');
   };
-  const choose = (x: any) => { setWhat(x.concept); setCat(x.category); if (!kp.value || Number(kp.value) === 0) kp.set(String(C.fromMinor(x.amountMinor, cur))); if (x.accountId && regular.some((a: any) => a.id === x.accountId) && !props.accountId) setAcc(x.accountId); };
+  const choose = (x: any) => { feel('tap'); setFlash((n) => n + 1); setWhat(x.concept); setCat(x.category); if (!kp.value || Number(kp.value) === 0) kp.set(String(C.fromMinor(x.amountMinor, cur))); if (x.accountId && regular.some((a: any) => a.id === x.accountId) && !props.accountId) setAcc(x.accountId); };
 
   const amountMinor = C.toMinor(kp.value || 0, tab === 'move' && fromA ? fromA.currency : cur);
   const accObj = C.accountById(s, acc);
@@ -86,7 +90,7 @@ export default function Register({ props }: { props: any }) {
       if (!amountMinor) return notify('Escribe cuánto mueves');
       if (!cross) {
         const op = addOperation({ type: 'transfer', fromAccountId: fromA.id, toAccountId: toA.id, currency: fromA.currency, amountMinor, concept: toA.kind === 'reserve' ? 'Aporte a ' + toA.name : 'Transferencia interna', date: dateIso }, 'Moviste ' + C.money(amountMinor, fromA.currency) + ' a ' + toA.name);
-        if (op) close();
+        if (op) { close(); setTimeout(() => window.dispatchEvent(new CustomEvent('wallet:landed', { detail: { accountId: toA.id, text: '+' + C.money(amountMinor, fromA.currency) } })), 200); }
         return;
       }
       const dr = Number(rate.display); if (!dr || dr <= 0) return notify('Escribe un tipo de cambio válido');
@@ -105,14 +109,19 @@ export default function Register({ props }: { props: any }) {
       return;
     }
     base.date = dateIso;
-    base.mood = C.moodForNewOperation(s, dateIso);
-    const op = addOperation(base, (type === 'income' ? 'Registraste ' : 'Registraste ') + concept.toLowerCase() + ', ' + C.money(amountMinor, cur) + ', en ' + accObj.name);
-    if (op) close();
+    // Ánimo opcional al registrar: si lo marcas aquí, queda como registro propio y en el movimiento.
+    if (mood && dayMode === 'hoy') { const c = addMoodCheckin({ valence: mood.v, energy: mood.e, tension: mood.t, source: 'register' }, { silent: true }); base.mood = c ? C.normalizeMood(c) : C.moodForNewOperation(s, dateIso); }
+    else base.mood = C.moodForNewOperation(s, dateIso);
+    const op = addOperation(base, (type === 'income' ? 'Ingreso: ' : '') + concept + ', ' + C.money(amountMinor, cur) + ' en ' + accObj.name);
+    if (op) {
+      close();
+      const text = (type === 'income' ? '+' : '−') + C.money(amountMinor, cur);
+      setTimeout(() => window.dispatchEvent(new CustomEvent('wallet:landed', { detail: { accountId: accObj.id, text } })), 200);
+    }
   };
 
-  // La hoja toma el color de la cuenta elegida.
-  const skinAcc = tab === 'move' ? fromA : accObj;
-  const skin = skinFor(look.style === 'bank' && skinAcc ? bankOf(skinAcc) : 'wallet', dark, look);
+  // La hoja es papel de la mesa: el color lo ponen los naipes, no la hoja.
+  const skin = skinFor('wallet', dark, look);
   const ok = tab === 'move' ? (fromA && toA ? (cross ? 'Cambiar ' : 'Mover ') + (amountMinor ? C.money(amountMinor, fromA.currency) : '') + ' a ' + toA.name : 'Mover') : (editing ? 'Guardar cambios' : 'Registrar ' + (amountMinor ? C.money(amountMinor, cur) + ' ' : '') + 'en ' + (accObj ? accObj.name : ''));
   const disabled = !amountMinor || (tab !== 'move' && !accObj) || (tab === 'move' && cross && !Number(rate.display));
 
@@ -128,16 +137,27 @@ export default function Register({ props }: { props: any }) {
     <div style={cssVars(skin) as any}>
       <SheetFrame title={editing ? 'Editar movimiento' : 'Registrar'} onClose={close} full>
         {!editing && <Seg items={[['expense', 'Gasto'], ['income', 'Ingreso'], ['move', 'Mover']]} value={tab} onChange={setTab} label="Tipo" className="n3" />}
-        <AmountField ref={amtRef} value={kp.value} onChange={kp.set} onEnter={() => (whatRef.current ? whatRef.current.focus() : amtRef.current?.blur())} currency={tab === 'move' && fromA ? fromA.currency : cur} />
+        <div className={'amtw' + (flash ? ' fl' + (flash % 2) : '')}><AmountField ref={amtRef} value={kp.value} onChange={kp.set} onEnter={() => (whatRef.current ? whatRef.current.focus() : amtRef.current?.blur())} currency={tab === 'move' && fromA ? fromA.currency : cur} /></div>
         {tab !== 'move' ? <>
           <label className="wq">¿Qué fue?<input ref={whatRef} value={what} onChange={(e) => onWhat(e.target.value)} placeholder={type === 'income' ? 'Ej. sueldo, venta' : 'Ej. uber 18, almuerzo 15'} autoComplete="off" enterKeyHint="done" /></label>
-          {sugg.length > 0 && what.trim() && !sugg.some((x: any) => C.normalizeText(x.concept) === C.normalizeText(what)) && (
-            <div className="fq noscr">{sugg.map((x: any) => <button key={x.concept} className="fqc" onClick={() => choose(x)}>{x.concept} <span className="fqa">{C.money(x.amountMinor, cur)}</span></button>)}</div>
-          )}
-          {!what.trim() && freq.length > 0 && <>
-            <div className="lab2"><span className="lab">Frecuentes</span></div>
-            <div className="fq noscr">{freq.map((x: any) => <button key={x.concept} className="fqc" onClick={() => choose(x)}>{x.concept} <span className="fqa">{C.money(x.amountMinor, cur)}</span></button>)}</div>
-          </>}
+          {(() => {
+            const list = what.trim() ? sugg.filter((x: any) => C.normalizeText(x.concept) !== C.normalizeText(what)) : freq;
+            if (!list.length) return null;
+            return (
+              <div className="fq2 noscr" role="group" aria-label={what.trim() ? 'Sugerencias' : 'Frecuentes'}>
+                {list.map((x: any) => {
+                  const a = x.accountId ? C.accountById(s, x.accountId) : null;
+                  return (
+                    <button key={x.concept + (x.accountId || '')} className="fqc2" onClick={() => choose(x)}>
+                      <RowIcon text={x.concept} cat={x.category} />
+                      <b>{x.concept}</b>
+                      <span className="nums">{C.money(x.amountMinor, cur)}{a && <i style={{ background: palette(bankOf(a), dark).cb }} aria-hidden="true" />}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
           <div className="lab2"><span className="lab">Categoría{!cat && auto ? ', sugerida' : ''}</span><button className="ed" onClick={() => open('categories')}>Editar</button></div>
           <div className="cats noscr">{orderedCats.map((c: string) => <button key={c} className={'cc' + (chosenCat === c ? ' on' : '')} aria-pressed={chosenCat === c} onClick={() => setCat(c)}>{C.showCat(c)}</button>)}</div>
           <div className="lab">Cuenta</div>
@@ -177,6 +197,7 @@ export default function Register({ props }: { props: any }) {
           <button className={'cc' + (dayMode === 'ayer' ? ' on' : '')} onClick={() => setDayMode('ayer')}>Ayer</button>
           {dayMode === 'otro' ? <input type="date" value={otherDate} max={C.todayLocal()} onChange={(e) => setOtherDate(e.target.value)} aria-label="Fecha" /> : <button className="cc" onClick={() => setDayMode('otro')}>Otro día</button>}
         </div>
+        {!editing && tab !== 'move' && dayMode === 'hoy' && <><div className="lab">¿Cómo estás? <span className="lop">Opcional</span></div><MoodQuick compact onPick={(m) => setMood(mood && mood.k === m.k ? null : m)} /></>}
         {editing && <label className="wq">Nota<input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Opcional" /></label>}
         <div className="okwrap"><button className={'okb' + (disabled ? ' dis' : '')} disabled={disabled} onClick={submit}>{ok}</button></div>
       </SheetFrame>

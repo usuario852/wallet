@@ -53,3 +53,17 @@ Rediseño con el skill app-designer-pro tras rechazar el Estuche, el cielo y la 
 - Barra: 4 pestañas de vidrio + Registrar en su propio círculo de vidrio (`.addb`), sin + centrado.
 - Registrar usa el teclado nativo: `open('register')` enfoca un campo oculto (`.kbprime`) dentro del toque y la hoja pasa el foco al monto (`AmountField`, `cleanAmount` en bits.tsx: coma o punto, 2 decimales, 9 cifras). `--kb` (visualViewport) apoya la hoja sobre el teclado. "Siguiente" salta a "¿Qué fue?".
 - Movimientos y Planifica sin sellos de fecha: el día es una línea de texto ("Jueves 29"); cuenta filtrada = línea con logo y saldo.
+
+## Wallet 25 · La mesa (publicada el 2 nov 2026, rama wallet-25)
+Diseño hecho en un lienzo de Claude (prototipos interactivos) y llevado a la app. Bloque `Wallet 25 · La mesa` al final de `styles.css` (los bloques anteriores quedan debajo como base; manda el último):
+- Papel #F7F5F0 / grafito #0E0E0D, tinta #17171A / #F3F1EC. Mona Sans ancha (font-stretch 112–118%, 720) para números grandes y títulos; Geist para el resto. Sin frases explicativas en pantallas principales: filas etiqueta/valor (`.lv`).
+- Naipes: fila plana y superpuesta con el saldo grabado (`CardFace` con `balance`/`full`); el elegido sube recto y muestra céntimos; los de después se corren 20px.
+- Tarjeta del día (`.adv`): única oscura; su paleta sale del color del banco elegido con `palFor` (4.5:1). Medidor neutro con rayado si te pasas.
+- Piedras (`Pebbles` en App.tsx) que respiran 19/23/29 s y se mueven con la inclinación (`ui/feel.ts`: háptica, sonidos WebAudio apagados por defecto, inclinación con permiso en el primer toque).
+- Barra de vidrio líquido (`GlassBar`): 4 pestañas, lente arrastrable con lupa, gota + al centro. Registrar nace de la gota (clip-path) y vuelve a ella; el monto vuela a su naipe (evento `wallet:landed`).
+- Ánimo en todas partes: bloque de un toque en Inicio (5 formas, `MoodQuick`), opcional al registrar, mapa en la hoja de ánimo, pestaña Ánimo en Análisis. Horarios: Ajustes › Avisos › «Cada 4 horas» (`moodScheduleEvery4h`, desde levantarse+30 min hasta dormir−30 min).
+- Análisis a fondo con sub-pestañas Resumen / Flujo / Hábitos / Ánimo / Metas. Todo derivado en `src/domain/insights.ts` (no toca core/derive). 50/30/20: la persona clasifica cada categoría (`settings.needsWants`).
+- IA con control total (borrar, editar, pagar cuotas, ajustes, borrar todo, restaurar copia previa) sin confirmaciones: cada cambio deja Deshacer (`withUndo` en ai.ts guarda el estado completo).
+- Onboarding: tour de 4 escenas que se tocan; todos tienen cuenta Efectivo en soles (`ensureCash`, también usuarios existentes).
+- Personaliza simplificado: tema, número grande, céntimos, ocultar, arriba del Inicio, naipes/fila, bloques, sonidos, inclinación, movimiento.
+- Avisos cada 15 min con GitHub Actions (`.github/workflows/cron.yml`, secreto `CRON_SECRET` del repo igual al de Vercel).

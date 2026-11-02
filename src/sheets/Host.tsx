@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as C from '../domain/core';
 import { useWallet, commit, notify, deleteOperation, settleInstallment, settleFixed, addMoodCheckin, addOperation } from '../store';
 import { useUI, Sheet } from '../ui/ctx';
+import { MOOD5, MoodShape } from '../screens/Home';
+import { feel } from '../ui/feel';
 import { SheetFrame, Seg, Switch, useMoney, CardFace } from '../ui/bits';
 import { ISend } from '../ui/icons';
 import { BANK_KEYS, bankName, bankOf } from '../design/theme';
@@ -346,7 +348,10 @@ function MoodSheet() {
   };
   const desc = C.moodDescriptor({ valence: v, energy: e, tension: t });
   return (
-    <SheetFrame title="¿Cómo estás?" sub={'Ahora: ' + desc} onClose={close} full>
+    <SheetFrame title="¿Cómo estás?" sub={desc} onClose={close} full>
+      <div className="m5row big" role="group" aria-label="Rápido">
+        {MOOD5.map((m) => { const on = Math.abs(v - m.v) < 9 && Math.abs(e - m.e) < 9; return <button key={m.k} className={'m5' + (on ? ' on' : '')} aria-pressed={on} onClick={() => { feel('tap'); setV(m.v); setE(m.e); setT(m.t); }}><MoodShape k={m.k} size={34} /><span>{m.label}</span></button>; })}
+      </div>
       <div ref={ref} className="moodmap" onPointerDown={(ev) => { (ev.target as HTMLElement).setPointerCapture?.(ev.pointerId); onPt(ev); }} onPointerMove={(ev) => { if (ev.buttons) onPt(ev); }} role="slider" aria-label="Ánimo y energía" aria-valuetext={desc} tabIndex={0}
         onKeyDown={(ev) => { if (ev.key === 'ArrowLeft') setV(Math.max(0, v - 5)); if (ev.key === 'ArrowRight') setV(Math.min(100, v + 5)); if (ev.key === 'ArrowUp') setE(Math.min(100, e + 5)); if (ev.key === 'ArrowDown') setE(Math.max(0, e - 5)); }}>
         <span className="ax" style={{ left: 10, bottom: 8 }}>Mal</span><span className="ax" style={{ right: 10, bottom: 8 }}>Bien</span><span className="ax" style={{ left: '50%', top: 8, transform: 'translateX(-50%)' }}>Con energía</span><span className="ax" style={{ left: '50%', bottom: 8, transform: 'translateX(-50%)' }}>Sin energía</span>
@@ -356,7 +361,6 @@ function MoodSheet() {
       <div className="tags">{TAGS.map((g) => <button key={g} className={'cc' + (tags.includes(g) ? ' on' : '')} onClick={() => setTags(tags.includes(g) ? tags.filter((x) => x !== g) : tags.concat([g]).slice(0, 5))}>{g}</button>)}</div>
       <label className="wq">Nota (opcional)<input value={note} onChange={(ev) => setNote(ev.target.value)} placeholder="Algo que quieras recordar" /></label>
       <button className="okb" onClick={() => { addMoodCheckin({ valence: v, energy: e, tension: t, tags, note }); close(); }}>Guardar</button>
-      <p className="note">Dura unas horas: los gastos que registres en ese tiempo guardan este contexto.</p>
     </SheetFrame>
   );
 }
@@ -376,13 +380,27 @@ function CurrencySheet() {
   );
 }
 
+// Las palabras de la respuesta aparecen de a pocas (sin animación si se reduce el movimiento).
+function Streamed({ text, live }: { text: string; live: boolean }) {
+  const words = text.split(/(\s+)/);
+  const [n, setN] = useState(live ? 0 : words.length);
+  useEffect(() => {
+    if (!live) { setN(words.length); return; }
+    const reduce = document.querySelector('.rm') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { setN(words.length); return; }
+    let i = 0; const t = setInterval(() => { i += 3; setN(i); if (i >= words.length) clearInterval(t); }, 28);
+    return () => clearInterval(t);
+  }, [text, live]); // eslint-disable-line react-hooks/exhaustive-deps
+  return <>{words.slice(0, n).join('')}</>;
+}
 function Ask({ prompt }: { prompt?: string }) {
   const { close, open } = useUI();
   const [hist, setHist] = useState<Msg[]>(() => { try { return JSON.parse(sessionStorage.getItem('wallet_ai_chat') || '[]'); } catch { return []; } });
   const [text, setText] = useState(prompt || '');
   const [busy, setBusy] = useState(false);
+  const [live, setLive] = useState(-1);
   const body = useRef<HTMLDivElement>(null);
-  useEffect(() => { try { sessionStorage.setItem('wallet_ai_chat', JSON.stringify(hist.slice(-30))); } catch { /* */ } body.current?.scrollIntoView({ block: 'end' }); }, [hist]);
+  useEffect(() => { try { sessionStorage.setItem('wallet_ai_chat', JSON.stringify(hist.slice(-30))); } catch { /* */ } body.current?.scrollIntoView({ block: 'end', behavior: 'smooth' }); }, [hist, busy]);
   const post = (a: PostAction) => {
     if (!a) return;
     if (a.kind === 'move') setTimeout(() => open('register', { tab: 'move', fromId: a.fromId, toId: a.toId, amount: a.amount }), 400);
@@ -390,32 +408,32 @@ function Ask({ prompt }: { prompt?: string }) {
   };
   const send = async (msg: string) => {
     const m = msg.trim(); if (!m || busy) return;
+    feel('tap');
     const h = hist.concat([{ role: 'user', text: m }]);
     setHist(h); setText(''); setBusy(true);
-    try { const r = await chat(h); setHist(h.concat([{ role: 'model', text: r.text, sources: r.sources }])); post(r.action); }
+    try { const r = await chat(h); setLive(h.length); setHist(h.concat([{ role: 'model', text: r.text, sources: r.sources }])); post(r.action); }
     catch (e: any) { setHist(h.concat([{ role: 'model', text: e.message || 'No pude responder ahora.', error: true }])); }
     finally { setBusy(false); }
   };
-  const SUG = ['¿Cuánto gasté este mes?', '¿Qué categoría pesa más?', 'Registra 15 soles de almuerzo', '¿Cómo voy con mi límite?'];
+  const SUG: [string, string][] = [['¿Cuánto gasté este mes?', 'Resumen'], ['¿En qué gasto más cuando estoy tenso?', 'Ánimo'], ['Registra 15 soles de almuerzo en efectivo', 'Registrar'], ['¿Llego a fin de mes?', 'Proyección'], ['Paga la cuota de este mes', 'Deudas'], ['Dame 3 ideas para ahorrar 200 soles', 'Metas']];
   return (
-    <SheetFrame title="Preguntar" sub="La IA lee tus datos de Wallet" onClose={close} full>
-      <div className="chat">
-        {!hist.length && <div className="sugs">{SUG.map((q) => <button key={q} onClick={() => send(q)}>{q}</button>)}</div>}
+    <SheetFrame title="Preguntar" onClose={close} full>
+      <div className="chat2">
+        {!hist.length && <div className="sug2">{SUG.map(([q, k]) => <button key={q} onClick={() => send(q)}><small>{k}</small><span>{q}</span></button>)}</div>}
         {hist.map((m, i) => (
-          <div key={i} className={'msg ' + (m.role === 'user' ? 'u' : 'm') + (m.error ? ' err' : '')}>
-            {m.text}
-            {m.sources && m.sources.length > 0 && <div style={{ marginTop: 6, fontSize: 13 }}>{m.sources.slice(0, 3).map((x) => <div key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a></div>)}</div>}
+          <div key={i} className={'bub ' + (m.role === 'user' ? 'u' : 'm') + (m.error ? ' err' : '')}>
+            {m.role === 'model' ? <Streamed text={m.text} live={i === live} /> : m.text}
+            {m.sources && m.sources.length > 0 && <div className="srcs">{m.sources.slice(0, 3).map((x) => <a key={x.url} href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a>)}</div>}
           </div>
         ))}
-        {busy && <div className="msg m">Pensando…</div>}
+        {busy && <div className="bub m typing" aria-label="Escribiendo"><i /><i /><i /></div>}
         <div ref={body} />
       </div>
-      <div className="compose">
-        <textarea rows={1} value={text} onChange={(e) => setText(e.target.value)} placeholder="Escribe o pide algo" onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(text); } }} aria-label="Mensaje" />
+      <div className="compose2">
+        <textarea rows={1} value={text} onChange={(e) => setText(e.target.value)} placeholder="Pregunta o pide algo" onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(text); } }} aria-label="Mensaje" />
         <button className="send" onClick={() => send(text)} disabled={busy || !text.trim()} aria-label="Enviar"><ISend /></button>
       </div>
-      {hist.length > 0 && <button className="ed" style={{ alignSelf: 'center' }} onClick={() => setHist([])}>Nueva conversación</button>}
-      <p className="note" style={{ textAlign: 'center' }}>La IA puede equivocarse. Lo que borra o cambia de moneda siempre te lo pregunta antes.</p>
+      {hist.length > 0 && <button className="ed" style={{ alignSelf: 'center', minHeight: 44 }} onClick={() => { setHist([]); setLive(-1); }}>Nueva conversación</button>}
     </SheetFrame>
   );
 }
