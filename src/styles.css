@@ -1527,3 +1527,86 @@ html,body{min-height:var(--app-h,100%)}
   .gbar{bottom:6px}
   .w25 .hin>.hdr{height:48px}
 }
+
+/* ==========================================================================
+   Wallet 28 · Las otras pestañas hablan como Inicio
+   Título grande de iPhone (34/700) en una sola línea con el selector de moneda; sin etiquetas
+   pequeñas encima; filas de una sola línea de detalle; íconos en el mismo cuadro de 40px;
+   tarjetas y encabezados con los mismos tamaños que Inicio (17/600 secciones, 15 filas, 13 detalle).
+   ========================================================================== */
+.w25 .ptl{padding-top:14px;padding-bottom:4px}
+.w25 .ptr{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
+.w25 .ptt{margin:0;font-size:clamp(28px,8.6cqi,34px);font-weight:700;letter-spacing:-.022em;line-height:1.1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w25 .pts{margin:2px 0 0;font-size:15px;color:var(--t2);font-weight:450}
+.w25 .phd,.w25 .eyb{display:none}
+/* filas: nombre 15/550, detalle 13 en una línea, monto 15/600 alineado con el nombre */
+.w25 .mrow{align-items:center;gap:12px}
+.w25 .mrow .lft{min-width:0;flex:1;gap:12px}
+.w25 .mrow .nm{min-width:0;display:flex;flex-direction:column;gap:2px}
+.w25 .mrow .nm>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w25 .mrow .nm>span:first-child{font-size:15px;font-weight:550;letter-spacing:-.01em}
+.w25 .mrow .dt{font-size:13px;font-weight:400;color:var(--t2)}
+.w25 .mrow .am{font-size:15px;font-weight:600;flex:none;letter-spacing:-.01em}
+.w25 .ic{width:40px;height:40px;flex:none;border-radius:12px;display:grid;place-items:center;overflow:hidden}
+.w25 .ic.cat-ic,.w25 .ic:not(.brand-ic):not(.cash-ic){background:var(--fill);color:var(--tx)}
+.w25 .ic .ini{font-size:15px;font-weight:600;color:var(--t2)}
+.w25 .ic.cat-ic svg{width:20px;height:20px}
+.w25 .ledger .mrow+.mrow,.w25 .list .mrow+.mrow,.w25 .dl .mrow+.mrow{box-shadow:inset 0 1px 0 var(--ln)}
+/* Movimientos */
+.w25 .flow{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.w25 .frow{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:12px;font-size:15px;color:var(--t2)}
+.w25 .frow b{color:var(--tx);font-weight:600;font-size:15px}
+.w25 .fb{display:block;height:8px;border-radius:4px;background:var(--fill);overflow:hidden}
+.w25 .fb i{display:block;height:100%;border-radius:4px;transform-origin:left;animation:fillx 600ms var(--eo) 120ms both}
+.w25 .fin{background:var(--inc)}.w25 .fout{background:var(--tx)}
+.w25 .flow .lv{margin-top:2px}
+.w25 .srch{display:flex;align-items:center;gap:10px;height:44px;margin-top:14px;padding:0 14px;border-radius:14px;background:var(--fill);box-shadow:none;color:var(--t2)}
+.w25 .srch input{flex:1;min-width:0;border:0;background:none;font-size:16px;color:var(--tx);outline:none}
+.w25 .srch svg{width:18px;height:18px;flex:none}
+.w25 .flt{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:2px}
+.w25 .fsel{flex:none;height:36px;padding:0 30px 0 14px;border:0;border-radius:999px;background:var(--sf);box-shadow:inset 0 0 0 1px var(--ln);color:var(--tx);font:inherit;font-size:14px;font-weight:550;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2364625D' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.w25 .fc{flex:none;height:36px;padding:0 14px;font-size:14px;font-weight:550}
+.w25 .rh{display:flex;justify-content:space-between;align-items:center;min-height:44px;margin-top:6px;font-size:13px;color:var(--t2)}
+.w25 .day{margin-top:18px}
+.w25 .dh{display:flex;justify-content:space-between;align-items:baseline;padding:0 0 4px;font-size:15px;color:var(--t2);box-shadow:none}
+.w25 .dh b{font-size:15px;font-weight:600;color:var(--tx)}
+.w25 .dh>span:last-child{font-weight:550}
+.w25 .dhl small{display:none}
+/* Planifica */
+.w25 .card,.w25 .card.bud{margin-top:10px;padding:16px 18px;border-radius:24px;background:var(--sf);box-shadow:var(--sh1);border:0}
+.w25 .card .ch{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.w25 .card .ch>b{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.w25 .bv{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.w25 .bv b{font-size:clamp(26px,7.4cqi,30px);font-weight:700;letter-spacing:-.02em}
+.w25 .bv span{font-size:15px;color:var(--t2)}
+.w25 .btr{height:10px;border-radius:5px;margin:12px 0 8px}
+.w25 .bk2{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--t2);margin-bottom:6px}
+.w25 .lim{display:flex;align-items:center;gap:6px}
+.w25 .lim .lb{width:36px;height:36px;border-radius:18px;background:var(--fill);border:0;font-size:18px;color:var(--tx);position:relative}
+.w25 .lim .lb::after{content:"";position:absolute;inset:-4px}
+.w25 .lim .liq{height:36px;border-radius:18px;padding:0 12px;font-size:14px;font-weight:600;background:var(--fill);box-shadow:none}
+.w25 .sh2r{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:4px}
+.w25 .sh2r>b{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.w25 .sh2r .tsm b{font-size:15px;font-weight:600}
+.w25 .agr2{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none}
+.w25 .agr2 .go{font-size:12.5px;font-weight:600;color:var(--t2)}
+.w25 .agr2 .go.late{color:var(--wt)}
+.w25 .cb{display:grid;grid-template-columns:minmax(0,110px) minmax(0,1fr) auto;align-items:center;gap:10px;min-height:40px;font-size:14px}
+.w25 .cb .cn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550}
+.w25 .ctrack{height:8px;border-radius:4px;background:var(--fill);overflow:hidden;display:block}
+.w25 .cbar{display:block;height:100%;border-radius:4px;background:var(--tx)}
+.w25 .cv{font-size:13px;color:var(--t2);font-weight:550}
+.w25 .card.goal .gv b{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.w25 .card.goal .gv span{font-size:14px;color:var(--t2);margin-left:6px}
+.w25 .liq{height:36px;border-radius:18px;font-size:14px;font-weight:600;padding:0 14px}
+/* Análisis: el número del mes como en Inicio */
+.w25 .ahero{padding-top:14px}
+/* Ajustes y subpantallas: misma escala */
+.w25 .dph .pht b,.w25 .hin .pht b{font-size:clamp(26px,7.6cqi,30px);font-weight:700;letter-spacing:-.02em}
+.w25 .g>h2,.w25 .gt2h,.w25 .grp>b{font-size:13px;font-weight:600;color:var(--t2);letter-spacing:0;text-transform:none}
+.rm .fb i{animation:none!important}
+.w25 p.lv{margin:0}.w25 .card p.lv:first-of-type{margin-top:10px}
+.w25 .mrow .dt.late{color:var(--wt);font-weight:600}
+.w25 .sec.flt{margin-left:0;margin-right:0;padding-left:20px;padding-right:20px;scroll-padding-left:20px}
+@container app (max-width:380px){.w25 .sec.flt{padding-left:16px;padding-right:16px}}

@@ -55,7 +55,7 @@ export default function Analysis() {
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Análisis" right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
+        <PageTitle title="Análisis" right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
         <div className="sub3"><SubTabs value={tab} onChange={go} /></div>
         <div className="pane" key={tab + cur} style={{ ['--px' as any]: dir + 'px' }}>
           {tab === 'res' && <Resumen m={m} cur={cur} spent={spent} prevAt={prevAt} hide={hide} />}

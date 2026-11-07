@@ -81,3 +81,9 @@ Ajustes tras probar la 25 en el iPhone. Bloques `Wallet 26 · …` al final de `
 - iPhone instalado + barra translúcida: el sistema reporta un alto menor y la app no llegaba abajo. `main.tsx` fija `--app-h` con el alto real de la pantalla (instalada: `screen` según orientación; en Safari: `innerHeight`); `.ph` usa `height:var(--app-h)`. `--kb` se calcula contra `--app-h`.
 - `.ph` es contenedor (`container-type:inline-size`, nombre `app`): hojas, aviso y velo (`position:fixed`) quedan dentro de la app; tamaños con `cqi` y `@container app` para ≤380px, ≤350px y ≥520px.
 - La barra se apoya sobre la línea de inicio: `bottom:max(10px, safe-b − 12px)`.
+
+## Wallet 28 · Pestañas como Inicio (publicada el 7 nov 2026)
+- `PageTitle`: título grande (34/700) en una línea con el selector de moneda; ya no hay etiqueta pequeña encima (`eyebrow` se ignora). Subtítulo 15 gris debajo.
+- Escala única: secciones 17/600, filas 15/550 con detalle 13 en una línea (puntos suspensivos), montos 15/600, íconos en cuadro de 40px.
+- Movimientos: barras finas (entró en verde, salió en tinta), «Te queda / Salió de más» como fila etiqueta/valor; sin conteos por día; el conteo solo aparece al filtrar.
+- Planifica: el límite usa filas etiqueta/valor en vez de párrafo; la agenda usa la hoja de fecha de Inicio y la fila entera abre Pagar/Cobrar.

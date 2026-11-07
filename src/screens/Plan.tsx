@@ -39,7 +39,7 @@ export default function Plan() {
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle eyebrow={C.monthLabel(per) + ' · ' + C.currencyMeta(cur).name} title="Planifica" sub={out.count ? subtitle : undefined} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
+        <PageTitle title="Planifica" sub={out.count ? subtitle : undefined} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={setCurrency} />} />
 
         <div className="sec">
           <div className={'card bud' + (lim && proj > lim ? ' over' : '')}>
@@ -60,8 +60,9 @@ export default function Plan() {
                 <i className="bpace" style={{ left: Math.min(100, (day / days) * 100) + '%' }} />
               </div>
               <div className="bk2"><span><i className="kf" />Gastado</span><span><i className="kp2" />A este ritmo</span><span><i className="kt" />Ideal a hoy</span></div>
-              <p className="bl">A este ritmo cierras {C.monthName(now.getMonth())} en unos {C.currencyMeta(cur).symbol}{' '}{C.fmtNumber(C.fromMinor(proj, cur), 0)}{proj > lim ? ', unos ' + C.currencyMeta(cur).symbol + ' ' + C.fmtNumber(C.fromMinor(proj - lim, cur), 0) + ' sobre tu límite.' : ', dentro de tu límite.'}</p>
-              <p className="tsm2">{spent >= lim ? 'Ya pasaste tu límite del mes.' : 'Para no pasar tu límite: hasta ' + M(Math.round((lim - spent) / (days - day + 1)), cur) + ' por día hasta el ' + days + '.'}</p>
+              <p className="lv"><span>A este ritmo cierras en</span><b className="nums">{M(proj, cur)}</b></p>
+              {proj > lim && <p className="lv"><span>Sobre tu límite</span><b className="nums">{M(proj - lim, cur)}</b></p>}
+              <p className="lv"><span>Para no pasarte</span><b className="nums">{spent >= lim ? 'Ya lo pasaste' : M(Math.round((lim - spent) / (days - day + 1)), cur) + ' por día'}</b></p>
             </>}
             {!lim && <p className="tsm2">Con un límite verás cuánto puedes gastar por día.</p>}
           </div>
@@ -73,19 +74,17 @@ export default function Plan() {
           <div className="sec blk" style={{ marginTop: 16 }}>
             <div className="sh2r"><b>Por salir este mes</b><span className="tsm"><b className="nums">{M(out.minor, cur)}</b></span></div>
             {items.length ? (
-              <div className="rail">
+              <div className="list">
                 {items.map((u) => {
                   const late = u.status === 'overdue';
                   const isSave = u.type === 'fixed' && /ahorro|aporte/i.test(u.label + ' ' + (u.category || ''));
+                  const d = C.dateFromLocalIso(u.date);
+                  const verb = u.direction === 'receivable' ? 'Cobrar ' : isSave ? 'Separar ' : 'Pagar ';
                   return (
-                    <div key={u.type + u.id + (u.installmentId || '')} className={'lr' + (late ? ' late' : '')}>
-                      <i className="rdot" /><span className="rd8">{C.shortDate(u.date)}</span>
-                      <span className="lft"><RowIcon text={u.label} /><span className="nm"><span>{u.label}</span><span className="dt">{late && <i className="wi" aria-hidden="true">!</i>}{late ? overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : u.type === 'debt' ? 'Cuota' : 'Fijo mensual'}</span></span></span>
-                      <span className="agr">
-                        <span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span>
-                        <button className={'liq' + (late ? ' pri' : '')} onClick={() => open('settle', { item: u })} aria-label={(u.direction === 'receivable' ? 'Cobrar ' : isSave ? 'Separar ' : 'Pagar ') + u.label}>{u.direction === 'receivable' ? 'Cobrar' : isSave ? 'Separar' : 'Pagar'}</button>
-                      </span>
-                    </div>
+                    <button key={u.type + u.id + (u.installmentId || '')} className="mrow" onClick={() => open('settle', { item: u })} aria-label={verb + u.label + ', ' + M(u.amountMinor, cur)}>
+                      <span className="lft"><span className={'leaf' + (late ? ' late' : '')}><b>{d.getDate()}</b><span>{C.shortDate(u.date).split(' ')[1]}</span></span><span className="nm"><span>{u.label}</span><span className={'dt' + (late ? ' late' : '')}>{late ? '! ' + overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : u.type === 'debt' ? 'Cuota' : 'Fijo mensual'}</span></span></span>
+                      <span className="agr2"><span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span><span className={'go' + (late ? ' late' : '')}>{verb.trim()}</span></span>
+                    </button>
                   );
                 })}
               </div>
@@ -123,7 +122,7 @@ export default function Plan() {
 
         {tab === 'metas' && (
           <div className="sec" style={{ marginTop: 6 }}>
-            <p className="tsm2" style={{ marginTop: 10 }}>Lo apartado sigue dentro de tu patrimonio líquido: {M(reserves.reduce((n: number, a: any) => n + Math.max(0, C.balanceOf(s, a)), 0), cur)}.</p>
+            <p className="lv" style={{ marginTop: 10 }}><span>Apartado en metas</span><b className="nums">{M(reserves.reduce((n: number, a: any) => n + Math.max(0, C.balanceOf(s, a)), 0), cur)}</b></p>
             {reserves.map((a: any) => {
               const bal = C.balanceOf(s, a); const p = a.goalMinor ? Math.min(100, (Math.max(0, bal) / a.goalMinor) * 100) : 0;
               return (

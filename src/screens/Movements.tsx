@@ -45,19 +45,18 @@ export default function Movements() {
 
   const title = acc ? 'Movimientos en ' + acc.name : 'Movimientos';
   const period = month === 'all' ? 'Todo el historial' : C.monthLabel(month);
-  const eyebrow = period + ' · ' + C.currencyMeta(cur).name;
   const filtered = !!q || flt !== 'all';
 
   return (
     <div className="scr noscr nohdr">
       <div className="zz">
         <Banner />
-        <PageTitle eyebrow={eyebrow} title={title} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
+        <PageTitle title={title} right={<CurTabs small value={cur} list={s.settings.enabledCurrencies} onChange={(c) => { setSel(null); setCurrency(c); }} />} />
         {acc && <div className="sec accline">{tileSrc(bankOf(acc)) && <img className="hlogo" src={tileSrc(bankOf(acc))} alt="" />}<span>Saldo de {acc.name}</span><b className="nums">{M(C.balanceOf(s, acc), acc.currency)}</b></div>}
         <div className="sec"><div className="flow" role="group" aria-label="Entradas y salidas">
           <div className="frow"><span>Entró</span><i className="fb"><i className="fin" style={{ width: (inc / maxF) * 100 + '%' }} /></i><b className="nums">{M(inc, cur)}</b></div>
           <div className="frow"><span>Salió</span><i className="fb"><i className="fout" style={{ width: (out / maxF) * 100 + '%' }} /></i><b className="nums">{M(out, cur)}</b></div>
-          <p className="fnet">{!inc && !out ? 'Nada entró ni salió todavía.' : net >= 0 ? <>Te quedan <b className="nums">{M(net, cur)}</b> de lo que entró.</> : <>Salió <b className="nums">{M(-net, cur)}</b> más de lo que entró.</>}</p>
+          {(inc > 0 || out > 0) && <p className="lv"><span>{net >= 0 ? 'Te queda' : 'Salió de más'}</span><b className="nums">{net >= 0 ? '+' : '−'}{M(Math.abs(net), cur)}</b></p>}
         </div></div>
         <div className="sec"><label className="srch"><ISearch /><input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nombre, categoría o monto" aria-label="Buscar movimientos" /></label></div>
         <div className="sec flt noscr" role="group" aria-label="Filtrar">
@@ -69,17 +68,17 @@ export default function Movements() {
           {acc && <button className="fc" onClick={() => setSel(null)}>{acc.name} ✕</button>}
         </div>
         <div className="sec">
-          <div className="rh" aria-live="polite">
-            <span className="nums">{list.length} {list.length === 1 ? 'movimiento' : 'movimientos'}</span>
-            {filtered && <button className="lnk" onClick={() => { setQ(''); setFlt('all'); }}>Limpiar filtros</button>}
-          </div>
+          {filtered && <div className="rh" aria-live="polite">
+            <span className="nums">{list.length} {list.length === 1 ? 'resultado' : 'resultados'}</span>
+            <button className="lnk" onClick={() => { setQ(''); setFlt('all'); }}>Limpiar</button>
+          </div>}
           {groups.map((g) => {
             const e = C.sumMinor(g.ops.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
             const i = C.sumMinor(g.ops.filter((o: any) => o.type === 'income'));
             return (
               <div className="day" key={g.key}>
                 <div className="dbody">
-                  <div className="dh"><span className="dhl"><b>{dayHead(g.key)}</b><small className="nums">{g.ops.length === 1 ? '1 movimiento' : g.ops.length + ' movimientos'}</small></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
+                  <div className="dh"><span className="dhl"><b>{dayHead(g.key)}</b></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
                   <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
                 </div>
               </div>
