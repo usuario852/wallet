@@ -229,7 +229,8 @@ export default function App() {
     const vv = window.visualViewport; if (!vv) return;
     const root = document.documentElement;
     const f = () => {
-      const kb = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      const h = parseFloat(getComputedStyle(root).getPropertyValue('--app-h')) || window.innerHeight;
+      const kb = vv.scale > 1.01 ? 0 : Math.max(0, Math.round(h - vv.height - vv.offsetTop));
       const up = kb > 120;
       root.style.setProperty('--kb', (up ? kb : 0) + 'px');
       root.classList.toggle('kbup', up);

@@ -76,3 +76,8 @@ Ajustes tras probar la 25 en el iPhone. Bloques `Wallet 26 · …` al final de `
 - Barra reescrita: la lente se mueve con `transform` en rAF (sin re-render por movimiento), se estira según la velocidad, lupa continua en los íconos, toque háptico al cruzar pestañas, captura del puntero solo tras 7px horizontales.
 - Ánimos: clases `mk1..mk5` (no `k1`, choca con leyendas viejas) con color (`--m1..--m5`), forma (picos, cojín desinflado, cuadro suave, flor, destello) y movimiento propio del elegido.
 - Movimiento: secciones entran escalonadas, naipes desde la derecha, número con desenfoque corto; las hojas se cierran arrastrando la cabecera (`SheetFrame` → `.shtop`).
+
+## Wallet 27 · Toda la pantalla (publicada el 7 nov 2026, rama wallet-27)
+- iPhone instalado + barra translúcida: el sistema reporta un alto menor y la app no llegaba abajo. `main.tsx` fija `--app-h` con el alto real de la pantalla (instalada: `screen` según orientación; en Safari: `innerHeight`); `.ph` usa `height:var(--app-h)`. `--kb` se calcula contra `--app-h`.
+- `.ph` es contenedor (`container-type:inline-size`, nombre `app`): hojas, aviso y velo (`position:fixed`) quedan dentro de la app; tamaños con `cqi` y `@container app` para ≤380px, ≤350px y ≥520px.
+- La barra se apoya sobre la línea de inicio: `bottom:max(10px, safe-b − 12px)`.
