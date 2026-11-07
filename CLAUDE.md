@@ -87,3 +87,9 @@ Ajustes tras probar la 25 en el iPhone. Bloques `Wallet 26 · …` al final de `
 - Escala única: secciones 17/600, filas 15/550 con detalle 13 en una línea (puntos suspensivos), montos 15/600, íconos en cuadro de 40px.
 - Movimientos: barras finas (entró en verde, salió en tinta), «Te queda / Salió de más» como fila etiqueta/valor; sin conteos por día; el conteo solo aparece al filtrar.
 - Planifica: el límite usa filas etiqueta/valor en vez de párrafo; la agenda usa la hoja de fecha de Inicio y la fila entera abre Pagar/Cobrar.
+
+## Wallet 29 · Revisión final (publicada el 7 nov 2026)
+- `api/cron.js` fallaba siempre (`window` fuera de alcance → ReferenceError): ningún aviso salía. Ahora un aviso vale desde 5 min antes hasta `CRON_WINDOW_MINUTES` (60 por defecto) después; `sent` evita repetir. El cron diario de Vercel pasó a las 12:00 UTC (7:00 Lima).
+- GitHub Actions no respeta «cada 15 min» (corre cada 4–8 h): queda de respaldo y ya no falla sin el secreto. El disparador recomendado es cron-job.org cada 15 min con `Authorization: Bearer CRON_SECRET`.
+- IA: `findOp` prefiere el nombre exacto, luego el que empieza igual, luego el más reciente (antes «Taxi» tomaba «Mototaxi»). Tasa de cambio con 4 decimales. En desarrollo `window.__aiExec(nombre, args)` prueba cada acción sin modelo.
+- Bienvenida: la regla vieja `.stack{height:12px}` aplastaba los botones; `.onb .stack` la anula y queda fija abajo.

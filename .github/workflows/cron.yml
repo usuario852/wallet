@@ -1,5 +1,6 @@
-# Avisos de Wallet cada 15 minutos (el plan Hobby de Vercel solo permite un cron diario).
-# Necesita el secreto CRON_SECRET del repositorio con el mismo valor que en Vercel.
+# Respaldo de los avisos de Wallet. GitHub no respeta el «cada 15 minutos» (en la práctica corre cada
+# varias horas), así que el disparador principal debe ser externo (cron-job.org cada 15 minutos).
+# Necesita el secreto CRON_SECRET del repositorio con el mismo valor que en Vercel; sin él no hace nada.
 name: Avisos cada 15 minutos
 on:
   schedule:
@@ -14,7 +15,7 @@ jobs:
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          if [ -z "$CRON_SECRET" ]; then echo "Falta el secreto CRON_SECRET"; exit 1; fi
+          if [ -z "$CRON_SECRET" ]; then echo "::notice::Sin secreto CRON_SECRET: no se llama a /api/cron"; exit 0; fi
           code=$(curl -s -o /tmp/out.txt -w '%{http_code}' -H "Authorization: Bearer $CRON_SECRET" https://wallet-one-rust.vercel.app/api/cron)
           cat /tmp/out.txt; echo; echo "HTTP $code"
           test "$code" -lt 400

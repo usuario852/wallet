@@ -45,17 +45,28 @@ function minutesApart(a, b) {
   return Math.min(diff, 1440 - diff);
 }
 
+// WAL-NOTIF-009: el disparador externo (GitHub Actions, cron-job.org o el cron
+// diario de Vercel) no llega al minuto exacto. Un aviso vale desde 5 minutos
+// antes de su hora hasta LATE minutos después; el registro `sent` evita repetirlo.
+const EARLY = 5;
+function lateWindow() { return Math.max(10, Math.min(720, Number(process.env.CRON_WINDOW_MINUTES) || 60)); }
+// Minutos desde la hora programada hasta ahora (negativo si todavía no llega), en círculo de 24 h.
+function minutesSince(target, now) {
+  let d = (now - target) % 1440;
+  if (d > 720) d -= 1440;
+  if (d < -720) d += 1440;
+  return d;
+}
+function inWindow(target, now, late) { const d = minutesSince(target, now); return d >= -EARLY && d <= late; }
+
 function dueMessages(profile, now) {
   const out = [];
-  // WAL-NOTIF-001: el algoritmo asumía un cron cada 15 minutos, pero el plan
-  // Hobby solo permite uno diario. Si la ventana no acompaña a la cadencia real,
-  // ningún aviso coincide nunca. Se configura con CRON_WINDOW_MINUTES.
-  const window = Math.max(1, Math.min(720, Number(process.env.CRON_WINDOW_MINUTES) || 8));
+  const late = lateWindow();
 
   if (profile.moodEnabled !== false) {
     (profile.moodTimes || []).forEach((time) => {
       const minutes = toMinutes(time);
-      if (minutes === null || minutesApart(minutes, now.minutes) > window) return;
+      if (minutes === null || !inWindow(minutes, now.minutes, late)) return;
       const skip = Number(profile.skipRecentMinutes || 120);
       if (profile.lastCheckinAt) {
         const age = (Date.now() - new Date(profile.lastCheckinAt).getTime()) / 60000;
@@ -72,7 +83,7 @@ function dueMessages(profile, now) {
 
   if (profile.debtEnabled !== false) {
     (profile.debtReminders || []).forEach((reminder) => {
-      if (minutesApart(now.minutes, 9 * 60) > window) return;
+      if (!inWindow(9 * 60, now.minutes, late)) return;
       const due = String(reminder.dueDate || '');
       const today = now.date;
       const tomorrow = new Date(new Date(today + 'T12:00:00').getTime() + 86400000).toISOString().slice(0, 10);
@@ -87,7 +98,7 @@ function dueMessages(profile, now) {
     });
   }
 
-  if (profile.weeklyReview !== false && now.weekday === 'Sun' && minutesApart(now.minutes, 19 * 60) <= window) {
+  if (profile.weeklyReview !== false && now.weekday === 'Sun' && inWindow(19 * 60, now.minutes, late)) {
     out.push({
       key: `weekly:${now.date}`,
       title: 'Tu semana en Wallet',
@@ -167,6 +178,6 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     ok: true, devices: Object.keys(devices).length, sent, removed, skipped,
-    window, failures
+    window: lateWindow(), failures
   });
 }

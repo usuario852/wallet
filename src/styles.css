@@ -1610,3 +1610,13 @@ html,body{min-height:var(--app-h,100%)}
 .w25 .mrow .dt.late{color:var(--wt);font-weight:600}
 .w25 .sec.flt{margin-left:0;margin-right:0;padding-left:20px;padding-right:20px;scroll-padding-left:20px}
 @container app (max-width:380px){.w25 .sec.flt{padding-left:16px;padding-right:16px}}
+
+/* Wallet 29 · Revisión final */
+/* La bienvenida: una regla vieja (.stack de 12 px de alto) aplastaba sus botones y el último quedaba fuera de la pantalla. */
+.onb .stack{display:flex;flex-direction:column;gap:10px;height:auto;margin:0;flex:none;position:sticky;bottom:calc(-24px - var(--safe-b));padding:14px 0 calc(24px + var(--safe-b));margin-bottom:calc(-24px - var(--safe-b));background:linear-gradient(to bottom,transparent,var(--pg) 18px);z-index:2}
+.onb .stack .okb{flex:none}
+/* Planifica: «Límite del mes» en una línea junto a los botones */
+.w25 .card .ch>b{white-space:nowrap}
+.w25 .lim{gap:4px}
+.w25 .lim .lb{width:34px;height:34px}
+.w25 .lim .liq{height:34px;padding:0 10px;font-size:13.5px}

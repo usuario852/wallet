@@ -95,12 +95,26 @@ function withUndo(label: string, mut: (x: any) => void) {
   if (ok) notify(label, () => { commit((x) => { Object.keys(x).forEach((k) => { delete x[k]; }); Object.assign(x, before); }); notify('Listo, lo deshice'); });
   return ok;
 }
+// Busca el movimiento que el usuario quiso decir: primero el nombre exacto, luego el que empieza igual,
+// luego el que lo contiene. Entre empates gana el monto más parecido y después el más reciente.
 function findOp(s: any, cur: string, desc: string, approx?: number, date?: string) {
-  const q = C.normalizeText(desc || '');
-  let rows = C.operationsForCurrency(s, cur).filter((o: any) => C.normalizeText(C.operationTitle(s, o) + ' ' + (o.category || '')).includes(q));
-  if (date) { const d = rows.filter((o: any) => String(o.date).slice(0, 10) === date); if (d.length) rows = d; }
-  if (approx) rows = rows.slice().sort((a: any, b: any) => Math.abs(C.fromMinor(Math.abs(a.amountMinor || 0), cur) - Number(approx)) - Math.abs(C.fromMinor(Math.abs(b.amountMinor || 0), cur) - Number(approx)));
-  return rows[0] || null;
+  const q = C.normalizeText(desc || '').trim();
+  if (!q) return null;
+  const score = (o: any) => {
+    const t = C.normalizeText(C.operationTitle(s, o)).trim();
+    const c = C.normalizeText(String(o.category || ''));
+    if (t === q) return 0;
+    if (t.startsWith(q + ' ') || t.startsWith(q)) return 1;
+    if (new RegExp('(^|\\s)' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\s|$)').test(t)) return 2;
+    if (t.includes(q)) return 3;
+    if (c === q) return 4;
+    return 9;
+  };
+  let rows = C.operationsForCurrency(s, cur).filter((o: any) => !o.voided).map((o: any) => ({ o, k: score(o) })).filter((x: any) => x.k < 9);
+  if (date) { const d = rows.filter((x: any) => String(x.o.date).slice(0, 10) === date); if (d.length) rows = d; }
+  const amt = (o: any) => (approx ? Math.abs(C.fromMinor(Math.abs(o.amountMinor || 0), cur) - Number(approx)) : 0);
+  rows.sort((a: any, b: any) => a.k - b.k || amt(a.o) - amt(b.o) || (String(b.o.date) > String(a.o.date) ? 1 : String(b.o.date) < String(a.o.date) ? -1 : 0));
+  return rows.length ? rows[0].o : null;
 }
 const findBy = (list: any[], q: string, key = 'name') => { const n = C.normalizeText(q || ''); return list.find((x: any) => C.normalizeText(x[key]) === n) || list.find((x: any) => n && C.normalizeText(x[key]).includes(n)) || null; };
 
@@ -137,7 +151,7 @@ async function execute(name: string, args: any, post: { action: PostAction }) {
       try { const r: any = await referenceRate(from.currency, to.currency, s.rates); ref = Number(r.rate) || null; } catch { /* sin referencia */ }
       if (!direct) direct = ref || 0;
       if (!direct) { post.action = { kind: 'move', fromId: from.id, toId: to.id, amount }; return { ok: false, mensaje: 'No conseguí la tasa de referencia. Abrí la pantalla para que escribas la tasa.' }; }
-      const inv = direct < 1; const display = inv ? Number((1 / direct).toFixed(6)) : Number(direct.toFixed(6));
+      const inv = direct < 1; const display = inv ? Number((1 / direct).toFixed(4)) : Number(direct.toFixed(4));
       const fromMinor = C.toMinor(amount, from.currency), toMinor = C.toMinor(amount * direct, to.currency);
       const op = addOperation({ type: 'fx', fromAccountId: from.id, toAccountId: to.id, fromCurrency: from.currency, toCurrency: to.currency, fromAmountMinor: fromMinor, toAmountMinor: toMinor, directRate: direct, displayRate: display, rateDirection: inv ? 'inverse' : 'direct', referenceDirectRate: ref, concept: 'Cambio de divisa' }, 'Cambio registrado');
       return op ? { ok: true, mensaje: 'Cambié ' + C.money(fromMinor, from.currency) + ' por ' + C.money(toMinor, to.currency) + ' (tasa ' + display + (args.tasa ? '' : ', referencia de mercado') + ')' } : { ok: false, mensaje: 'No se pudo guardar.' };
@@ -300,3 +314,6 @@ export async function askOnce(prompt: string) {
   (data.output || []).forEach((item: any) => { if (item.type === 'message') (item.content || []).forEach((b: any) => { if (b.type === 'output_text') text += b.text; }); });
   return (text || data.output_text || '').trim();
 }
+
+// Solo en desarrollo: permite probar cada acción de la IA sin llamar al modelo.
+if (import.meta.env.DEV && typeof window !== 'undefined') (window as any).__aiExec = (name: string, args: any) => { const post = { action: null as PostAction }; return execute(name, args, post).then((r) => ({ r, post: post.action })); };

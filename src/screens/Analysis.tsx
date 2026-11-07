@@ -338,8 +338,8 @@ function Animo({ m, cur }: { m: (n: number) => string; cur: string }) {
       </>}
     </Card>
     {ms.n >= 3 && <Card title="Con tensión y con calma">
-      <p className="lv"><span>Tensión alta · {ms.tense.n}</span><b className="nums">{m(ms.tense.avg)} c/u</b></p>
-      <p className="lv"><span>Con calma · {ms.calm.n}</span><b className="nums">{m(ms.calm.avg)} c/u</b></p>
+      <p className="lv"><span>Tensión alta · {ms.tense.n}</span><b className="nums">{ms.tense.n ? m(ms.tense.avg) + ' c/u' : '—'}</b></p>
+      <p className="lv"><span>Con calma · {ms.calm.n}</span><b className="nums">{ms.calm.n ? m(ms.calm.avg) + ' c/u' : '—'}</b></p>
       {ms.tense.avg > 0 && ms.calm.avg > 0 && <p className="lv"><span>Diferencia</span><b className="nums">{ms.tense.avg >= ms.calm.avg ? '+' : '−'}{C.pct(Math.abs(ms.tense.avg - ms.calm.avg), ms.calm.avg)}% con tensión</b></p>}
     </Card>}
     <Card title="Tus últimos 14 días" right={<button className="lnk" onClick={() => open('mood')}>Registrar</button>}>
