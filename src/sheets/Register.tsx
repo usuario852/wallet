@@ -68,10 +68,15 @@ export default function Register({ props }: { props: any }) {
   const freq = useMemo(() => C.catalogSuggestions(s, cur, type, '').slice(0, 10), [s, cur, type]);
   const sugg = useMemo(() => (what.trim().length >= 2 ? C.catalogSuggestions(s, cur, type, what.trim()).slice(0, 6) : []), [s, cur, type, what]);
 
+  // "uber 18": el número del texto llena el monto mientras el monto venga del texto
+  // (si sigues escribiendo "uber 185", pasa a 185); si lo escribiste a mano, se respeta.
+  const fromText = useRef('');
   const onWhat = (v: string) => {
     setWhat(v);
     const p = D.parseWhat(s, v, cur, type);
-    if (p.amount && !kp.value) kp.set(p.amount);
+    const follow = !kp.value || kp.value === fromText.current;
+    if (p.amount && follow) { kp.set(p.amount); fromText.current = p.amount; }
+    else if (!p.amount && fromText.current && kp.value === fromText.current) { kp.set(''); fromText.current = ''; }
     setAuto(p.category || '');
   };
   const choose = (x: any) => { feel('tap'); setFlash((n) => n + 1); setWhat(x.concept); setCat(x.category); if (!kp.value || Number(kp.value) === 0) kp.set(String(C.fromMinor(x.amountMinor, cur))); if (x.accountId && regular.some((a: any) => a.id === x.accountId) && !props.accountId) setAcc(x.accountId); };
@@ -102,10 +107,15 @@ export default function Register({ props }: { props: any }) {
     }
     if (!amountMinor) return notify('Escribe el monto');
     if (!accObj) return notify('Elige una cuenta');
-    const concept = (what.trim() || chosenCat).trim();
+    // Si el monto salió del texto ("uber 18"), el concepto es "Uber", sin el número.
+    const pw = D.parseWhat(s, what, cur, type);
+    const concept = ((pw.amount && pw.name && Number(pw.amount) === Number(kp.value) ? pw.name : what.trim()) || chosenCat).trim();
     const base: any = { type, accountId: accObj.id, currency: cur, amountMinor, category: chosenCat, concept, note };
     if (editing) {
-      if (updateOperation(editing.id, Object.assign(base, { date: dayMode === 'otro' && otherDate !== String(editing.date).slice(0, 10) ? otherDate + 'T12:00:00' : dayMode === 'otro' ? editing.date : dateIso }))) close();
+      // Editar no mueve la hora: si el día no cambió, se queda la fecha original.
+      const day = dateIso.slice(0, 10);
+      const keep = day === String(editing.date).slice(0, 10);
+      if (updateOperation(editing.id, Object.assign(base, { date: keep ? editing.date : dateIso }))) close();
       return;
     }
     base.date = dateIso;

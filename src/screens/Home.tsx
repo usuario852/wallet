@@ -279,7 +279,8 @@ export function overdueText(date: string) {
 // Hora del movimiento (8:02 p. m.), solo si se registró con hora.
 function opTime(date: any) {
   const t = String(date || '').slice(11, 16);
-  if (!/^\d{2}:\d{2}$/.test(t) || t === '00:00') return '';
+  // "Otro día" guarda las 12:00:00 en punto como marcador, no como hora real (igual que la hoja del movimiento).
+  if (!/^\d{2}:\d{2}$/.test(t) || t === '00:00' || /T12:00:00/.test(String(date))) return '';
   const [h, m] = t.split(':').map(Number);
   return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + (h < 12 ? '\u00a0a.\u00a0m.' : '\u00a0p.\u00a0m.');
 }

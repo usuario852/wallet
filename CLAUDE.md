@@ -76,3 +76,16 @@ Ajustes tras probar la 25 en el iPhone. Bloques `Wallet 26 · …` al final de `
 - Barra reescrita: la lente se mueve con `transform` en rAF (sin re-render por movimiento), se estira según la velocidad, lupa continua en los íconos, toque háptico al cruzar pestañas, captura del puntero solo tras 7px horizontales.
 - Ánimos: clases `mk1..mk5` (no `k1`, choca con leyendas viejas) con color (`--m1..--m5`), forma (picos, cojín desinflado, cuadro suave, flor, destello) y movimiento propio del elegido.
 - Movimiento: secciones entran escalonadas, naipes desde la derecha, número con desenfoque corto; las hojas se cierran arrastrando la cabecera (`SheetFrame` → `.shtop`).
+
+## Wallet 27 · Revisión (rama fix/revision-total, en prueba; no publicada)
+Revisión de bugs, UX, accesibilidad y rapidez. Sin tocar core/derive ni lo que la app calcula. Bloques `Wallet 27 · …` al final de `styles.css`.
+- Hojas: un solo temporizador de cierre (`closeTimer` en App.tsx); abrir otra hoja mientras una sale ya no la cierra. Tab queda dentro de la hoja (`SheetFrame`).
+- Registrar: "uber 18" → "uber 185" actualiza el monto mientras venga del texto (`fromText`); el concepto se guarda sin el número ("Uber"). Editar no cambia la hora si el día es el mismo.
+- Movimientos: buscar mira todo el historial (nombre, categoría, cuenta, monto "48.6"/"48.60"/"S/ 48.60"); lista por tandas de 80 con "Ver más"; filtros alineados al margen de 20px. "Ver los N" en una cuenta abre Movimientos filtrado por esa cuenta.
+- Planifica: "Por salir este mes" solo trae este mes y lo vencido; lo de después va en "Después" (4 y "Ver los próximos N").
+- Cuenta: saldo vacío al editar = sin cambio (antes la dejaba en cero); acepta "1,234.50"/"1234,5"; las metas no guardan banco; si falla, la hoja no se cierra.
+- Ajustes: "Logos de bancos y comercios" apagado ahora sí muestra iniciales/íconos de categoría (`RowIcon` lee `settings.brandLogos`). Restaurar de fábrica y apagar avisos no se cuelgan sin service worker (`within` en store.ts).
+- Análisis: tooltip del gasto acumulado no se sale; leyenda en una línea; ánimo sin gastos muestra "—"; metas con barra tope 100%; deudas muestran las próximas 8 cuotas (no las últimas).
+- Filas a las 12:00:00 (marcador de "Otro día") no muestran hora. Eliminar es un botón contorno rojo, distinto de Editar.
+- Toques de 44px con área invisible (`::before`) en segmentos, interruptores, días del calendario, chips, filas de Hábitos y Editar.
+- Build: React y los íconos de marcas en trozos aparte (`manualChunks` en vite.config.ts): tras cada versión solo baja el código de la app.

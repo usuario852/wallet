@@ -182,16 +182,23 @@ export default function App() {
   }, []);
   // Teclado del teléfono: iOS solo lo abre si el foco llega dentro del toque.
   const prime = useRef<HTMLInputElement>(null);
+  // Un solo temporizador de cierre: si se abre otra hoja mientras la anterior sale
+  // (p. ej. Confirmar → abrir otra), el cierre pendiente no debe llevarse la nueva.
+  const closeTimer = useRef<number | null>(null);
+  const clearClose = () => { if (closeTimer.current != null) { clearTimeout(closeTimer.current); closeTimer.current = null; } };
   const open = useCallback((kind: string, props: any = {}) => {
     if (kind === 'register' && !props.editId) { try { prime.current?.focus({ preventScroll: true }); } catch { /* sin teclado */ } }
+    clearClose();
     setClosing(false);
     setSheet({ kind, props: Object.assign({ _drop: kind === 'register' && props._drop }, props) });
   }, []);
   // La hoja sale por donde entró; luego se desmonta.
   const close = useCallback(() => {
+    if (closeTimer.current != null) return;
     setClosing(true);
-    setTimeout(() => { setSheet(null); setClosing(false); }, reduce ? 160 : 260);
+    closeTimer.current = window.setTimeout(() => { closeTimer.current = null; setSheet(null); setClosing(false); }, reduce ? 160 : 260);
   }, [reduce]);
+  useEffect(() => () => clearClose(), []);
 
   useEffect(() => {
     const q = new URLSearchParams(location.search);

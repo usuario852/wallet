@@ -15,6 +15,7 @@ export default function Plan() {
   const M = useMoney();
   const cur = s.settings.activeCurrency;
   const [tab, setTab] = useState<'agenda' | 'metas' | 'deudas'>(params.tab || 'agenda');
+  const [more, setMore] = useState(false);
   const per = C.currentPeriod();
   const b = C.budgetFor(s, cur);
   const lim = b.monthlyMinor || 0;
@@ -72,25 +73,39 @@ export default function Plan() {
         {tab === 'agenda' && (
           <div className="sec blk" style={{ marginTop: 16 }}>
             <div className="sh2r"><b>Por salir este mes</b><span className="tsm"><b className="nums">{M(out.minor, cur)}</b></span></div>
-            {items.length ? (
-              <div className="rail">
-                {items.map((u) => {
-                  const late = u.status === 'overdue';
-                  const isSave = u.type === 'fixed' && /ahorro|aporte/i.test(u.label + ' ' + (u.category || ''));
-                  return (
-                    <div key={u.type + u.id + (u.installmentId || '')} className={'lr' + (late ? ' late' : '')}>
-                      <i className="rdot" /><span className="rd8">{C.shortDate(u.date)}</span>
-                      <span className="lft"><RowIcon text={u.label} /><span className="nm"><span>{u.label}</span><span className="dt">{late && <i className="wi" aria-hidden="true">!</i>}{late ? overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : u.type === 'debt' ? 'Cuota' : 'Fijo mensual'}</span></span></span>
-                      <span className="agr">
-                        <span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span>
-                        <button className={'liq' + (late ? ' pri' : '')} onClick={() => open('settle', { item: u })} aria-label={(u.direction === 'receivable' ? 'Cobrar ' : isSave ? 'Separar ' : 'Pagar ') + u.label}>{u.direction === 'receivable' ? 'Cobrar' : isSave ? 'Separar' : 'Pagar'}</button>
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : <div className="empt"><span>Nada pendiente este mes.</span><button className="lnk" onClick={() => open('fixed-new')}>Agregar pago</button></div>}
-
+            {(() => {
+              // "Por salir este mes" muestra este mes (y lo vencido); lo de después va aparte y corto.
+              const row = (u: any) => {
+                const late = u.status === 'overdue';
+                const isSave = u.type === 'fixed' && /ahorro|aporte/i.test(u.label + ' ' + (u.category || ''));
+                return (
+                  <div key={u.type + u.id + (u.installmentId || '')} className={'lr' + (late ? ' late' : '')}>
+                    <i className="rdot" /><span className="rd8">{C.shortDate(u.date)}</span>
+                    <span className="lft"><RowIcon text={u.label} /><span className="nm"><span>{u.label}</span><span className="dt">{late && <i className="wi" aria-hidden="true">!</i>}{late ? overdueText(u.date) : u.direction === 'receivable' ? 'Por cobrar' : u.type === 'debt' ? 'Cuota' : 'Fijo mensual'}</span></span></span>
+                    <span className="agr">
+                      <span className={'am' + (u.direction === 'receivable' ? ' inc' : '')}>{u.direction === 'receivable' ? '+' : ''}{M(u.amountMinor, cur)}</span>
+                      <button className={'liq' + (late ? ' pri' : '')} onClick={() => open('settle', { item: u })} aria-label={(u.direction === 'receivable' ? 'Cobrar ' : isSave ? 'Separar ' : 'Pagar ') + u.label}>{u.direction === 'receivable' ? 'Cobrar' : isSave ? 'Separar' : 'Pagar'}</button>
+                    </span>
+                  </div>
+                );
+              };
+              const now0 = items.filter((u) => C.periodOf(u.date) <= per);
+              const later = items.filter((u) => C.periodOf(u.date) > per);
+              const shown = more ? later : later.slice(0, 4);
+              if (!items.length) return null;
+              return <>
+                {now0.length ? <div className="rail">{now0.map(row)}</div> : <div className="empt"><span>Nada pendiente este mes.</span></div>}
+                {later.length > 0 && <>
+                  <div className="sh2r" style={{ marginTop: 18 }}><b>Después</b></div>
+                  <div className="rail">{shown.map(row)}</div>
+                  {later.length > shown.length && <button className="dall" onClick={() => setMore(true)}>Ver los próximos {later.length - shown.length}</button>}
+                </>}
+              </>;
+            })()}
+            {items.length ? null : (
+              <div className="empt"><span>Nada pendiente este mes.</span><button className="lnk" onClick={() => open('fixed-new')}>Agregar pago</button></div>
+            )}
+            
             <div className="sh2r" style={{ marginTop: 22 }}><b>Pagos fijos cada mes</b><button className="lnk" onClick={() => open('fixed-new')}>Agregar</button></div>
             {fixed.length ? (
               <div className="dl">

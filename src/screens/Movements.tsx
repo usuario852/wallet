@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as C from '../domain/core';
 import { useWallet } from '../store';
 import { useUI } from '../ui/ctx';
@@ -26,13 +26,25 @@ export default function Movements() {
   const acc = sel ? C.accountById(s, sel) : null;
 
   const all = useMemo(() => (acc ? C.operationsForAccount(s, acc.id).filter((o: any) => !o.voided) : C.operationsForCurrency(s, cur)), [s, acc, cur]);
-  const months = useMemo(() => Array.from(new Set<string>(all.map((o: any) => C.periodOf(o.date)))).filter(Boolean).sort().reverse(), [all]);
-  if (!months.includes(C.currentPeriod())) months.unshift(C.currentPeriod());
-  let list = all;
-  if (month !== 'all') list = list.filter((o: any) => C.periodOf(o.date) === month);
-  if (flt !== 'all') list = flt === 'transfer' ? list.filter((o: any) => o.type === 'transfer' || o.type === 'fx') : list.filter((o: any) => o.type === flt);
-  const nq = C.normalizeText(q);
-  if (nq) list = list.filter((o: any) => C.normalizeText(C.operationTitle(s, o) + ' ' + (o.category || '') + ' ' + (o.note || '') + ' ' + C.accountName(s, o.accountId || o.fromAccountId) + ' ' + C.fromMinor(o.amountMinor || o.fromAmountMinor || 0, cur)).includes(nq));
+  const months = useMemo(() => {
+    const m = Array.from(new Set<string>(all.map((o: any) => C.periodOf(o.date)))).filter(Boolean).sort().reverse();
+    if (!m.includes(C.currentPeriod())) m.unshift(C.currentPeriod());
+    return m;
+  }, [all]);
+  const nq = C.normalizeText(q.trim());
+  // Buscar mira todo el historial: nadie recuerda en qué mes fue.
+  const span = nq ? 'all' : month;
+  const list = useMemo(() => {
+    let l = all;
+    if (span !== 'all') l = l.filter((o: any) => C.periodOf(o.date) === span);
+    if (flt !== 'all') l = flt === 'transfer' ? l.filter((o: any) => o.type === 'transfer' || o.type === 'fx') : l.filter((o: any) => o.type === flt);
+    if (nq) l = l.filter((o: any) => {
+      const minor = o.amountMinor || o.fromAmountMinor || 0, oc = o.currency || o.fromCurrency || cur;
+      const n = C.fromMinor(minor, oc);
+      return C.normalizeText(C.operationTitle(s, o) + ' ' + (o.category || '') + ' ' + (o.note || '') + ' ' + C.accountName(s, o.accountId || o.fromAccountId) + ' ' + n + ' ' + n.toFixed(2) + ' ' + C.money(minor, oc)).includes(nq);
+    });
+    return l;
+  }, [all, span, flt, nq, s, cur]);
 
   // Totales de lo visible, mismas reglas que la v21.
   const out = C.sumMinor(list.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
@@ -40,11 +52,23 @@ export default function Movements() {
   const net = inc - out;
   const maxF = Math.max(inc, out, 1);
 
-  const groups: { key: string; ops: any[] }[] = [];
-  list.forEach((o: any) => { const k = String(o.date || '').slice(0, 10); let g = groups.find((x) => x.key === k); if (!g) { g = { key: k, ops: [] }; groups.push(g); } g.ops.push(o); });
+  // Por tandas: con años de historial, pintar todo de golpe traba el teléfono.
+  const [limit, setLimit] = useState(80);
+  useEffect(() => setLimit(80), [span, flt, nq, acc, cur]);
+  const groups = useMemo(() => {
+    const out: { key: string; ops: any[] }[] = []; const by = new Map<string, { key: string; ops: any[] }>();
+    list.slice(0, limit).forEach((o: any) => { const k = String(o.date || '').slice(0, 10); let g = by.get(k); if (!g) { g = { key: k, ops: [] }; by.set(k, g); out.push(g); } g.ops.push(o); });
+    return out;
+  }, [list, limit]);
+  // Totales del día con todos sus movimientos, aunque la tanda corte a mitad de día.
+  const dayTotals = useMemo(() => {
+    const m = new Map<string, { n: number; e: number; i: number }>();
+    list.forEach((o: any) => { const k = String(o.date || '').slice(0, 10); const t = m.get(k) || { n: 0, e: 0, i: 0 }; t.n++; if (o.type === 'expense' && !o.excludedFromSpending) t.e += o.amountMinor || 0; if (o.type === 'income') t.i += o.amountMinor || 0; m.set(k, t); });
+    return m;
+  }, [list]);
 
   const title = acc ? 'Movimientos en ' + acc.name : 'Movimientos';
-  const period = month === 'all' ? 'Todo el historial' : C.monthLabel(month);
+  const period = span === 'all' ? 'Todo el historial' : C.monthLabel(span);
   const eyebrow = period + ' · ' + C.currencyMeta(cur).name;
   const filtered = !!q || flt !== 'all';
 
@@ -74,17 +98,17 @@ export default function Movements() {
             {filtered && <button className="lnk" onClick={() => { setQ(''); setFlt('all'); }}>Limpiar filtros</button>}
           </div>
           {groups.map((g) => {
-            const e = C.sumMinor(g.ops.filter((o: any) => o.type === 'expense' && !o.excludedFromSpending));
-            const i = C.sumMinor(g.ops.filter((o: any) => o.type === 'income'));
+            const t = dayTotals.get(g.key) || { n: g.ops.length, e: 0, i: 0 };
             return (
               <div className="day" key={g.key}>
                 <div className="dbody">
-                  <div className="dh"><span className="dhl"><b>{dayHead(g.key)}</b><small className="nums">{g.ops.length === 1 ? '1 movimiento' : g.ops.length + ' movimientos'}</small></span>{i - e !== 0 && <span className="nums">{M(i - e, cur, true)}</span>}</div>
+                  <div className="dh"><span className="dhl"><b>{dayHead(g.key)}</b><small className="nums">{t.n === 1 ? '1 movimiento' : t.n + ' movimientos'}</small></span>{t.i - t.e !== 0 && <span className="nums">{M(t.i - t.e, cur, true)}</span>}</div>
                   <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={cur} accountId={acc ? acc.id : undefined} time />)}</div>
                 </div>
               </div>
             );
           })}
+          {list.length > limit && <button className="liq more" onClick={() => setLimit((n) => n + 120)}>Ver más · quedan {list.length - limit}</button>}
           {!groups.length && (
             <div className="empty">
               <b>{filtered ? 'No encontré movimientos así.' : 'Aquí todavía no pasa nada.'}</b>

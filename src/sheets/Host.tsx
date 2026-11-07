@@ -88,26 +88,33 @@ function AccountSheet({ props }: { props: any }) {
   const [goal, setGoal] = useState(editing && editing.goalMinor ? String(C.fromMinor(editing.goalMinor, cur)) : '');
   const [goalDate, setGoalDate] = useState(editing && editing.goalDate ? editing.goalDate : '');
   const banks = BANK_KEYS.filter((k) => k !== 'cash');
-  const preview = { name: name || (brand ? bankName(brand) : 'Cuenta'), institution: brand && brand !== 'wallet' ? bankName(brand) : inst, kind, brand: brand || undefined };
+  const preview = { name: name || (brand && kind !== 'reserve' ? bankName(brand) : kind === 'reserve' ? 'Meta' : 'Cuenta'), institution: kind !== 'reserve' && brand && brand !== 'wallet' ? bankName(brand) : inst, kind, brand: kind !== 'reserve' ? brand || undefined : undefined };
 
+  // "1,234.50", "1234,5" o "-340": se entiende igual. Vacío = sin cambio (al editar) o cero (al crear).
+  const num = (v: string) => { let t = String(v || '').trim().replace(/\s/g, ''); if (!t) return null; if (t.includes(',') && t.includes('.')) t = t.replace(/,/g, ''); else t = t.replace(',', '.'); const n = Number(t); return Number.isFinite(n) ? n : NaN; };
   const save = () => {
     const nm = name.trim() || (brand && brand !== 'wallet' ? bankName(brand) : '');
     if (!nm) return notify('Escribe un nombre para la cuenta');
-    const institution = brand && brand !== 'wallet' && brand !== 'cash' ? bankName(brand) : inst.trim();
+    const b = num(bal), g = num(goal);
+    if (Number.isNaN(b)) return notify('Escribe el saldo solo con números, por ejemplo 1250.50');
+    if (Number.isNaN(g) || (g != null && g < 0)) return notify('Escribe la meta solo con números, por ejemplo 4000');
+    const reserve = (editing ? editing.kind : kind) === 'reserve';
+    const institution = !reserve && brand && brand !== 'wallet' && brand !== 'cash' ? bankName(brand) : reserve ? '' : inst.trim();
     if (editing) {
-      const current = C.balanceOf(s, editing); const desired = C.toMinor(bal || 0, editing.currency); const delta = desired - current;
+      const current = C.balanceOf(s, editing); const delta = b == null ? 0 : C.toMinor(b, editing.currency) - current;
       const ok = commit((x) => {
-        const a = C.accountById(x, editing.id); a.name = nm; a.institution = institution; if (brand) a.brand = brand; else delete a.brand;
-        if (a.kind === 'reserve') { a.goalMinor = goal ? C.toMinor(goal, a.currency) : 0; a.goalDate = goalDate || null; }
+        const a = C.accountById(x, editing.id); a.name = nm; a.institution = institution; if (brand && !reserve) a.brand = brand; else if (!reserve) delete a.brand;
+        if (a.kind === 'reserve') { a.goalMinor = g ? C.toMinor(g, a.currency) : 0; a.goalDate = goalDate || null; }
       });
-      if (ok && delta) addOperation({ type: 'adjustment', accountId: editing.id, currency: editing.currency, deltaMinor: delta, concept: 'Ajuste manual de saldo' }, 'Saldo ajustado');
-      else if (ok) notify('Cuenta actualizada');
+      if (!ok) return;
+      if (delta) addOperation({ type: 'adjustment', accountId: editing.id, currency: editing.currency, deltaMinor: delta, concept: 'Ajuste manual de saldo' }, 'Saldo ajustado');
+      else notify('Cuenta actualizada');
       close();
       return;
     }
-    const a: any = { id: C.uid('acc'), name: nm, institution, currency, kind, openingMinor: C.toMinor(bal || 0, currency), archived: false };
-    if (brand) a.brand = brand;
-    if (kind === 'reserve') { a.goalMinor = goal ? C.toMinor(goal, currency) : 0; a.goalDate = goalDate || null; }
+    const a: any = { id: C.uid('acc'), name: nm, institution, currency, kind, openingMinor: C.toMinor(b || 0, currency), archived: false };
+    if (brand && !reserve) a.brand = brand;
+    if (kind === 'reserve') { a.goalMinor = g ? C.toMinor(g, currency) : 0; a.goalDate = goalDate || null; }
     if (commit((x) => { x.accounts.push(a); if (!x.settings.enabledCurrencies.includes(currency)) x.settings.enabledCurrencies.push(currency); })) { notify(kind === 'reserve' ? 'Meta creada' : 'Cuenta creada'); close(); }
   };
   const archive = () => {
@@ -129,10 +136,10 @@ function AccountSheet({ props }: { props: any }) {
       <label className="wq">Nombre<input value={name} onChange={(e) => setName(e.target.value)} placeholder={kind === 'reserve' ? 'Ej. Viaje, Emergencias' : 'Ej. BCP, Efectivo'} /></label>
       {!brand && kind !== 'reserve' && <label className="wq">Entidad (opcional)<input value={inst} onChange={(e) => setInst(e.target.value)} placeholder="Ej. Caja Arequipa" /></label>}
       {!editing && s.settings.enabledCurrencies.length > 1 && <><div className="lab">Moneda</div><div className="cats noscr">{s.settings.enabledCurrencies.map((c: string) => <button key={c} className={'cc' + (currency === c ? ' on' : '')} onClick={() => setCurrency(c)}>{C.currencyMeta(c).name}</button>)}</div></>}
-      <label className="wq">{editing ? 'Saldo actual' : 'Saldo inicial'} ({C.currencyMeta(currency).symbol})<input inputMode="decimal" value={bal} onChange={(e) => setBal(e.target.value.replace(',', '.'))} placeholder="0.00" /></label>
+      <label className="wq">{editing ? 'Saldo actual' : 'Saldo inicial'} ({C.currencyMeta(currency).symbol})<input inputMode="decimal" value={bal} onChange={(e) => setBal(e.target.value)} placeholder="0.00" /></label>
       {editing && <p className="hint2">Si cambias el saldo, se guarda un ajuste para que la historia cuadre.</p>}
       {kind === 'reserve' && <>
-        <label className="wq">Cuánto quieres juntar (opcional)<input inputMode="decimal" value={goal} onChange={(e) => setGoal(e.target.value.replace(',', '.'))} placeholder="0.00" /></label>
+        <label className="wq">Cuánto quieres juntar (opcional)<input inputMode="decimal" value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="0.00" /></label>
         <label className="wq">Para cuándo (opcional)<input type="date" value={goalDate} onChange={(e) => setGoalDate(e.target.value)} /></label>
       </>}
       <button className="okb" onClick={save}>{editing ? 'Guardar' : 'Crear'}</button>

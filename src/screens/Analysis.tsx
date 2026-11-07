@@ -125,7 +125,7 @@ function Resumen({ m, cur, spent, prevAt, hide }: { m: (n: number) => string; cu
           </button>
         ))}
       </div>
-      <div className="kbars" role="img" aria-label={kp.label + ' por mes: ' + kp.series.map((x) => x.label + ' ' + x.display).join(', ')}>
+      <div className="kbars" role="group" aria-label={kp.label + ' por mes'}>
         {kp.series.map((x, i) => (
           <button key={x.label + i} className={'kb' + (sel === i ? ' on' : '') + (x.v < 0 ? ' neg' : '')} onClick={() => setSel(sel === i ? null : i)} aria-label={x.label + ' ' + x.display}>
             <span className="kbt"><i style={{ height: Math.max(2, (Math.abs(x.v) / smax) * 100) + '%' }} /></span>
@@ -185,7 +185,7 @@ function Flujo({ m, cur, cm, pm, day }: { m: (n: number) => string; cur: string;
   return <>
     <Card title="Gasto acumulado" right={<span className="leg2"><i className="k1" />Este mes <i className="k2" />Mes pasado</span>}>
       {!hasLine ? <p className="tsm2">Aún sin gastos este mes ni el anterior.</p> : <div className="cw3">
-        <div className="tip3" style={{ left: Math.min(78, Math.max(22, (x(hd) / W) * 100)) + '%' }}>Día {hd} · {m(cm.cum[Math.min(hd, day) - 1] || 0)} · antes {m(pm.cum[Math.min(hd, pm.n) - 1] || 0)}</div>
+        <div className="tip3" style={(() => { const pc = (x(hd) / W) * 100; return { left: pc + '%', transform: pc < 35 ? 'translateX(-10px)' : pc > 65 ? 'translateX(calc(-100% + 10px))' : 'translateX(-50%)' }; })()}>Día {hd} · {m(cm.cum[Math.min(hd, day) - 1] || 0)} · antes {m(pm.cum[Math.min(hd, pm.n) - 1] || 0)}</div>
         <svg viewBox={`0 0 ${W} ${H}`} className="chart25" role="img" aria-label="Gasto acumulado de este mes contra el mes pasado" onPointerMove={onMove} onPointerDown={onMove} onPointerLeave={() => setHov(null)}>
           <line x1={X0} x2={X1} y1={Y0} y2={Y0} className="gl" />
           <line x1={X0} x2={X1} y1={y(ymax / 2 / 1.08)} y2={y(ymax / 2 / 1.08)} className="gl" />
@@ -338,8 +338,8 @@ function Animo({ m, cur }: { m: (n: number) => string; cur: string }) {
       </>}
     </Card>
     {ms.n >= 3 && <Card title="Con tensión y con calma">
-      <p className="lv"><span>Tensión alta · {ms.tense.n}</span><b className="nums">{m(ms.tense.avg)} c/u</b></p>
-      <p className="lv"><span>Con calma · {ms.calm.n}</span><b className="nums">{m(ms.calm.avg)} c/u</b></p>
+      <p className="lv"><span>Tensión alta · {ms.tense.n}</span><b className="nums">{ms.tense.n ? m(ms.tense.avg) + ' c/u' : '—'}</b></p>
+      <p className="lv"><span>Con calma · {ms.calm.n}</span><b className="nums">{ms.calm.n ? m(ms.calm.avg) + ' c/u' : '—'}</b></p>
       {ms.tense.avg > 0 && ms.calm.avg > 0 && <p className="lv"><span>Diferencia</span><b className="nums">{ms.tense.avg >= ms.calm.avg ? '+' : '−'}{C.pct(Math.abs(ms.tense.avg - ms.calm.avg), ms.calm.avg)}% con tensión</b></p>}
     </Card>}
     <Card title="Tus últimos 14 días" right={<button className="lnk" onClick={() => open('mood')}>Registrar</button>}>
@@ -367,7 +367,7 @@ function Metas({ m, cur }: { m: (n: number) => string; cur: string }) {
   const defMonthly = Math.max(stepM, Math.round((Math.max(0, avg.inc - avg.out) * 0.25) / stepM) * stepM);
   const [gi, setGi] = useState(0);
   const [mon, setMon] = useState<number>(defMonthly);
-  const g = goals[gi];
+  const g = goals[Math.min(gi, Math.max(0, goals.length - 1))];
   const bal = g ? Math.max(0, C.balanceOf(s, g)) : 0;
   const remaining = g ? Math.max(0, g.goalMinor - bal) : 0;
   const months = I.monthsToGoal(remaining, mon);
@@ -377,10 +377,10 @@ function Metas({ m, cur }: { m: (n: number) => string; cur: string }) {
   const step = C.toMinor(cur === 'PEN' ? 10 : 5, cur);
   const maxM = Math.max(step * 10, Math.round(Math.max(avg.inc, remaining) / step) * step);
   return <>
-    <Card title="Tus metas" right={goals.length > 1 ? <span className="sel3">{goals.map((x: any, i: number) => <button key={x.id} className={'chip sm' + (gi === i ? ' on' : '')} onClick={() => setGi(i)}>{x.name}</button>)}</span> : null}>
+    <Card title="Tus metas" right={goals.length > 1 ? <span className="sel3">{goals.map((x: any, i: number) => <button key={x.id} className={'chip sm' + (g && g.id === x.id ? ' on' : '')} aria-pressed={!!g && g.id === x.id} onClick={() => setGi(i)}>{x.name}</button>)}</span> : null}>
       {!g ? <div className="nwask"><p className="tsm2">Crea una meta de ahorro y mira cuándo llegas.</p><button className="act ink" onClick={() => open('account-new', { currency: cur, kind: 'reserve' })}>Nueva meta</button></div> : <>
         <div className="big3 nums">{m(bal)}<small>de {m(g.goalMinor)}</small></div>
-        <div className="prog"><i style={{ width: C.pct(bal, g.goalMinor) + '%', background: palette(bankOf(g), dark).cb === '#2A2824' ? 'var(--tx)' : 'var(--tx)' }} /><s style={{ left: C.pct(bal, g.goalMinor) + '%', width: Math.min(100 - C.pct(bal, g.goalMinor), months ? (mon / g.goalMinor) * 100 : 0) + '%' }} /></div>
+        <div className="prog">{(() => { const pc = C.clamp(C.pct(Math.max(bal, 0), g.goalMinor), 0, 100); return <><i style={{ width: pc + '%', background: 'var(--tx)' }} /><s style={{ left: pc + '%', width: Math.max(0, Math.min(100 - pc, months ? (mon / g.goalMinor) * 100 : 0)) + '%' }} /></>; })()}</div>
         <div className="ticks"><span>{C.pct(bal, g.goalMinor)}%</span><span>Falta {m(remaining)}</span></div>
         <label className="rlab">Aportando por mes <b className="nums">{m(mon)}</b>
           <input className="rng" type="range" min={step} max={maxM} step={step} value={Math.min(mon, maxM)} onChange={(e) => setMon(Number(e.target.value))} aria-valuetext={m(mon) + ' al mes'} /></label>
@@ -403,7 +403,7 @@ function Metas({ m, cur }: { m: (n: number) => string; cur: string }) {
         return (
           <div key={d.id} className="dtl">
             <p className="lv"><span><b>{d.name}</b></span><b className="nums">{m(C.debtRemainingMinor(d))}</b></p>
-            <div className="tl">{ins.slice(-8).map((i: any) => <div key={i.id} className={Number(i.paidMinor || 0) >= Number(i.amountMinor || 0) ? 'done' : ''}><i /><small>{C.shortDate(i.dueDate).split(' ')[1]}</small></div>)}</div>
+            <div className="tl">{(() => { const nx = ins.findIndex((i: any) => Number(i.paidMinor || 0) < Number(i.amountMinor || 0)); const st = Math.max(0, Math.min((nx < 0 ? ins.length : nx) - 1, ins.length - 8)); return ins.slice(st, st + 8); })().map((i: any) => <div key={i.id} className={Number(i.paidMinor || 0) >= Number(i.amountMinor || 0) ? 'done' : ''}><i /><small>{C.shortDate(i.dueDate).split(' ')[1]}</small></div>)}</div>
             {last && <p className="lv"><span>Terminas</span><b>{C.cap(C.monthName(Number(String(last.dueDate).slice(5, 7)) - 1))} {String(last.dueDate).slice(0, 4)}</b></p>}
           </div>
         );

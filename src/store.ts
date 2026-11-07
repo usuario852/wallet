@@ -232,11 +232,18 @@ export async function enablePush() {
     return true;
   } catch { notify('No pude activar los avisos. Inténtalo otra vez en un rato.'); return false; }
 }
+// Nada de esperar para siempre: sin red o sin service worker, se sigue igual.
+function within<T>(p: Promise<T>, ms: number): Promise<T | undefined> {
+  return Promise.race([p, new Promise<undefined>((r) => setTimeout(() => r(undefined), ms))]);
+}
 export async function disablePush(remote = true) {
   const n = state.settings.notifications || {};
   try {
-    if (remote && n.pushId && n.pushSecret) await fetch('/api/push-sync', { method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: n.pushId, secret: n.pushSecret }) });
-    const reg = await navigator.serviceWorker?.ready; const sub = await reg?.pushManager?.getSubscription(); if (sub) await sub.unsubscribe();
+    if (remote && n.pushId && n.pushSecret) await within(fetch('/api/push-sync', { method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: n.pushId, secret: n.pushSecret }) }).catch(() => undefined), 4000);
+    // getRegistration (no `ready`): `ready` no se resuelve nunca si no hay service worker.
+    const reg = await within(navigator.serviceWorker?.getRegistration?.() ?? Promise.resolve(undefined), 2000);
+    const sub = await within(reg?.pushManager?.getSubscription?.() ?? Promise.resolve(null), 2000);
+    if (sub) await within(sub.unsubscribe(), 2000);
   } catch { /* sigue */ }
   commit((s) => { s.settings.notifications.enabled = false; s.settings.notifications.pushId = ''; s.settings.notifications.pushSecret = ''; });
 }

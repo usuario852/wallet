@@ -1473,3 +1473,19 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 .mood5.sm .m5{grid-template-rows:38px auto;min-height:0}
 .tmood .m5{grid-template-rows:56px auto}
 .m5x .dots3{height:44px}
+
+/* Wallet 27 · Revisión: toques de 44px en todo control pequeño (área invisible, el dibujo no cambia),
+   botón de eliminar que se distingue, leyendas que no se aprietan. */
+.w25 :is(.sk,.sw,.cd,.dvr,.brand,.chip,.ed){position:relative}
+.w25 :is(.sk,.dvr,.brand,.chip:not(.sm),.ed)::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;min-height:100%;transform:translateY(-50%)}
+.w25 .sw::before{content:"";position:absolute;left:50%;top:50%;width:max(100%,52px);height:44px;transform:translate(-50%,-50%)}
+.w25 .cd::before{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+.w25 .fsel{min-height:44px}
+.w25 .okb.danger{background:transparent;color:#B3261E;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,#B3261E 45%,transparent)}
+.w25.dk .okb.danger{color:#FF8A80;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,#FF8A80 45%,transparent)}
+.w25 .okb.ghost{background:var(--sf);color:var(--tx);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tx) 14%,transparent)}
+.w25 .leg2{white-space:nowrap;flex-wrap:nowrap}
+.w25 .liq.more{display:block;width:100%;margin-top:14px;min-height:44px}
+@media (prefers-reduced-motion:reduce){.w25 .liq.more{transition:none}}
+/* Wallet 27 · Filtros de Movimientos alineados con el resto (empiezan en el margen de 20px y se deslizan hasta el borde) */
+.w25 .sec.flt{margin-left:0;margin-right:0;padding-left:20px;padding-right:20px;scroll-padding-inline:20px}

@@ -8,10 +8,11 @@ import { IPlus, IMove, IChat } from '../ui/icons';
 import { bankOf, markSrc, markAspect } from '../design/theme';
 import { OpRow } from './Home';
 import { BackHeader } from './parts';
+import { setCurrency } from '../App';
 
 export default function AccountDetail({ id }: { id: string }) {
   const { s } = useWallet();
-  const { open, go, look, hide } = useUI();
+  const { open, go, look, hide, setSel } = useUI();
   const M = useMoney();
   const a = C.accountById(s, id);
   if (!a) return <><div className="scr hin"><BackHeader /><div className="sec"><div className="empty"><b>Esta cuenta ya no existe.</b></div></div></div></>;
@@ -58,7 +59,7 @@ export default function AccountDetail({ id }: { id: string }) {
                 <div className="ledger">{g.ops.map((o: any) => <OpRow key={o.id} op={o} cur={a.currency} accountId={a.id} time />)}</div>
               </div>
             )) : <div className="empt"><span>Sin movimientos todavía.</span><button className="lnk" onClick={() => open('register', { accountId: a.id })}>Registrar</button></div>}
-            {ops.length > 12 && <button className="dall" onClick={() => go('movs')}>Ver todos</button>}
+            {ops.length > 12 && <button className="dall" onClick={() => { if (a.currency !== s.settings.activeCurrency) setCurrency(a.currency); setSel(a.id); go('movs'); }}>Ver los {ops.length}</button>}
           </div>
           <div className="endpad" />
         </div>

@@ -4,6 +4,7 @@ import * as C from '../domain/core';
 import { brandFor, markSrc, markAspect, bankOf, palette } from '../design/theme';
 import { IX, catGlyph } from './icons';
 import { useUI } from './ctx';
+import { getState } from '../store';
 
 // Contador tipo odómetro (Wallet 25): al abrir no rueda; cuando el número cambia, solo ruedan
 // los dígitos que cambiaron, 280 ms. Las columnas se alinean por la derecha para que no salten.
@@ -40,6 +41,12 @@ export function useMoney() {
 // Icono de una fila: logo del comercio o banco, o inicial.
 export function RowIcon({ text, fallback, bank, cat }: { text?: string; fallback?: string; bank?: string; cat?: string }) {
   if (bank === 'cash') return <span className="ic cash-ic">{catGlyph('efectivo')}</span>;
+  // Ajustes › "Logos de bancos y comercios" apagado: ícono de categoría o inicial.
+  if (getState().settings.brandLogos === false) {
+    const g0 = cat ? catGlyph(cat) : null;
+    if (g0) return <span className="ic cat-ic">{g0}</span>;
+    return <span className="ic"><span className="ini">{(fallback || text || '?').trim().charAt(0).toUpperCase()}</span></span>;
+  }
   if (bank) {
     const src = markSrc(bank);
     if (src) return <span className="ic brand-ic" style={{ ['--bc' as any]: palette(bank, false).cb }}><img src={src} alt="" style={{ objectFit: 'contain', padding: markAspect(bank) === 'w' ? 7 : 6 }} /></span>;
@@ -81,7 +88,16 @@ export function SheetFrame({ title, sub, onClose, children, full = false, label 
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef<any>(null);
   useEffect(() => {
-    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const k = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      // Con teclado, el Tab da la vuelta dentro de la hoja (no se escapa a la pantalla de atrás).
+      if (e.key !== 'Tab' || !ref.current) return;
+      const f = Array.from(ref.current.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([type=hidden]),select,textarea,a[href],[tabindex]:not([tabindex="-1"])')).filter((x) => x.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1], a = document.activeElement;
+      if (e.shiftKey && (a === first || a === ref.current)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (a === last || !ref.current.contains(a))) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener('keydown', k);
     const prev = document.activeElement as HTMLElement | null;
     // Si la hoja ya enfocó un campo (el monto de Registrar), no se le quita el foco ni el teclado.
