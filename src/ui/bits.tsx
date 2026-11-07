@@ -5,6 +5,7 @@ import { brandFor, markSrc, markAspect, bankOf, palette } from '../design/theme'
 import { IX, catGlyph } from './icons';
 import { useUI } from './ctx';
 import { getState } from '../store';
+import { feel } from './feel';
 
 // Contador tipo odómetro (Wallet 25): al abrir no rueda; cuando el número cambia, solo ruedan
 // los dígitos que cambiaron, 280 ms. Las columnas se alinean por la derecha para que no salten.
@@ -120,10 +121,40 @@ export function SheetFrame({ title, sub, onClose, children, full = false, label 
     el.style.transform = `translate(-50%, ${dy.toFixed(1)}px)`;
     const scrim = el.previousElementSibling as HTMLElement | null; if (scrim) scrim.style.opacity = String(Math.max(0.2, 1 - Math.max(0, dy) / 500));
   };
-  const up = (e: React.PointerEvent) => {
-    const d = drag.current; const el = ref.current; drag.current = null; if (!d || !el || !d.on || e.pointerId !== d.id) return;
+  // Como en iOS: si la hoja está arriba del todo, arrastrar el contenido hacia abajo también la baja.
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    let st: any = null;
+    const ts = (e: TouchEvent) => {
+      const tg = e.target as HTMLElement;
+      if (e.touches.length !== 1 || tg.closest('.shtop,input,textarea,select,[type=range]') || el.scrollTop > 0) { st = null; return; }
+      const t = e.touches[0]; st = { y0: t.clientY, x0: t.clientX, on: false, dy: 0, v: 0, ly: t.clientY, lt: performance.now() };
+    };
+    const tm = (e: TouchEvent) => {
+      if (!st) return; const t = e.touches[0]; const dy = t.clientY - st.y0, dx = t.clientX - st.x0;
+      if (!st.on) {
+        if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { st = null; return; }
+        if (dy < 0 || el.scrollTop > 0) { st = null; return; }
+        if (dy < 8) return;
+        st.on = true; st.y0 = t.clientY; el.style.transition = 'none'; el.style.animation = 'none';
+      }
+      e.preventDefault();
+      const now = performance.now(); st.v = (t.clientY - st.ly) / Math.max(1, now - st.lt); st.ly = t.clientY; st.lt = now;
+      st.dy = Math.max(0, t.clientY - st.y0);
+      el.style.transform = `translate(-50%, ${st.dy.toFixed(1)}px)`;
+      const scrim = el.previousElementSibling as HTMLElement | null; if (scrim) scrim.style.opacity = String(Math.max(0.2, 1 - st.dy / 500));
+    };
+    const te = () => { const d = st; st = null; if (!d || !d.on) return; settle(d.dy, d.v); };
+    el.addEventListener('touchstart', ts, { passive: true });
+    el.addEventListener('touchmove', tm, { passive: false });
+    el.addEventListener('touchend', te); el.addEventListener('touchcancel', te);
+    return () => { el.removeEventListener('touchstart', ts); el.removeEventListener('touchmove', tm); el.removeEventListener('touchend', te); el.removeEventListener('touchcancel', te); };
+  }, [onClose]); // eslint-disable-line react-hooks/exhaustive-deps
+  const settle = (dy: number, v: number) => {
+    const el = ref.current; if (!el) return;
     const scrim = el.previousElementSibling as HTMLElement | null;
-    if (d.dy > 120 || d.v > 0.7) {
+    if (dy > 120 || v > 0.7) {
+      feel('tap');
       el.style.transition = 'transform 260ms cubic-bezier(.32,.72,0,1)';
       el.style.transform = 'translate(-50%, 105%)';
       if (scrim) { scrim.style.transition = 'opacity 260ms ease'; scrim.style.opacity = '0'; }
@@ -133,6 +164,10 @@ export function SheetFrame({ title, sub, onClose, children, full = false, label 
       el.style.transform = 'translate(-50%, 0)';
       if (scrim) { scrim.style.transition = 'opacity 300ms ease'; scrim.style.opacity = ''; }
     }
+  };
+  const up = (e: React.PointerEvent) => {
+    const d = drag.current; const el = ref.current; drag.current = null; if (!d || !el || !d.on || e.pointerId !== d.id) return;
+    settle(d.dy, d.v);
   };
   return (
     <>

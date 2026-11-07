@@ -63,7 +63,7 @@ function barGeometry(W: number) {
   const lefts = [8, 8 + tw, W - 8 - 2 * tw, W - 8 - tw];
   return { path, tw, lefts };
 }
-function GlassBar({ view, go, onAdd }: { view: View; go: (v: View) => void; onAdd: () => void; tilt?: boolean }) {
+function GlassBar({ view, go, onAdd, onReselect }: { view: View; go: (v: View) => void; onAdd: () => void; onReselect: () => void; tilt?: boolean }) {
   const wrap = useRef<HTMLDivElement>(null);
   const lens = useRef<HTMLSpanElement>(null);
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -93,19 +93,26 @@ function GlassBar({ view, go, onAdd }: { view: View; go: (v: View) => void; onAd
   });
   // Al cambiar de pestaña (o de tamaño), la lente va a su lugar.
   useEffect(() => { if (!g.current || !g.current.moved) place(geo.lefts[idx]); }, [idx, geo]); // eslint-disable-line react-hooks/exhaustive-deps
+  const gap = useRef(0);
+  const tabAt = (x: number) => geo.lefts.findIndex((l) => x >= l && x <= l + geo.tw);
+  const pressTab = (i: number | null) => tabsRef.current.forEach((b, k) => b && b.classList.toggle('prs', k === i));
   const down = (e: React.PointerEvent) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || !e.isPrimary) return;
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    g.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, r, moved: false, last: e.clientX, t: performance.now(), v: 0, cur: near(e.clientX - r.left), raf: 0, x: 0 };
-    lens.current?.classList.add('press');
+    const x = e.clientX - r.left;
+    g.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, r, moved: false, last: e.clientX, t: performance.now(), v: 0, cur: near(x), raf: 0, x, t0: performance.now(), far: false };
+    // El dedo se queda con la barra aunque salga de ella (si no, el toque quedaba colgado).
+    try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* */ }
+    const t = tabAt(x); pressTab(t >= 0 ? t : null);
   };
   const move = (e: React.PointerEvent) => {
     const s = g.current; if (!s || e.pointerId !== s.id) return;
     const dx = e.clientX - s.x0, dy = e.clientY - s.y0;
     if (!s.moved) {
-      if (Math.abs(dx) < 7 || Math.abs(dx) < Math.abs(dy)) return;
-      s.moved = true;
-      try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* */ }
+      // Un deslizamiento vertical no es un toque: no cambia de pestaña.
+      if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) { s.far = true; pressTab(null); }
+      if (s.far || Math.abs(dx) < 7 || Math.abs(dx) < Math.abs(dy)) return;
+      s.moved = true; pressTab(null);
       lens.current?.classList.add('drag');
     }
     const now = performance.now();
@@ -123,23 +130,34 @@ function GlassBar({ view, go, onAdd }: { view: View; go: (v: View) => void; onAd
   const end = (e: React.PointerEvent, cancel = false) => {
     const s = g.current; if (!s || e.pointerId !== s.id) return;
     if (s.raf) cancelAnimationFrame(s.raf);
-    lens.current?.classList.remove('drag', 'press');
-    magnify(null);
-    const x = s.moved ? s.x + s.v * 120 : e.clientX - s.r.left;
-    const i = cancel ? idx : near(x);
     g.current = null;
+    lens.current?.classList.remove('drag', 'press');
+    pressTab(null);
+    magnify(null);
+    if (cancel || s.far) { place(geo.lefts[idx]); return; }
+    if (!s.moved) {
+      const x = e.clientX - s.r.left, t = tabAt(x);
+      // Junto a la gota (el hueco entre pestañas) cuenta como tocar Registrar: blanco más grande.
+      // Se abre en el click (no aquí): si la hoja apareciera ya, el click fantasma del toque caería en su fondo y la cerraría.
+      if (t < 0) { place(geo.lefts[idx]); if (Math.abs(x - W / 2) < geo.tw * 1.2) gap.current = performance.now(); return; }
+      place(geo.lefts[t]);
+      if (t === idx) { onReselect(); return; }
+      feel('tap'); go(TABS[t][0]);
+      return;
+    }
+    const i = near(s.x + Math.max(-1.2, Math.min(1.2, s.v)) * 90);
     place(geo.lefts[i]);
-    if (i !== idx) { if (!s.moved) feel('tap'); go(TABS[i][0]); }
+    if (i !== idx) go(TABS[i][0]);
   };
   return (
     <div className="gbar" ref={wrap}>
       <svg className="gshadow" viewBox={`0 0 ${W} 80`} aria-hidden="true"><path d={geo.path} /></svg>
       <div className="glass" style={{ clipPath: `path('${geo.path}')`, WebkitClipPath: `path('${geo.path}')` } as any} />
       <svg className="grim" viewBox={`0 0 ${W} 80`} aria-hidden="true"><path d={geo.path} /></svg>
-      <nav className="gtabs" aria-label="Secciones" onPointerDown={down} onPointerMove={move} onPointerUp={(e) => end(e)} onPointerCancel={(e) => end(e, true)} onLostPointerCapture={(e) => { if (g.current && g.current.moved) end(e); }}>
+      <nav className="gtabs" aria-label="Secciones" onPointerDown={down} onPointerMove={move} onPointerUp={(e) => end(e)} onPointerCancel={(e) => end(e, true)} onLostPointerCapture={(e) => { if (e.target === e.currentTarget && g.current) end(e, true); }} onClick={() => { if (gap.current && performance.now() - gap.current < 800) { gap.current = 0; onAdd(); } }}>
         <span ref={lens} className="glens" style={{ width: geo.tw, transform: `translate3d(${geo.lefts[idx]}px,0,0)` }} aria-hidden="true" />
         {TABS.map(([v, label, Ic], i) => (
-          <button key={v} ref={(el) => { tabsRef.current[i] = el; }} className={'gtab' + (view === v ? ' on' : '')} style={{ left: geo.lefts[i], width: geo.tw }} aria-current={view === v ? 'page' : undefined} onClick={(e) => { if (e.detail === 0) go(v); }}>
+          <button key={v} ref={(el) => { tabsRef.current[i] = el; }} className={'gtab' + (view === v ? ' on' : '')} style={{ left: geo.lefts[i], width: geo.tw }} aria-current={view === v ? 'page' : undefined} onClick={(e) => { if (e.detail === 0) { if (v === view) onReselect(); else go(v); } }}>
             <span className="gic"><Ic /></span>{label}
           </button>
         ))}
@@ -199,6 +217,34 @@ export default function App() {
     closeTimer.current = window.setTimeout(() => { closeTimer.current = null; setSheet(null); setClosing(false); }, reduce ? 160 : 260);
   }, [reduce]);
   useEffect(() => () => clearClose(), []);
+
+  // Deslizar desde el borde izquierdo vuelve atrás (como en las apps del iPhone), en las pantallas sin barra.
+  const scrnRef = useRef<HTMLDivElement>(null);
+  const isTab = ['home', 'movs', 'plan', 'ana'].includes(view);
+  useEffect(() => {
+    const el = scrnRef.current; if (!el || isTab || sheet) return;
+    let st: any = null;
+    const reset = (anim: boolean) => { el.style.transition = anim ? 'transform 300ms cubic-bezier(.32,.72,0,1)' : ''; el.style.transform = ''; };
+    const ts = (e: TouchEvent) => { const t = e.touches[0]; if (e.touches.length !== 1 || t.clientX > 24) { st = null; return; } st = { x0: t.clientX, y0: t.clientY, on: false, dx: 0, v: 0, lx: t.clientX, lt: performance.now() }; };
+    const tm = (e: TouchEvent) => {
+      if (!st) return; const t = e.touches[0]; const dx = t.clientX - st.x0, dy = t.clientY - st.y0;
+      if (!st.on) { if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { st = null; return; } if (dx < 10) return; st.on = true; el.style.transition = 'none'; }
+      e.preventDefault();
+      const now = performance.now(); st.v = (t.clientX - st.lx) / Math.max(1, now - st.lt); st.lx = t.clientX; st.lt = now;
+      st.dx = Math.max(0, dx); if (!reduce) el.style.transform = `translate3d(${st.dx.toFixed(1)}px,0,0)`;
+    };
+    const te = () => {
+      const d = st; st = null; if (!d || !d.on) return;
+      if (d.dx > Math.min(120, window.innerWidth * 0.3) || d.v > 0.5) {
+        feel('tap');
+        if (!reduce) { el.style.transition = 'transform 200ms cubic-bezier(.32,.72,0,1)'; el.style.transform = 'translate3d(100%,0,0)'; setTimeout(back, 170); } else back();
+      } else reset(true);
+    };
+    el.addEventListener('touchstart', ts, { passive: true });
+    el.addEventListener('touchmove', tm, { passive: false });
+    el.addEventListener('touchend', te); el.addEventListener('touchcancel', () => { st = null; reset(true); });
+    return () => { el.removeEventListener('touchstart', ts); el.removeEventListener('touchmove', tm); el.removeEventListener('touchend', te); };
+  }, [isTab, sheet, view, back, reduce]);
 
   useEffect(() => {
     const q = new URLSearchParams(location.search);
@@ -293,8 +339,8 @@ export default function App() {
     <Provider value={ctx}>
       <div className={cls} style={vars as any} ref={phRef}>
         <Pebbles tilt={!!look.tilt && !reduce} />
-        <div className="scrn" key={view} style={{ ['--dx' as any]: dx + 'px' }}>{screen}</div>
-        {tabs && <GlassBar view={view} go={go} tilt={!!look.tilt && !reduce} onAdd={() => { feel('tap'); open('register', { accountId: sel || undefined, _drop: true }); }} />}
+        <div className="scrn" key={view} ref={scrnRef} style={{ ['--dx' as any]: dx + 'px' }}>{screen}</div>
+        {tabs && <GlassBar view={view} go={go} tilt={!!look.tilt && !reduce} onAdd={() => { feel('tap'); open('register', { accountId: sel || undefined, _drop: true }); }} onReselect={() => { const sc = document.querySelector('.scrn .scr') as HTMLElement | null; if (sc) sc.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }} />}
         <input ref={prime} className="kbprime" inputMode="decimal" aria-hidden="true" tabIndex={-1} autoComplete="off" defaultValue="" />
         <SheetHost sheet={sheet} />
         <div className="flyx" aria-hidden="true"><div className="flyp" ref={flyRef} /></div>

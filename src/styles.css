@@ -1489,3 +1489,15 @@ button.srow{width:100%;border:0;background:none;text-align:left;color:inherit;cu
 @media (prefers-reduced-motion:reduce){.w25 .liq.more{transition:none}}
 /* Wallet 27 · Filtros de Movimientos alineados con el resto (empiezan en el margen de 20px y se deslizan hasta el borde) */
 .w25 .sec.flt{margin-left:0;margin-right:0;padding-left:20px;padding-right:20px;scroll-padding-inline:20px}
+/* Wallet 27 · Barra: la pestaña bajo el dedo responde al instante; con el teclado abierto la barra se aparta. */
+.gtab.prs .gic{transform:scale(.88);transition:transform 90ms ease}
+.gtab .gic{transition:transform 200ms cubic-bezier(.23,1,.32,1)}
+.gtabs,.gdrop{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.gbar{transition:transform 260ms cubic-bezier(.32,.72,0,1),opacity 200ms ease}
+.kbup .gbar{transform:translateY(140%);opacity:0;pointer-events:none}
+.rm .gbar,.rm .gtab .gic{transition:none}
+/* Wallet 27 · Bienvenida: los botones siempre caben en pantalla (antes se salían por abajo y había que desplazar) */
+.w25 .onb.tour>*:not(.tstage){flex-shrink:0}
+.w25 .onb.tour .tstage{flex:1 1 auto;min-height:150px}
+.w25 .onb .stack{flex-shrink:0;height:auto;margin:0;overflow:visible;border-radius:0;background:none}
+@media (max-height:700px){.w25 .onb.tour .tdeck{transform:scale(.96)}.w25[class*=" ty-"] .onb h1{font-size:30px}}
